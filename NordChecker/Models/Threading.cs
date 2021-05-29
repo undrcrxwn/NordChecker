@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,7 +19,11 @@ namespace NordChecker.Models
 
         public Task Run()
         {
-            return Task.Run(() => action(ref isCanceled, payload));
+            return Task.Factory.StartNew(
+                () => action(ref isCanceled, payload),
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
         }
 
         public void Cancel()
@@ -33,9 +38,12 @@ namespace NordChecker.Models
             this.action = action;
         }
     }
-
+    
     internal class QueueThread
     {
+        //!REMOVE
+        public static int ACTIVE;
+
         private Queue<CancelableAction> actions = new Queue<CancelableAction>();
         private object locker = new object();
 
@@ -51,9 +59,18 @@ namespace NordChecker.Models
         {
             new Thread(() =>
             {
+                //!REMOVE
+                Interlocked.Increment(ref ACTIVE);
+                var watch = Stopwatch.StartNew();
+                
                 Task actionTask = action.Run();
                 if (!actionTask.Wait(Timeout))
                     action.Cancel();
+
+                //!REMOVE
+                watch.Stop();
+                Trace.WriteLine($"[LOG] ELAPSED={watch.ElapsedMilliseconds}ms");
+                Interlocked.Decrement(ref ACTIVE);
 
                 actions.Dequeue();
                 if (actions.Count > 0)
@@ -77,7 +94,6 @@ namespace NordChecker.Models
         public readonly int MaxThreadAmount;
         public readonly int Timeout;
         private List<QueueThread> threads = new List<QueueThread>();
-        private object locker = new object();
 
         public ThreadDistributor(int maxTheadAmount, int timeout)
         {

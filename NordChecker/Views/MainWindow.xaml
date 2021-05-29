@@ -10,54 +10,57 @@
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="604" Width="1000"
-        KeyboardNavigation.TabNavigation="None" MinWidth="945" MinHeight="500">
+        KeyboardNavigation.TabNavigation="None" MinWidth="954" MinHeight="500">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <vm:NumberConverter x:Key="NumberConverter"></vm:NumberConverter>
+        <vm:AccState2StringConverter x:Key="AccState2StringConverter"></vm:AccState2StringConverter>
+        <CollectionViewSource x:Key="cvsAccounts"
+                              Source="{Binding CurrentBase.Accounts}" 
+                              Filter="CollectionViewSource_Filter">
+        </CollectionViewSource>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="180"/>
+            <RowDefinition Height="140"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="130"/>
             <ColumnDefinition/>
-            <ColumnDefinition Width="352"/>
+            <ColumnDefinition Width="388"/>
             <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.RowSpan="2" Orientation="Vertical" Margin="10,10,10,0" VerticalAlignment="Top">
-            <StackPanel.Resources>
-                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonDefault}">
-                    <Setter Property="Margin" Value="0,10,0,0"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button Content="Загрузить базу" Command="{Binding LoadBaseCommand}" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch"/>
-            <Button Content="Очистить" ToolTip="Обнулить кеш загруженных аккаунтов" Height="30" HorizontalAlignment="Stretch"/>
-            <Canvas x:Name="progressCanvas" Margin="0,10,0,0" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#FFFFB900" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle="0"
-                        EndAngle="100"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{StaticResource BackgroundBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle="{Binding ArcStartAngleUnchecked}"
-                        EndAngle="{Binding ArcEndAngleUnchecked}"
-                        Visibility="{Binding ArcUncheckedVisibility}"/>
+        <Button Content="Старт" Command="{Binding LoadBaseCommand}" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10"/>
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+            <Canvas x:Name="progressCanvas" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle="{Binding ArcStartAnglePremium}"
+                        EndAngle="{Binding ArcEndAnglePremium}"
+                        Visibility="{Binding ArcPremiumVisibility}"/>
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle="{Binding ArcStartAngleFree}"
+                        EndAngle="{Binding ArcEndAngleFree}"
+                        Visibility="{Binding ArcFreeVisibility}"/>
                 <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{StaticResource DangerBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle="{Binding ArcStartAngleInvalid}"
                         EndAngle="{Binding ArcEndAngleInvalid}"
                         Visibility="{Binding ArcInvalidVisibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle="{Binding ArcStartAngleValid}"
-                        EndAngle="{Binding ArcEndAngleValid}"
-                        Visibility="{Binding ArcValidVisibility}"/>
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{StaticResource BackgroundBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle="{Binding ArcStartAngleUnchecked}"
+                        EndAngle="{Binding ArcEndAngleUnchecked}"
+                        Visibility="{Binding ArcUncheckedVisibility}"/>
                 <Grid Width="{Binding ActualWidth, ElementName=progressCanvas}"
                       Height="{Binding ActualWidth, ElementName=progressCanvas}">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding BaseLoaded}"
+                        <TextBlock Text="{Binding BaseLoaded, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
-                                   FontSize="24"/>
+                                   FontSize="24" />
                         <TextBlock Text="всего"
                                    HorizontalAlignment="Center"
                                    Margin="0,-7,0,0"/>
@@ -78,60 +81,71 @@
                         </Style>
                     </StackPanel.Resources>
                     <Border>
-                        <Grid ToolTip="Количество валидных аккаунтов класса Premium">
-                            <Rectangle Fill="Transparent"/>
+                        <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Premium" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#FFFFB900"/>
+                                <hc:SimpleText Text="Премиум" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#FF9135FF"/>
                             </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding BaseValid}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                            <hc:SimpleText Text="{Binding BasePremium, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
                     </Border>
                     <Border>
-                        <Grid ToolTip="Количество валидных аккаунтов класса Free">
-                            <Rectangle Fill="Transparent"/>
+                        <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Free" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                <hc:SimpleText Text="Бесплатных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                 <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource PrimaryBrush}"/>
                             </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding BaseValid}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                            <hc:SimpleText Text="{Binding BaseFree, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
                     </Border>
                     <Border>
-                        <Grid ToolTip="Количество невалидных аккаунтов">
-                            <Rectangle Fill="Transparent"/>
+                        <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Invalid" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                 <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource DangerBrush}"/>
                             </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding BaseInvalid}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                            <hc:SimpleText Text="{Binding BaseInvalid, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
                     </Border>
                     <Border>
-                        <Grid ToolTip="Количество аккаунтов в обработке">
-                            <Rectangle Fill="Transparent"/>
+                        <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Unchecked" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                <hc:SimpleText Text="В очереди" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                 <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource ThirdlyTextBrush}"/>
                             </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding BaseUnchecked}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                            <hc:SimpleText Text="{Binding BaseUnchecked, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
                     </Border>
                     <Border>
-                        <Grid ToolTip="Количество битых строк">
-                            <Rectangle Fill="Transparent"/>
-                            <hc:SimpleText Text="Mismatched" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                            <hc:SimpleText Text="{Binding BaseMismatched}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                        <Grid>
+                            <hc:SimpleText Text="Битых строк" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                            <hc:SimpleText Text="{Binding BaseMismatched, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-        <DataGrid x:Name="dgAccounts" Padding="4,4,4,0" RowStyle="{StaticResource DefaultRowStyle}" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="3" BorderBrush="Transparent" MinRowHeight="5" Grid.RowSpan="2" SelectionMode="Single">
+        <DataGrid x:Name="dgAccounts"
+                  Padding="4,4,4,0"
+                  RowStyle="{StaticResource DefaultRowStyle}"
+                  Grid.Column="1" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  VerticalScrollBarVisibility="Auto"
+                  Grid.ColumnSpan="3" Grid.RowSpan="2"
+                  BorderBrush="Transparent"
+                  MinRowHeight="5"
+                  SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Header="Email" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding State, UpdateSourceTrigger=PropertyChanged}" Header="Статус" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Header="Логин " IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Статус " IsReadOnly="True" SortMemberPath="State">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
             <DataGrid.Resources>
                 <Style TargetType="{x:Type Border}">
@@ -139,15 +153,14 @@
                 </Style>
             </DataGrid.Resources>
         </DataGrid>
-        <Button Content="Старт" IsEnabled="False" Height="30" HorizontalAlignment="Stretch" Grid.Column="1"/>
+        <Button Content="Пауза" IsEnabled="False" Height="30" HorizontalAlignment="Stretch" Grid.Column="1"/>
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="3">
-            <ToggleButton Content="Premium" ToolTip="Отображение валидных аккаунтов класса Premium" IsChecked="True"/>
-            <ToggleButton Content="Free" ToolTip="Отображение валидных аккаунтов класса Free" IsChecked="True"/>
-            <ToggleButton Content="Invalid" ToolTip="Отображение невалидных аккаунтов" IsChecked="True"/>
-            <ToggleButton Content="Unchecked" ToolTip="Отображение аккаунтов в обработке" IsChecked="True"/>
+            <ToggleButton Content="В очереди" IsChecked="{Binding AreUncheckedDisplayed}"/>
+            <ToggleButton Content="Невалидные" IsChecked="{Binding AreInvalidDisplayed}"/>
+            <ToggleButton Content="Бесплатные" IsChecked="{Binding AreFreeDisplayed}"/>
+            <ToggleButton Content="Премиум" IsChecked="{Binding ArePremiumDisplayed}"/>
         </hc:ButtonGroup>
-        <TextBlock Text="911_NORD_VPN-ultimate_base_by_XXX.txt" ToolTip="C://dev/test/_/C#/NordChecker/data/911_NORD_VPN-ultimate_base_by_XXX.txt" TextTrimming="CharacterEllipsis" Grid.Column="2" VerticalAlignment="Center" Margin="10,0,10,0"/>
-        <Button Grid.Column="4" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadBaseCommand}" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Grid.Column="4" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadBaseCommand}" ToolTip="Выгрузка результатов работы в отдельные файлы" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="4" Grid.Row="1" Grid.RowSpan="2">
             <StackPanel Margin="10,0,10,4">
                 <StackPanel.Resources>
@@ -210,14 +223,24 @@
                             </StackPanel>
                             <StackPanel>
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси.
+                                <TextBox ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – IP-адрес;
 &#10;– Groups[2] – порт.
 &#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
-                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на стандартные (например ; на : и другие)." IsChecked="True" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на стандартные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                             </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Автоматизация" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4,-1,4,4">
+                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                            <CheckBox Content="Визуальное уведомление" IsChecked="True" ToolTip="Показать на экране уведомление Windows с краткой статистикой по завершении обработки базы&#10;при условии, что окно приложения свёрнуто" HorizontalAlignment="Left"/>
+                            <CheckBox Content="Звуковое уведомление" IsChecked="True" ToolTip="Проиграть звуковой сигнал по завершении обработки базы" HorizontalAlignment="Left"/>
+                            <CheckBox Content="Завершение работы ПК" ToolTip="Выключить ПК по завершении обработки базы. Завершение работы ПК можно отменить через&#10;диалоговое окно, которое будет доступно в течение 15 секунд до выключения" HorizontalAlignment="Left"/>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>

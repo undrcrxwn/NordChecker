@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Taskbar;
 using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.ViewModels.Base;
@@ -6,17 +7,67 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace NordChecker.ViewModels
 {
+    [ValueConversion(typeof(int), typeof(string))]
+    public class NumberConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var nfi = (NumberFormatInfo)culture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = " ";
+            return ((int)value).ToString("#,0", nfi);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            int result;
+            if (int.TryParse(value.ToString(), NumberStyles.Any, culture, out result))
+                return result;
+            else if (int.TryParse(value.ToString(), NumberStyles.Any, culture, out result))
+                return result;
+            return value;
+        }
+    }
+
+    [ValueConversion(typeof(AccountState), typeof(string))]
+    public class AccState2StringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (AccountState)value switch
+            {
+                AccountState.Unchecked => "🕑 В очереди",
+                AccountState.Invalid => "❌ Невалидный",
+                AccountState.Free => "✔️ Бесплатный",
+                AccountState.Premium => "⭐ Премиум",
+                _ => throw new ArgumentException()
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string lowerCase = value.ToString().ToLower();
+            if (lowerCase.Contains("в очереди")) return AccountState.Unchecked;
+            if (lowerCase.Contains("невалидный")) return AccountState.Invalid;
+            if (lowerCase.Contains("бесплатный")) return AccountState.Free;
+            if (lowerCase.Contains("премиум")) return AccountState.Premium;
+            throw new ArgumentException();
+        }
+    }
+
     internal class MainWindowViewModel : ViewModel
     {
         #region Properties
@@ -37,11 +88,18 @@ namespace NordChecker.ViewModels
             set => Set(ref _BaseLoaded, value);
         }
 
-        private int _BaseValid;
-        public int BaseValid
+        private int _BasePremium;
+        public int BasePremium
         {
-            get => _BaseValid;
-            set => Set(ref _BaseValid, value);
+            get => _BasePremium;
+            set => Set(ref _BasePremium, value);
+        }
+
+        private int _BaseFree;
+        public int BaseFree
+        {
+            get => _BaseFree;
+            set => Set(ref _BaseFree, value);
         }
 
         private int _BaseInvalid;
@@ -68,44 +126,67 @@ namespace NordChecker.ViewModels
 
         #region Arc Progress
 
-        private Visibility _ArcValidVisibility = Visibility.Hidden;
-        public Visibility ArcValidVisibility
+        private Visibility _ArcPremiumVisibility = Visibility.Visible;
+        public Visibility ArcPremiumVisibility
         {
-            get => _ArcValidVisibility;
-            set => Set(ref _ArcValidVisibility, value);
+            get => _ArcPremiumVisibility;
+            set => Set(ref _ArcPremiumVisibility, value);
         }
 
-        private float _ArcStartAngleValid = 3;
-        public float ArcStartAngleValid
+        private float _ArcStartAnglePremium = 0;
+        public float ArcStartAnglePremium
         {
-            get => _ArcStartAngleValid;
-            set => Set(ref _ArcStartAngleValid, value);
+            get => _ArcStartAnglePremium;
+            set => Set(ref _ArcStartAnglePremium, value);
         }
 
-        private float _ArcEndAngleValid = 117;
-        public float ArcEndAngleValid
+        private float _ArcEndAnglePremium = 1;
+        public float ArcEndAnglePremium
         {
-            get => _ArcEndAngleValid;
-            set => Set(ref _ArcEndAngleValid, value);
+            get => _ArcEndAnglePremium;
+            set => Set(ref _ArcEndAnglePremium, value);
         }
 
 
 
-        private Visibility _ArcInvalidVisibility = Visibility.Hidden;
+        private Visibility _ArcFreeVisibility = Visibility.Visible;
+        public Visibility ArcFreeVisibility
+        {
+            get => _ArcFreeVisibility;
+            set => Set(ref _ArcFreeVisibility, value);
+        }
+
+        private float _ArcStartAngleFree = 0;
+        public float ArcStartAngleFree
+        {
+            get => _ArcStartAngleFree;
+            set => Set(ref _ArcStartAngleFree, value);
+        }
+
+        private float _ArcEndAngleFree = 1;
+        public float ArcEndAngleFree
+        {
+            get => _ArcEndAngleFree;
+            set => Set(ref _ArcEndAngleFree, value);
+        }
+
+
+
+        private Visibility _ArcInvalidVisibility = Visibility.Visible;
         public Visibility ArcInvalidVisibility
         {
             get => _ArcInvalidVisibility;
             set => Set(ref _ArcInvalidVisibility, value);
         }
 
-        private float _ArcStartAngleInvalid = 123;
+        private float _ArcStartAngleInvalid = 183;
         public float ArcStartAngleInvalid
         {
             get => _ArcStartAngleInvalid;
             set => Set(ref _ArcStartAngleInvalid, value);
         }
 
-        private float _ArcEndAngleInvalid = 237;
+        private float _ArcEndAngleInvalid = 267;
         public float ArcEndAngleInvalid
         {
             get => _ArcEndAngleInvalid;
@@ -114,14 +195,14 @@ namespace NordChecker.ViewModels
 
 
 
-        private Visibility _ArcUncheckedVisibility = Visibility.Hidden;
+        private Visibility _ArcUncheckedVisibility = Visibility.Visible;
         public Visibility ArcUncheckedVisibility
         {
             get => _ArcUncheckedVisibility;
             set => Set(ref _ArcUncheckedVisibility, value);
         }
 
-        private float _ArcStartAngleUnchecked = 243;
+        private float _ArcStartAngleUnchecked = 273;
         public float ArcStartAngleUnchecked
         {
             get => _ArcStartAngleUnchecked;
@@ -164,6 +245,38 @@ namespace NordChecker.ViewModels
             get => _CurrentBase;
             set => Set(ref _CurrentBase, value);
         }
+
+        #region Displayed Items
+
+        private bool _AreUncheckedDisplayed = true;
+        public bool AreUncheckedDisplayed
+        {
+            get => _AreUncheckedDisplayed;
+            set => Set(ref _AreUncheckedDisplayed, value);
+        }
+
+        private bool _AreInvalidDisplayed = true;
+        public bool AreInvalidDisplayed
+        {
+            get => _AreInvalidDisplayed;
+            set => Set(ref _AreInvalidDisplayed, value);
+        }
+
+        private bool _AreFreeDisplayed = true;
+        public bool AreFreeDisplayed
+        {
+            get => _AreFreeDisplayed;
+            set => Set(ref _AreFreeDisplayed, value);
+        }
+
+        private bool _ArePremiumDisplayed = true;
+        public bool ArePremiumDisplayed
+        {
+            get => _ArePremiumDisplayed;
+            set => Set(ref _ArePremiumDisplayed, value);
+        }
+
+        #endregion
 
         #endregion
 
@@ -223,7 +336,6 @@ namespace NordChecker.ViewModels
 
                 CurrentBase.Lock();
 
-                List<Task> tasks = new List<Task>();
                 StreamReader reader = new StreamReader(File.OpenRead(dlg.FileName));
 
                 Task.Run(() =>
@@ -232,17 +344,15 @@ namespace NordChecker.ViewModels
                     while ((line = reader.ReadLine()) != null)
                     {
                         string copy = line;
-                        Thread thread = new Thread(() => { ProcessLine(copy); });
-                        thread.Start();
+                        //Thread thread = new Thread(() => { ProcessLine(copy); });
+                        //thread.Start();
 
-                        //Prall Task.Run(() => ProcessLine(copy, tasks));
+                        ProcessLine(copy);
                         //Thread thread = new Thread(() => ProcessLine(copy, tasks));
                         //thread.Join();
                     }
                 });
 
-                while (!tasks.All(t => t.IsCompleted))
-                    Thread.Sleep(1000);
                 //Task.WaitAll(tasks.ToArray());
                 CurrentBase.Unlock();
             });
@@ -252,56 +362,111 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        #region UI
+
         private void UpdateStats(object sender, EventArgs e)
         {
+            Trace.WriteLine($"[LOG] MAX={distributor.MaxThreadAmount} ACTIVE={QueueThread.ACTIVE}");
+
             if (CurrentBase == null ||
                 CurrentBase.Accounts == null)
                 return;
 
             BaseLoaded = CurrentBase.Accounts.Count;
-            BaseInvalid = CurrentBase.Accounts.Count(a => a.State == AccountState.Invalid);
+            BasePremium = CurrentBase.Accounts.Count(a => a.State == AccountState.Premium);
+            BaseFree = CurrentBase.Accounts.Count(a => a.State == AccountState.Free);
             BaseUnchecked = CurrentBase.Accounts.Count(a => a.State == AccountState.Unchecked);
-            BaseValid = BaseLoaded - BaseUnchecked - BaseInvalid;
+            BaseInvalid = CurrentBase.Accounts.Count(a => a.State == AccountState.Invalid);
 
             #region Arc Progress
 
             int loaded = Math.Max(1, BaseLoaded);
-            float progressValid = ((float)BaseValid / loaded);
-            float progressInvalid = ((float)BaseInvalid / loaded);
-            float progressUnchecked = ((float)BaseUnchecked / loaded);
-            float angleValid = progressValid * 348;
-            float angleInvalid = progressInvalid * 348;
+            float progressPremium = (float)BasePremium / loaded;
+            float progressFree = (float)BaseFree / loaded;
+            float progressInvalid = (float)BaseInvalid / loaded;
+            float progressUnchecked = (float)BaseUnchecked / loaded;
 
-            ArcStartAngleValid = 3;
-            ArcEndAngleValid = ArcStartAngleValid + angleValid;
-            ArcValidVisibility = progressValid == 0
-                ? ArcValidVisibility = Visibility.Hidden
-                : Visibility.Visible;
+            int visibleArcsAmount = new List<float>() {
+                progressPremium,
+                progressFree,
+                progressInvalid,
+                progressUnchecked
+            }.Count(x => x > 0);
 
-            ArcStartAngleInvalid = ArcEndAngleValid + 6;
-            ArcEndAngleInvalid = ArcStartAngleInvalid + angleInvalid;
-            ArcInvalidVisibility = progressInvalid == 0
-                ? Visibility.Hidden
-                : Visibility.Visible;
-            if (progressValid == 0)
-                ArcStartAngleInvalid -= 6;
-
-            ArcStartAngleUnchecked = ArcEndAngleInvalid + 6;
-            ArcEndAngleUnchecked = 357;
-            ArcUncheckedVisibility = progressUnchecked == 0
-                ? Visibility.Hidden
-                : Visibility.Visible;
-            if (ArcStartAngleUnchecked >= ArcEndAngleUnchecked)
+            if (visibleArcsAmount == 0)
+            {
+                ArcPremiumVisibility = Visibility.Hidden;
+                ArcFreeVisibility = Visibility.Hidden;
+                ArcInvalidVisibility = Visibility.Hidden;
                 ArcUncheckedVisibility = Visibility.Hidden;
-            if (progressValid == 0 && progressInvalid == 0)
-                ArcStartAngleUnchecked -= 12;
+                return;
+            }
+
+            float spacing = 6;
+            float maxPossibleShare = 360 - (spacing * visibleArcsAmount);
+            if (visibleArcsAmount == 1)
+                maxPossibleShare = 360;
+
+            float pivot = spacing / -2;
+
+            if (progressPremium > 0)
+            {
+                ArcStartAnglePremium = (pivot += spacing);
+                ArcEndAnglePremium = (pivot += (maxPossibleShare * progressPremium));
+                ArcPremiumVisibility = Visibility.Visible;
+            }
+            else
+                ArcPremiumVisibility = Visibility.Hidden;
+
+            if (progressFree > 0)
+            {
+                ArcStartAngleFree = (pivot += spacing);
+                ArcEndAngleFree = (pivot += (maxPossibleShare * progressFree));
+                ArcFreeVisibility = Visibility.Visible;
+            }
+            else
+                ArcFreeVisibility = Visibility.Hidden;
+
+            if (progressInvalid > 0)
+            {
+                ArcStartAngleInvalid = (pivot += spacing);
+                ArcEndAngleInvalid = (pivot += (maxPossibleShare * progressInvalid));
+                ArcInvalidVisibility = Visibility.Visible;
+            }
+            else
+                ArcInvalidVisibility = Visibility.Hidden;
+
+            if (progressUnchecked > 0)
+            {
+                ArcStartAngleUnchecked = (pivot += spacing);
+                ArcEndAngleUnchecked = (pivot += (maxPossibleShare * progressUnchecked));
+                ArcUncheckedVisibility = Visibility.Visible;
+            }
+            else
+                ArcUncheckedVisibility = Visibility.Hidden;
+
+            Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
+
+            if (progressUnchecked > 0)
+            {
+                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 1 - progressUnchecked;
+            }
+            else
+            {
+                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
+            }
+
             #endregion
         }
+
+        #endregion
 
         public MainWindowViewModel()
         {
             DispatcherTimer uiUpdateTimer = new DispatcherTimer();
-            uiUpdateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            uiUpdateTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
             uiUpdateTimer.Tick += new EventHandler(UpdateStats);
             uiUpdateTimer.Start();
 

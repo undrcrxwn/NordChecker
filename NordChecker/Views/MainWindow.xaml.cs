@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using NordChecker.ViewModels;
+using System.Collections.Specialized;
 
 namespace NordChecker.Views
 {
@@ -43,6 +44,19 @@ namespace NordChecker.Views
             }
         }
 
+        private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
+        {
+            Task t = e.Item as Task;
+            if (t != null)
+            // If filter is turned on, filter completed items.
+            {
+                if (this.cbCompleteFilter.IsChecked == true && t.Complete == true)
+                    e.Accepted = false;
+                else
+                    e.Accepted = true;
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -54,6 +68,7 @@ namespace NordChecker.Views
 
             vm = (MainWindowViewModel)DataContext;
             dgAccounts.ItemsSource = vm.CurrentBase.Accounts;
+            dgAccounts.Items.IsLiveSorting = true;
         }
     }
 }
