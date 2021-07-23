@@ -2,10 +2,12 @@
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NordChecker.Commands;
 using NordChecker.Models;
-using NordChecker.ViewModels.Base;
+using NordChecker.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -18,9 +20,12 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using static NordChecker.ViewModels.MainWindowViewModel;
 
 namespace NordChecker.ViewModels
 {
+    #region Converters
+
     [ValueConversion(typeof(int), typeof(string))]
     public class NumberConverter : IValueConverter
     {
@@ -49,7 +54,8 @@ namespace NordChecker.ViewModels
         {
             return (AccountState)value switch
             {
-                AccountState.Unchecked => "🕑 В очереди",
+                AccountState.Unchecked => "🕒 В очереди",
+                AccountState.Reserved => "🕖 В обработке",
                 AccountState.Invalid => "❌ Невалидный",
                 AccountState.Free => "✔️ Бесплатный",
                 AccountState.Premium => "⭐ Премиум",
@@ -61,6 +67,7 @@ namespace NordChecker.ViewModels
         {
             string lowerCase = value.ToString().ToLower();
             if (lowerCase.Contains("в очереди")) return AccountState.Unchecked;
+            if (lowerCase.Contains("в обработке")) return AccountState.Reserved;
             if (lowerCase.Contains("невалидный")) return AccountState.Invalid;
             if (lowerCase.Contains("бесплатный")) return AccountState.Free;
             if (lowerCase.Contains("премиум")) return AccountState.Premium;
@@ -68,60 +75,106 @@ namespace NordChecker.ViewModels
         }
     }
 
-    internal class MainWindowViewModel : ViewModel
+    [ValueConversion(typeof(bool), typeof(Visibility))]
+    public class Boolean2VisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            CultureInfo culture) => (bool)value ? Visibility.Visible : Visibility.Collapsed;
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            CultureInfo culture) => (Visibility)value == Visibility.Visible;
+    }
+
+    [ValueConversion(typeof(bool), typeof(bool))]
+    public class InverseBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            CultureInfo culture) => !(bool)value;
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            CultureInfo culture) => !(bool)value;
+    }
+
+    #endregion
+
+    public enum PipelineState
+    {
+        Idle,
+        Paused,
+        Working
+    }
+
+    public class Arc : INotifyPropertyChangedAdvanced
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private float _StartAngle;
+        public float StartAngle
+        {
+            get => _StartAngle;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _StartAngle, value, PropertyChanged);
+        }
+
+        private float _EndAngle;
+        public float EndAngle
+        {
+            get => _EndAngle;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _EndAngle, value, PropertyChanged);
+        }
+
+
+        private Visibility _Visibility;
+
+        public Visibility Visibility
+        {
+            get => _Visibility;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Visibility, value, PropertyChanged);
+        }
+
+        public Arc(float startAngle, float endAngle, Visibility visibility)
+        {
+            StartAngle = startAngle;
+            EndAngle = endAngle;
+            Visibility = visibility;
+        }
+    }
+
+    internal class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         #region Properties
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public AppSettings Settings { get; set; } = new AppSettings();
+        public PipelineState PipelineState { get; set; } = PipelineState.Idle;
 
         private string _Title = "NordVPN Checker";
         public string Title
         {
             get => _Title;
-            set => Set(ref _Title, "NordVPN Checker" + (string.IsNullOrEmpty(value) ? "" : $" I {value}"));
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Title, value, PropertyChanged);
         }
 
-        #region Base Stats
+        #region Stats
 
-        private int _BaseLoaded;
-        public int BaseLoaded
+        private int _MismatchedCount;
+        public int MismatchedCount
         {
-            get => _BaseLoaded;
-            set => Set(ref _BaseLoaded, value);
+            get => _MismatchedCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _MismatchedCount, value, PropertyChanged);
         }
 
-        private int _BasePremium;
-        public int BasePremium
+        private int _DuplicatesCount;
+        public int DuplicatesCount
         {
-            get => _BasePremium;
-            set => Set(ref _BasePremium, value);
-        }
-
-        private int _BaseFree;
-        public int BaseFree
-        {
-            get => _BaseFree;
-            set => Set(ref _BaseFree, value);
-        }
-
-        private int _BaseInvalid;
-        public int BaseInvalid
-        {
-            get => _BaseInvalid;
-            set => Set(ref _BaseInvalid, value);
-        }
-
-        private int _BaseUnchecked;
-        public int BaseUnchecked
-        {
-            get => _BaseUnchecked;
-            set => Set(ref _BaseUnchecked, value);
-        }
-
-        private int _BaseMismatched;
-        private object _BaseMismatchedLocker = new object();
-        public int BaseMismatched
-        {
-            get => _BaseMismatched;
-            set => Set(ref _BaseMismatched, value);
+            get => _DuplicatesCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _DuplicatesCount, value, PropertyChanged);
         }
 
         #region Arc Progress
@@ -130,21 +183,24 @@ namespace NordChecker.ViewModels
         public Visibility ArcPremiumVisibility
         {
             get => _ArcPremiumVisibility;
-            set => Set(ref _ArcPremiumVisibility, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcPremiumVisibility, value, PropertyChanged);
         }
 
         private float _ArcStartAnglePremium = 0;
         public float ArcStartAnglePremium
         {
             get => _ArcStartAnglePremium;
-            set => Set(ref _ArcStartAnglePremium, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcStartAnglePremium, value, PropertyChanged);
         }
 
         private float _ArcEndAnglePremium = 1;
         public float ArcEndAnglePremium
         {
             get => _ArcEndAnglePremium;
-            set => Set(ref _ArcEndAnglePremium, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcEndAnglePremium, value, PropertyChanged);
         }
 
 
@@ -153,21 +209,24 @@ namespace NordChecker.ViewModels
         public Visibility ArcFreeVisibility
         {
             get => _ArcFreeVisibility;
-            set => Set(ref _ArcFreeVisibility, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcFreeVisibility, value, PropertyChanged);
         }
 
         private float _ArcStartAngleFree = 0;
         public float ArcStartAngleFree
         {
             get => _ArcStartAngleFree;
-            set => Set(ref _ArcStartAngleFree, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcStartAngleFree, value, PropertyChanged);
         }
 
         private float _ArcEndAngleFree = 1;
         public float ArcEndAngleFree
         {
             get => _ArcEndAngleFree;
-            set => Set(ref _ArcEndAngleFree, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcEndAngleFree, value, PropertyChanged);
         }
 
 
@@ -176,21 +235,24 @@ namespace NordChecker.ViewModels
         public Visibility ArcInvalidVisibility
         {
             get => _ArcInvalidVisibility;
-            set => Set(ref _ArcInvalidVisibility, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcInvalidVisibility, value, PropertyChanged);
         }
 
         private float _ArcStartAngleInvalid = 183;
         public float ArcStartAngleInvalid
         {
             get => _ArcStartAngleInvalid;
-            set => Set(ref _ArcStartAngleInvalid, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcStartAngleInvalid, value, PropertyChanged);
         }
 
         private float _ArcEndAngleInvalid = 267;
         public float ArcEndAngleInvalid
         {
             get => _ArcEndAngleInvalid;
-            set => Set(ref _ArcEndAngleInvalid, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcEndAngleInvalid, value, PropertyChanged);
         }
 
 
@@ -199,51 +261,37 @@ namespace NordChecker.ViewModels
         public Visibility ArcUncheckedVisibility
         {
             get => _ArcUncheckedVisibility;
-            set => Set(ref _ArcUncheckedVisibility, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcUncheckedVisibility, value, PropertyChanged);
         }
 
         private float _ArcStartAngleUnchecked = 273;
         public float ArcStartAngleUnchecked
         {
             get => _ArcStartAngleUnchecked;
-            set => Set(ref _ArcStartAngleUnchecked, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcStartAngleUnchecked, value, PropertyChanged);
         }
 
         private float _ArcEndAngleUnchecked = 357;
         public float ArcEndAngleUnchecked
         {
             get => _ArcEndAngleUnchecked;
-            set => Set(ref _ArcEndAngleUnchecked, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArcEndAngleUnchecked, value, PropertyChanged);
         }
 
         #endregion
 
         #endregion
 
-        public class Base
-        {
-            public ObservableCollection<Account> Accounts { get; set; } = new ObservableCollection<Account>();
-
-            private bool _IsReady = true;
-            public bool IsReady
-            {
-                get => _IsReady;
-                set
-                {
-                    _IsReady = value;
-                    Application.Current.Dispatcher.Invoke(() => CommandManager.InvalidateRequerySuggested());
-                }
-            }
-
-            public void Lock() => IsReady = false;
-            public void Unlock() => IsReady = true;
-        }
-
-        private Base _CurrentBase = new Base();
-        public Base CurrentBase
+        //public ComboBase CurrentBase { get; set; } = new ComboBase();
+        private ComboBase _CurrentBase = new ComboBase();
+        public ComboBase CurrentBase
         {
             get => _CurrentBase;
-            set => Set(ref _CurrentBase, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _CurrentBase, value, PropertyChanged);
         }
 
         #region Displayed Items
@@ -252,28 +300,32 @@ namespace NordChecker.ViewModels
         public bool AreUncheckedDisplayed
         {
             get => _AreUncheckedDisplayed;
-            set => Set(ref _AreUncheckedDisplayed, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreUncheckedDisplayed, value, PropertyChanged);
         }
 
         private bool _AreInvalidDisplayed = true;
         public bool AreInvalidDisplayed
         {
             get => _AreInvalidDisplayed;
-            set => Set(ref _AreInvalidDisplayed, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreInvalidDisplayed, value, PropertyChanged);
         }
 
         private bool _AreFreeDisplayed = true;
         public bool AreFreeDisplayed
         {
             get => _AreFreeDisplayed;
-            set => Set(ref _AreFreeDisplayed, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreFreeDisplayed, value, PropertyChanged);
         }
 
         private bool _ArePremiumDisplayed = true;
         public bool ArePremiumDisplayed
         {
             get => _ArePremiumDisplayed;
-            set => Set(ref _ArePremiumDisplayed, value);
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArePremiumDisplayed, value, PropertyChanged);
         }
 
         #endregion
@@ -281,7 +333,7 @@ namespace NordChecker.ViewModels
         #endregion
 
         Checker checker = new Checker();
-        ThreadDistributor distributor = new ThreadDistributor(500, 600000);
+        ThreadDistributor distributor;
 
         #region Commands
 
@@ -302,60 +354,119 @@ namespace NordChecker.ViewModels
 
         public ICommand LoadBaseCommand { get; }
 
-        private bool CanExecuteLoadBaseCommand(object parameter) => CurrentBase.IsReady;
-
-        private void ProcessLine(string line)
-        {
-            Account? account = Parser.Parse(line);
-            if (account == null)
-            {
-                lock (_BaseMismatchedLocker)
-                    BaseMismatched++;
-                return;
-            }
-
-            Application.Current.Dispatcher.Invoke(() => CurrentBase.Accounts.Add(account));
-
-            CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
-            action.OnCanceled += () => { account.State = AccountState.Invalid; };
-            distributor.Push(action);
-        }
+        private bool CanExecuteLoadBaseCommand(object parameter) => true;
 
         private void OnLoadBaseCommandExecuted(object parameter)
         {
             HandyControl.Controls.MessageBox.Show("OnLoadBaseCommandExecuted");
             Task.Run(() =>
             {
-                var dlg = new OpenFileDialog();
-                dlg.DefaultExt = ".txt";
-                dlg.Filter = "NordVPN Base|*.txt|Все файлы|*.*";
+                var dialog = new OpenFileDialog();
+                dialog.DefaultExt = ".txt";
+                dialog.Filter = "NordVPN Base|*.txt|Все файлы|*.*";
 
-                bool? result = dlg.ShowDialog();
+                bool? result = dialog.ShowDialog();
                 if (result != true)
                     return;
 
-                CurrentBase.Lock();
-
-                StreamReader reader = new StreamReader(File.OpenRead(dlg.FileName));
-
-                Task.Run(() =>
+                StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName));
+                Task.Factory.StartNew(() =>
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        string copy = line;
-                        //Thread thread = new Thread(() => { ProcessLine(copy); });
-                        //thread.Start();
+                        Account? account = Parser.Parse(line);
+                        if (account == null)
+                        {
+                            MismatchedCount++;
+                            continue;
+                        }
 
-                        ProcessLine(copy);
-                        //Thread thread = new Thread(() => ProcessLine(copy, tasks));
-                        //thread.Join();
+                        if (Settings.AreComboDuplicatesSkipped &&
+                            CurrentBase.Accounts.Any(a => a.Credentials == account.Credentials))
+                        {
+                            DuplicatesCount++;
+                            continue;
+                        }
+
+                        Application.Current.Dispatcher.Invoke(() => CurrentBase.Accounts.Add(account));
                     }
-                });
-
-                //Task.WaitAll(tasks.ToArray());
-                CurrentBase.Unlock();
+                },
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
             });
+        }
+
+        #endregion
+
+        #region StartCommand
+
+        public ICommand StartCommand { get; }
+
+        private bool CanExecuteStartCommand(object parameter) => PipelineState != PipelineState.Working;
+
+        private void OnStartCommandExecuted(object parameter)
+        {
+            HandyControl.Controls.MessageBox.Show("OnStartCommandExecuted");
+            PipelineState = PipelineState.Working;
+            new Thread(() =>
+            {
+                while (PipelineState == PipelineState.Working)
+                {
+                    List<Account> chunk = new List<Account>();
+                    lock (CurrentBase.Accounts)
+                    {
+                        chunk = CurrentBase.Accounts
+                            .Where(a => a.State == AccountState.Unchecked)
+                            .ToList().Take(5 * Settings.ThreadCount)
+                            .ToList();
+                    }
+
+                    foreach (Account account in chunk)
+                    {
+                        account.State = AccountState.Reserved;
+                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
+                        action.OnCanceled += () => account.State = AccountState.Invalid;
+                        distributor.Push(action);
+                    }
+
+                    /*
+                     for (int i = 0; i < 5 * Settings.ThreadCount; i++)
+                    {
+                        Account account = CurrentBase.Accounts.Find(a => a.State == AccountState.Unchecked);
+                        if (account == null)
+                            return;
+                        account.State = AccountState.Reserved;
+                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
+                        action.OnCanceled += () => account.State = AccountState.Invalid;
+                        distributor.Push(action);
+                    }
+
+                    while (distributor.Threads.All(t => t.Count > 0))
+                        Task.Delay(1000).Wait();
+                    Task.Delay(25).Wait();
+                     */
+
+                    while (distributor.Threads.All(t => t.Count > 0))
+                        Task.Delay(1000).Wait();
+                    Task.Delay(25).Wait();
+                }
+            }).Start();
+        }
+
+        #endregion
+
+        #region StopCommand
+
+        public ICommand StopCommand { get; }
+
+        private bool CanExecuteStopCommand(object parameter) => PipelineState == PipelineState.Working;
+
+        private void OnStopCommandExecuted(object parameter)
+        {
+            HandyControl.Controls.MessageBox.Show("OnStopCommandExecuted");
+            PipelineState = PipelineState.Paused;
         }
 
         #endregion
@@ -364,93 +475,72 @@ namespace NordChecker.ViewModels
 
         #region UI
 
+        private Dictionary<AccountState, Arc> _Arcs = new Dictionary<AccountState, Arc>()
+        {
+            { AccountState.Premium, new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Free, new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Invalid, new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Reserved, new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Unchecked, new Arc(0, 1, Visibility.Hidden) }
+        };
+
+        public Dictionary<AccountState, Arc> Arcs
+        {
+            get => _Arcs;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Arcs, value, PropertyChanged);
+        }
+
+        private Dictionary<AccountState, int> _Stats = new Dictionary<AccountState, int>();
+        public Dictionary<AccountState, int> Stats
+        {
+            get => _Stats;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Stats, value, PropertyChanged);
+        }
+
         private void UpdateStats(object sender, EventArgs e)
         {
-            Trace.WriteLine($"[LOG] MAX={distributor.MaxThreadAmount} ACTIVE={QueueThread.ACTIVE}");
-
-            if (CurrentBase == null ||
-                CurrentBase.Accounts == null)
-                return;
-
-            BaseLoaded = CurrentBase.Accounts.Count;
-            BasePremium = CurrentBase.Accounts.Count(a => a.State == AccountState.Premium);
-            BaseFree = CurrentBase.Accounts.Count(a => a.State == AccountState.Free);
-            BaseUnchecked = CurrentBase.Accounts.Count(a => a.State == AccountState.Unchecked);
-            BaseInvalid = CurrentBase.Accounts.Count(a => a.State == AccountState.Invalid);
-
             #region Arc Progress
+            Stats = CurrentBase.CalculateStats();
+            int loaded = Math.Max(1, Stats.Values.Sum());
+            Dictionary<AccountState, float> shares =
+                Stats.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
 
-            int loaded = Math.Max(1, BaseLoaded);
-            float progressPremium = (float)BasePremium / loaded;
-            float progressFree = (float)BaseFree / loaded;
-            float progressInvalid = (float)BaseInvalid / loaded;
-            float progressUnchecked = (float)BaseUnchecked / loaded;
-
-            int visibleArcsAmount = new List<float>() {
-                progressPremium,
-                progressFree,
-                progressInvalid,
-                progressUnchecked
-            }.Count(x => x > 0);
-
-            if (visibleArcsAmount == 0)
+            float margin = 6;
+            float pivot = margin / 2;
+            float maxPossibleAngle = 360 - (shares.Values.Count(v => v > 0) * margin);
+            foreach (var (state, share) in shares)
             {
-                ArcPremiumVisibility = Visibility.Hidden;
-                ArcFreeVisibility = Visibility.Hidden;
-                ArcInvalidVisibility = Visibility.Hidden;
-                ArcUncheckedVisibility = Visibility.Hidden;
-                return;
+                if (share == 0)
+                {
+                    Arcs[state].StartAngle = 0;
+                    Arcs[state].EndAngle = 0;
+                    Arcs[state].Visibility = Visibility.Hidden;
+                }
+                else if (share == 1)
+                {
+                    Arcs[state].StartAngle = 0;
+                    Arcs[state].EndAngle = 360;
+                    Arcs[state].Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Arcs[state].StartAngle = pivot;
+                    pivot += share * maxPossibleAngle;
+                    Arcs[state].EndAngle = pivot;
+                    pivot += margin;
+                    Arcs[state].Visibility = Visibility.Visible;
+                }
             }
-
-            float spacing = 6;
-            float maxPossibleShare = 360 - (spacing * visibleArcsAmount);
-            if (visibleArcsAmount == 1)
-                maxPossibleShare = 360;
-
-            float pivot = spacing / -2;
-
-            if (progressPremium > 0)
-            {
-                ArcStartAnglePremium = (pivot += spacing);
-                ArcEndAnglePremium = (pivot += (maxPossibleShare * progressPremium));
-                ArcPremiumVisibility = Visibility.Visible;
-            }
-            else
-                ArcPremiumVisibility = Visibility.Hidden;
-
-            if (progressFree > 0)
-            {
-                ArcStartAngleFree = (pivot += spacing);
-                ArcEndAngleFree = (pivot += (maxPossibleShare * progressFree));
-                ArcFreeVisibility = Visibility.Visible;
-            }
-            else
-                ArcFreeVisibility = Visibility.Hidden;
-
-            if (progressInvalid > 0)
-            {
-                ArcStartAngleInvalid = (pivot += spacing);
-                ArcEndAngleInvalid = (pivot += (maxPossibleShare * progressInvalid));
-                ArcInvalidVisibility = Visibility.Visible;
-            }
-            else
-                ArcInvalidVisibility = Visibility.Hidden;
-
-            if (progressUnchecked > 0)
-            {
-                ArcStartAngleUnchecked = (pivot += spacing);
-                ArcEndAngleUnchecked = (pivot += (maxPossibleShare * progressUnchecked));
-                ArcUncheckedVisibility = Visibility.Visible;
-            }
-            else
-                ArcUncheckedVisibility = Visibility.Hidden;
 
             Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
 
-            if (progressUnchecked > 0)
+            if (Stats[AccountState.Unchecked] + Stats[AccountState.Reserved] > 0)
             {
                 Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 1 - progressUnchecked;
+                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
+                    = 1 - shares[AccountState.Unchecked] - shares[AccountState.Reserved];
             }
             else
             {
@@ -463,33 +553,34 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+
+
+
+
+
+
+
+
         public MainWindowViewModel()
         {
-            DispatcherTimer uiUpdateTimer = new DispatcherTimer();
-            uiUpdateTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
-            uiUpdateTimer.Tick += new EventHandler(UpdateStats);
-            uiUpdateTimer.Start();
+            distributor = new ThreadDistributor(Settings.ThreadCount, 600000);
 
-            /*Task.Run(() =>
+            DispatcherTimer updateTimer = new DispatcherTimer();
+            updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            updateTimer.Tick += new EventHandler(UpdateStats);
+            updateTimer.Tick += (object sender, EventArgs e) =>
             {
-                List<Task> tasks = new List<Task>();
-
-                uint counter = 0;
-                while (true)
-                {
-                    Thread th = new Thread(() =>
-                    {
-                        Thread.Sleep(5000);
-                        counter++;
-                    });
-                    th.Start();
-
-                    Title = counter.ToString();
-                }
-            });*/
+                Trace.TraceInformation(CurrentBase.Accounts.Count.ToString());
+            };
+            //updateTimer.Tick += (object sender, EventArgs e) =>
+            //    CurrentBase.State = distributor.CountActiveThreads() > 0
+            //    ? ComboBaseState.Processing : ComboBaseState.Idle;
+            updateTimer.Start();
 
             #region Commands
 
+            StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);
+            StopCommand = new LambdaCommand(OnStopCommandExecuted, CanExecuteStopCommand);
             LoadBaseCommand = new LambdaCommand(OnLoadBaseCommandExecuted, CanExecuteLoadBaseCommand);
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
 

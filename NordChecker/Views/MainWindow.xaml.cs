@@ -21,6 +21,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using NordChecker.ViewModels;
 using System.Collections.Specialized;
+using System.Globalization;
 
 namespace NordChecker.Views
 {
@@ -44,18 +45,29 @@ namespace NordChecker.Views
             }
         }
 
-        private void CollectionViewSource_Filter(object sender, FilterEventArgs e)
+        private void UpdateFiltering()
         {
-            Task t = e.Item as Task;
-            if (t != null)
-            // If filter is turned on, filter completed items.
+            ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
+            if (cv == null) return;
+
+            Dispatcher.Invoke(() =>
             {
-                if (this.cbCompleteFilter.IsChecked == true && t.Complete == true)
-                    e.Accepted = false;
-                else
-                    e.Accepted = true;
-            }
+                cv.Filter = (acc) =>
+                {
+                    return (acc as Account).State switch
+                    {
+                        AccountState.Unchecked => vm.AreUncheckedDisplayed,
+                        AccountState.Invalid => vm.AreInvalidDisplayed,
+                        AccountState.Free => vm.AreFreeDisplayed,
+                        AccountState.Premium => vm.ArePremiumDisplayed,
+                        _ => false
+                    };
+                };
+                cv.Refresh();
+            });
         }
+
+        private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
 
         public MainWindow()
         {
@@ -67,8 +79,15 @@ namespace NordChecker.Views
                     dgAccounts.UnselectAll()));
 
             vm = (MainWindowViewModel)DataContext;
-            dgAccounts.ItemsSource = vm.CurrentBase.Accounts;
+            var _itemSourceList = new CollectionViewSource() { Source = vm.CurrentBase.Accounts };
+            ICollectionView cv = _itemSourceList.View;
+            dgAccounts.ItemsSource = cv;
             dgAccounts.Items.IsLiveSorting = true;
+
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 200);
+            timer.Tick += (object sender, EventArgs e) => UpdateFiltering();
+            timer.Start();
         }
     }
 }

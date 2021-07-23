@@ -15,16 +15,13 @@ namespace NordChecker.Models
         public void ProcessAccount(ref bool isAborted, object boxedAccount)
         {
             Account account = (Account)boxedAccount;
-            if (isAborted)
-            {
-                account.State = AccountState.Invalid;
-                return;
-            }
+            if (isAborted) return;
 
-            //Thread.Sleep(5000);
-            Thread.Sleep(new Random().Next(5000));
+            //Thread.Sleep(2000);
+            Thread.Sleep(new Random().Next(1000, 5000));
+            //account.State = AccountState.Free;
             account.State = new Random().Next(10) == 0 ? AccountState.Premium
-                : new Random().Next(5) == 0 ? AccountState.Invalid
+                : new Random().Next(2) == 0 ? AccountState.Invalid
                 : AccountState.Free;
             return;
 

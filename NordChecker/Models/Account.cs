@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NordChecker.Shared;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -8,36 +9,27 @@ namespace NordChecker.Models
 {
     internal enum AccountState
     {
-        Unchecked,
-        Invalid,
+        Premium,
         Free,
-        Premium
+        Invalid,
+        Reserved,
+        Unchecked
     }
 
-    internal class Account : INotifyPropertyChanged
+    internal class Account
     {
-        public string Email { get; }
-        public string Password { get; }
+        public AccountState State { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
         public string Token { get; set; }
         public string RenewToken { get; set; }
         public int UserId { get; set; }
         public DateTime ExpiresAt { get; set; }
 
-        private AccountState _State;
-        public AccountState State
+        public (string, string) Credentials
         {
-            get => _State;
-            set
-            {
-                _State = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => (Email, Password);
+            set => (Email, Password) = value;
         }
 
         public Account(string email, string password, AccountState state = AccountState.Unchecked)

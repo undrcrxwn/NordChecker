@@ -39,42 +39,25 @@ namespace NordChecker.Models
         }
     }
     
-    internal class QueueThread
+    internal class QueueThread : Queue<CancelableAction>
     {
-        //!REMOVE
-        public static int ACTIVE;
-
-        private Queue<CancelableAction> actions = new Queue<CancelableAction>();
         private object locker = new object();
 
         public int Timeout;
-        public int Count { get => actions.Count; }
 
-        public QueueThread(int timeout)
-        {
-            Timeout = timeout;
-        }
+        public QueueThread(int timeout) => Timeout = timeout;
 
         private void Run(CancelableAction action)
         {
             new Thread(() =>
             {
-                //!REMOVE
-                Interlocked.Increment(ref ACTIVE);
-                var watch = Stopwatch.StartNew();
-                
                 Task actionTask = action.Run();
                 if (!actionTask.Wait(Timeout))
                     action.Cancel();
 
-                //!REMOVE
-                watch.Stop();
-                Trace.WriteLine($"[LOG] ELAPSED={watch.ElapsedMilliseconds}ms");
-                Interlocked.Decrement(ref ACTIVE);
-
-                actions.Dequeue();
-                if (actions.Count > 0)
-                    Run(actions.Peek());
+                Dequeue();
+                if (Count > 0)
+                    Run(Peek());
             }).Start();
         }
 
@@ -82,8 +65,8 @@ namespace NordChecker.Models
         {
             lock (locker)
             {
-                actions.Enqueue(action);
-                if (actions.Count == 1)
+                Enqueue(action);
+                if (Count == 1)
                     Task.Run(() => Run(action));
             }
         }
@@ -91,27 +74,39 @@ namespace NordChecker.Models
 
     internal class ThreadDistributor
     {
-        public readonly int MaxThreadAmount;
+        public readonly int MaxThreadCount;
         public readonly int Timeout;
-        private List<QueueThread> threads = new List<QueueThread>();
+        public List<QueueThread> Threads = new List<QueueThread>();
 
-        public ThreadDistributor(int maxTheadAmount, int timeout)
+        public ThreadDistributor(int maxTheadCount, int timeout)
         {
-            MaxThreadAmount = maxTheadAmount;
+            MaxThreadCount = maxTheadCount;
             Timeout = timeout;
+        }
+
+        public int CountActiveThreads()
+        {
+            // Threads.Count(t => t.Count > 0);
+            int res = 0;
+            for (int x = Threads.Count - 1; x > -1; x--)
+            {
+                if (Threads[x].Count > 0)
+                    res++;
+            }
+            return res;
         }
 
         public void Push(CancelableAction action)
         {
-            if (threads.Count < MaxThreadAmount)
+            if (Threads.Count < MaxThreadCount)
             {
                 QueueThread thread = new QueueThread(Timeout);
                 thread.Push(action);
-                threads.Add(thread);
+                Threads.Add(thread);
             }
             else
             {
-                QueueThread thread = threads.OrderBy(t => t.Count).First();
+                QueueThread thread = Threads.OrderBy(t => t.Count).First();
                 thread.Push(action);
             }
         }
