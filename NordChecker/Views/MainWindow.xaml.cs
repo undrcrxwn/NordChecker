@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using NordChecker.ViewModels;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace NordChecker.Views
 {
@@ -69,10 +70,27 @@ namespace NordChecker.Views
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
 
+
+        [DllImport("Kernel32")]
+        public static extern void AllocConsole();
+
+        [DllImport("Kernel32")]
+        public static extern void FreeConsole();
+
+
         public MainWindow()
         {
             InitializeComponent();
             HideBoundingBox(this);
+
+            //AllocConsole();
+            //Console.WriteLine("test");
+            //FreeConsole();
+
+
+            int result = 23;
+            Console.WriteLine(result);
+
 
             dgAccounts.SelectionChanged += (obj, e) =>
                 Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
