@@ -11,7 +11,7 @@
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="630" Width="1050"
-        KeyboardNavigation.TabNavigation="None" MinWidth="954" MinHeight="500">
+        KeyboardNavigation.TabNavigation="None" MinWidth="976" MinHeight="600">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
@@ -30,13 +30,16 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="388"/>
+            <ColumnDefinition Width="550"/>
             <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Продолжить" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <Button Content="Старт" Command="{Binding StartCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <Button Content="Стоп" Command="{Binding StopCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{DynamicResource ButtonDanger}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        
+        <Button Content="Старт"      Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Content="Стоп"       Command="{Binding StopCommand}"     Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        
         <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+            <Button Content="12345" IsEnabled="{Binding IsPipelineWorking}"/>
             <Canvas x:Name="progressCanvas" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                 <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Premium].StartAngle}"
@@ -182,10 +185,11 @@
             </DataGrid.Resources>
         </DataGrid>
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
-            <ToggleButton Content="В очереди" IsChecked="{Binding AreUncheckedDisplayed}" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton Content="Невалидные" IsChecked="{Binding AreInvalidDisplayed}" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton Content="Бесплатные" IsChecked="{Binding AreFreeDisplayed}" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton Content="Премиум" IsChecked="{Binding ArePremiumDisplayed}" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton x:Name="btnAreUncheckedDisplayed" Content="В очереди"   IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton x:Name="btnAreReservedDisplayed"  Content="В обработке" IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton x:Name="btnAreInvalidDisplayed"   Content="Невалидные"  IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton x:Name="btnAreFreeDisplayed"      Content="Бесплатные"  IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton x:Name="btnArePremiumDisplayed"   Content="Премиум"     IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
         </hc:ButtonGroup>
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadBaseCommand}" ToolTip="Выгрузка результатов работы в отдельные файлы" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
@@ -212,12 +216,13 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Content="Загрузить" Command="{Binding LoadBaseCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" Grid.RowSpan="2"/>
+                                    <Button Content="Очистить" Command="{Binding ClearComboCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
                             <StackPanel>
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
+                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
+                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – почтовый адрес;
@@ -248,12 +253,13 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Content="Загрузить" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" Grid.RowSpan="2"/>
+                                    <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
                             <StackPanel>
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси
+                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
+                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – IP-адрес;
@@ -291,9 +297,9 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Потоки" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                <hc:NumericUpDown Value="{Binding Settings.ThreadCount}" Minimum="1" Maximum="5000" Grid.Column="2" Increment="50"/>
+                                <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding Settings.ThreadCount}" Minimum="1" Maximum="5000" Grid.Column="2" Increment="50"/>
                                 <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="4"/>
-                                <hc:NumericUpDown Value="15" Minimum="5" Maximum="30" Grid.Row="4" Grid.Column="2" Increment="5"/>
+                                <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="15" Minimum="5" Maximum="30" Grid.Row="4" Grid.Column="2" Increment="5"/>
                             </Grid>
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Поверх всех окон" HorizontalAlignment="Left"/>

@@ -23,6 +23,7 @@ using NordChecker.ViewModels;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace NordChecker.Views
 {
@@ -48,24 +49,40 @@ namespace NordChecker.Views
 
         private void UpdateFiltering()
         {
+            if (vm == null) return;
+            Console.WriteLine(DateTime.Now + " filtering updated");
+            (
+                vm.VisibilityFilters[AccountState.Unchecked],
+                vm.VisibilityFilters[AccountState.Reserved],
+                vm.VisibilityFilters[AccountState.Invalid],
+                vm.VisibilityFilters[AccountState.Free],
+                vm.VisibilityFilters[AccountState.Premium]
+            ) = (
+                btnAreUncheckedDisplayed.IsChecked ?? false,
+                btnAreReservedDisplayed.IsChecked ?? false,
+                btnAreInvalidDisplayed.IsChecked ?? false,
+                btnAreFreeDisplayed.IsChecked ?? false,
+                btnArePremiumDisplayed.IsChecked ?? false
+            );
+            foreach (AccountState accountState in Enum.GetValues(typeof(AccountState)))
+                Console.WriteLine($"{accountState}     \t{vm.VisibilityFilters[accountState]}");
+
+            ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
+            Dispatcher.Invoke(() =>
+            {
+                cv.Filter = (acc) => vm.VisibilityFilters[(acc as Account).State];
+                cv.Refresh();
+            });
+
+            /*
             ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
             if (cv == null) return;
 
             Dispatcher.Invoke(() =>
             {
-                cv.Filter = (acc) =>
-                {
-                    return (acc as Account).State switch
-                    {
-                        AccountState.Unchecked => vm.AreUncheckedDisplayed,
-                        AccountState.Invalid => vm.AreInvalidDisplayed,
-                        AccountState.Free => vm.AreFreeDisplayed,
-                        AccountState.Premium => vm.ArePremiumDisplayed,
-                        _ => false
-                    };
-                };
+                cv.Filter = (acc) => vm.VisibilityFilters[(acc as Account).State].VisibilityState ?? false;
                 cv.Refresh();
-            });
+            });*/
         }
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
@@ -83,8 +100,8 @@ namespace NordChecker.Views
             InitializeComponent();
             HideBoundingBox(this);
 
-            //AllocConsole();
-            //Console.WriteLine("test");
+            AllocConsole();
+            Console.WriteLine("test");
             //FreeConsole();
 
 
@@ -102,10 +119,18 @@ namespace NordChecker.Views
             dgAccounts.ItemsSource = cv;
             dgAccounts.Items.IsLiveSorting = true;
 
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 200);
-            timer.Tick += (object sender, EventArgs e) => UpdateFiltering();
-            timer.Start();
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    var filter = cv.Filter;
+                    Dispatcher.BeginInvoke(() => cv.Filter = filter);
+
+                    //dgAccounts.ItemsSource = cv;
+
+                    Thread.Sleep(500);
+                }
+            }).Start();
         }
     }
 }

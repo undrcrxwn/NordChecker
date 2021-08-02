@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -138,7 +139,7 @@ namespace NordChecker.ViewModels
         public Arc(float startAngle, float endAngle, Visibility visibility)
         {
             StartAngle = startAngle;
-            EndAngle = endAngle;
+            EndAngle   = endAngle;
             Visibility = visibility;
         }
     }
@@ -149,8 +150,33 @@ namespace NordChecker.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public ThreadMasterToken masterToken = new ThreadMasterToken();
+
         public AppSettings Settings { get; set; } = new AppSettings();
-        public PipelineState PipelineState { get; set; } = PipelineState.Idle;
+
+
+
+        public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
+        public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
+        public bool IsPipelineWorking { get => PipelineState == PipelineState.Working; }
+
+        private PipelineState _PipelineState = PipelineState.Idle;
+        public PipelineState PipelineState
+        {
+            get => _PipelineState;
+            set
+            {
+                INotifyPropertyChangedAdvanced inst = this;
+                inst.Set(ref _PipelineState, value, PropertyChanged);
+                Console.WriteLine("PIPELINE STATE: " + value);
+                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineIdle));
+                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelinePaused));
+                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineWorking));
+                UpdateStats();
+            }
+        }
+
+        static string GetMemberName<T>(Expression<Func<T>> expr) => (expr.Body as MemberExpression).Member.Name;
 
         private string _Title = "NordVPN Checker";
         public string Title
@@ -178,112 +204,6 @@ namespace NordChecker.ViewModels
                 .Set(ref _DuplicatesCount, value, PropertyChanged);
         }
 
-        #region Arc Progress
-
-        private Visibility _ArcPremiumVisibility = Visibility.Visible;
-        public Visibility ArcPremiumVisibility
-        {
-            get => _ArcPremiumVisibility;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcPremiumVisibility, value, PropertyChanged);
-        }
-
-        private float _ArcStartAnglePremium = 0;
-        public float ArcStartAnglePremium
-        {
-            get => _ArcStartAnglePremium;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcStartAnglePremium, value, PropertyChanged);
-        }
-
-        private float _ArcEndAnglePremium = 1;
-        public float ArcEndAnglePremium
-        {
-            get => _ArcEndAnglePremium;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcEndAnglePremium, value, PropertyChanged);
-        }
-
-
-
-        private Visibility _ArcFreeVisibility = Visibility.Visible;
-        public Visibility ArcFreeVisibility
-        {
-            get => _ArcFreeVisibility;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcFreeVisibility, value, PropertyChanged);
-        }
-
-        private float _ArcStartAngleFree = 0;
-        public float ArcStartAngleFree
-        {
-            get => _ArcStartAngleFree;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcStartAngleFree, value, PropertyChanged);
-        }
-
-        private float _ArcEndAngleFree = 1;
-        public float ArcEndAngleFree
-        {
-            get => _ArcEndAngleFree;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcEndAngleFree, value, PropertyChanged);
-        }
-
-
-
-        private Visibility _ArcInvalidVisibility = Visibility.Visible;
-        public Visibility ArcInvalidVisibility
-        {
-            get => _ArcInvalidVisibility;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcInvalidVisibility, value, PropertyChanged);
-        }
-
-        private float _ArcStartAngleInvalid = 183;
-        public float ArcStartAngleInvalid
-        {
-            get => _ArcStartAngleInvalid;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcStartAngleInvalid, value, PropertyChanged);
-        }
-
-        private float _ArcEndAngleInvalid = 267;
-        public float ArcEndAngleInvalid
-        {
-            get => _ArcEndAngleInvalid;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcEndAngleInvalid, value, PropertyChanged);
-        }
-
-
-
-        private Visibility _ArcUncheckedVisibility = Visibility.Visible;
-        public Visibility ArcUncheckedVisibility
-        {
-            get => _ArcUncheckedVisibility;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcUncheckedVisibility, value, PropertyChanged);
-        }
-
-        private float _ArcStartAngleUnchecked = 273;
-        public float ArcStartAngleUnchecked
-        {
-            get => _ArcStartAngleUnchecked;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcStartAngleUnchecked, value, PropertyChanged);
-        }
-
-        private float _ArcEndAngleUnchecked = 357;
-        public float ArcEndAngleUnchecked
-        {
-            get => _ArcEndAngleUnchecked;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArcEndAngleUnchecked, value, PropertyChanged);
-        }
-
-        #endregion
-
         #endregion
 
         //public ComboBase CurrentBase { get; set; } = new ComboBase();
@@ -295,58 +215,117 @@ namespace NordChecker.ViewModels
                 .Set(ref _CurrentBase, value, PropertyChanged);
         }
 
-        #region Displayed Items
-
-        private bool _AreUncheckedDisplayed = true;
-        public bool AreUncheckedDisplayed
-        {
-            get => _AreUncheckedDisplayed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreUncheckedDisplayed, value, PropertyChanged);
-        }
-
-        private bool _AreInvalidDisplayed = true;
-        public bool AreInvalidDisplayed
-        {
-            get => _AreInvalidDisplayed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreInvalidDisplayed, value, PropertyChanged);
-        }
-
-        private bool _AreFreeDisplayed = true;
-        public bool AreFreeDisplayed
-        {
-            get => _AreFreeDisplayed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreFreeDisplayed, value, PropertyChanged);
-        }
-
-        private bool _ArePremiumDisplayed = true;
-        public bool ArePremiumDisplayed
-        {
-            get => _ArePremiumDisplayed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ArePremiumDisplayed, value, PropertyChanged);
-        }
-
         #endregion
-
-        #endregion
-
-        Checker checker = new Checker();
-        ThreadDistributor distributor;
 
         #region Commands
 
-        #region ContactAuthorCommand
+        #region StartCommand
 
-        public ICommand ContactAuthorCommand { get; }
+        public ICommand StartCommand { get; }
 
-        private bool CanExecuteContactAuthorCommand(object parameter) => true;
+        private bool CanExecuteStartCommand(object parameter) => PipelineState != PipelineState.Working;
 
-        private void OnContactAuthorCommandExecuted(object parameter)
+        private void OnStartCommandExecuted(object parameter)
         {
-            Process.Start("https://t.me/undrcrxwn");
+            Console.WriteLine("OnStartCommandExecuted");
+
+            PipelineState = PipelineState.Working;
+            masterToken = new ThreadMasterToken();
+            new Thread(() =>
+            {
+                Checker checker = new Checker(Settings.TimeoutInSeconds * 1000);
+                ThreadDistributor<Account> distributor = new ThreadDistributor<Account>(
+                    Settings.ThreadCount,
+                    CurrentBase.Accounts,
+                    (acc) =>
+                    {
+                        if (acc.State == AccountState.Unchecked)
+                        {
+                            acc.State = AccountState.Reserved;
+                            return true;
+                        }
+                        return false;
+                    },
+                    checker.ProcessAccount,
+                    masterToken);
+
+                return;
+
+
+
+                /*
+
+                while (PipelineState == PipelineState.Working)
+                {
+                    List<Account> chunk = new List<Account>();
+                    lock (CurrentBase.Accounts)
+                    {
+                        chunk = CurrentBase.Accounts
+                            .Where(a => a.State == AccountState.Unchecked)
+                            .ToList().Take(5 * Settings.ThreadCount)
+                            .ToList();
+                    }
+
+                    foreach (Account account in chunk)
+                    {
+                        account.State = AccountState.Reserved;
+                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
+                        action.OnCanceled += () => account.State = AccountState.Invalid;
+                        distributor.Push(action);
+                    }*/
+
+                /*
+                 for (int i = 0; i < 5 * Settings.ThreadCount; i++)
+                {
+                    Account account = CurrentBase.Accounts.Find(a => a.State == AccountState.Unchecked);
+                    if (account == null)
+                        return;
+                    account.State = AccountState.Reserved;
+                    CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
+                    action.OnCanceled += () => account.State = AccountState.Invalid;
+                    distributor.Push(action);
+                }
+
+                while (distributor.Threads.All(t => t.Count > 0))
+                    Task.Delay(1000).Wait();
+                Task.Delay(25).Wait();
+                 */
+
+                /*while (distributor.Threads.All(t => t.Count > 0))
+                    Task.Delay(1000).Wait();
+                Task.Delay(25).Wait();
+            }*/
+            }).Start();
+        }
+
+        #endregion
+
+        #region StopCommand
+
+        public ICommand StopCommand { get; }
+
+        private bool CanExecuteStopCommand(object parameter) => PipelineState == PipelineState.Working;
+
+        private void OnStopCommandExecuted(object parameter)
+        {
+            Console.WriteLine("OnStopCommandExecuted");
+            PipelineState = PipelineState.Paused;
+            masterToken.Pause();
+        }
+
+        #endregion
+
+        #region ContinueCommand
+
+        public ICommand ContinueCommand { get; }
+
+        private bool CanExecuteContinueCommand(object parameter) => PipelineState == PipelineState.Paused;
+
+        private void OnContinueCommandExecuted(object parameter)
+        {
+            Console.WriteLine("OnContinueCommandExecuted");
+            PipelineState = PipelineState.Working;
+            masterToken.Continue();
         }
 
         #endregion
@@ -359,7 +338,8 @@ namespace NordChecker.ViewModels
 
         private void OnLoadBaseCommandExecuted(object parameter)
         {
-            HandyControl.Controls.MessageBox.Show("OnLoadBaseCommandExecuted");
+            Console.WriteLine("OnLoadBaseCommandExecuted");
+
             Task.Run(() =>
             {
                 var dialog = new OpenFileDialog();
@@ -401,73 +381,28 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region StartCommand
+        #region ClearComboCommand
 
-        public ICommand StartCommand { get; }
+        public ICommand ClearComboCommand { get; }
 
-        private bool CanExecuteStartCommand(object parameter) => PipelineState != PipelineState.Working;
+        private bool CanExecuteClearComboCommand(object parameter) => PipelineState != PipelineState.Working;
 
-        private void OnStartCommandExecuted(object parameter)
+        private void OnClearComboCommandExecuted(object parameter)
         {
-            HandyControl.Controls.MessageBox.Show("OnStartCommandExecuted");
-            PipelineState = PipelineState.Working;
-            new Thread(() =>
-            {
-                while (PipelineState == PipelineState.Working)
-                {
-                    List<Account> chunk = new List<Account>();
-                    lock (CurrentBase.Accounts)
-                    {
-                        chunk = CurrentBase.Accounts
-                            .Where(a => a.State == AccountState.Unchecked)
-                            .ToList().Take(5 * Settings.ThreadCount)
-                            .ToList();
-                    }
-
-                    foreach (Account account in chunk)
-                    {
-                        account.State = AccountState.Reserved;
-                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
-                        action.OnCanceled += () => account.State = AccountState.Invalid;
-                        distributor.Push(action);
-                    }
-
-                    /*
-                     for (int i = 0; i < 5 * Settings.ThreadCount; i++)
-                    {
-                        Account account = CurrentBase.Accounts.Find(a => a.State == AccountState.Unchecked);
-                        if (account == null)
-                            return;
-                        account.State = AccountState.Reserved;
-                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
-                        action.OnCanceled += () => account.State = AccountState.Invalid;
-                        distributor.Push(action);
-                    }
-
-                    while (distributor.Threads.All(t => t.Count > 0))
-                        Task.Delay(1000).Wait();
-                    Task.Delay(25).Wait();
-                     */
-
-                    while (distributor.Threads.All(t => t.Count > 0))
-                        Task.Delay(1000).Wait();
-                    Task.Delay(25).Wait();
-                }
-            }).Start();
+            Console.WriteLine("OnClearComboCommandExecuted");
         }
 
         #endregion
 
-        #region StopCommand
+        #region ContactAuthorCommand
 
-        public ICommand StopCommand { get; }
+        public ICommand ContactAuthorCommand { get; }
 
-        private bool CanExecuteStopCommand(object parameter) => PipelineState == PipelineState.Working;
+        private bool CanExecuteContactAuthorCommand(object parameter) => true;
 
-        private void OnStopCommandExecuted(object parameter)
+        private void OnContactAuthorCommandExecuted(object parameter)
         {
-            HandyControl.Controls.MessageBox.Show("OnStopCommandExecuted");
-            PipelineState = PipelineState.Paused;
+            Process.Start("https://t.me/undrcrxwn");
         }
 
         #endregion
@@ -476,12 +411,28 @@ namespace NordChecker.ViewModels
 
         #region UI
 
+        private Dictionary<AccountState, bool> _VisibilityFilters = new Dictionary<AccountState, bool>()
+        {
+            { AccountState.Premium,   true },
+            { AccountState.Free,      true },
+            { AccountState.Invalid,   true },
+            { AccountState.Reserved,  true },
+            { AccountState.Unchecked, true }
+        };
+
+        public Dictionary<AccountState, bool> VisibilityFilters
+        {
+            get => _VisibilityFilters;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _VisibilityFilters, value, PropertyChanged);
+        }
+
         private Dictionary<AccountState, Arc> _Arcs = new Dictionary<AccountState, Arc>()
         {
-            { AccountState.Premium, new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Free, new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Invalid, new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Reserved, new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Premium,   new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Free,      new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Invalid,   new Arc(0, 1, Visibility.Hidden) },
+            { AccountState.Reserved,  new Arc(0, 1, Visibility.Hidden) },
             { AccountState.Unchecked, new Arc(0, 1, Visibility.Hidden) }
         };
 
@@ -500,9 +451,10 @@ namespace NordChecker.ViewModels
                 .Set(ref _Stats, value, PropertyChanged);
         }
 
-        private void UpdateStats(object sender, EventArgs e)
+        private void UpdateStats()
         {
             #region Arc Progress
+
             Stats = CurrentBase.CalculateStats();
             int loaded = Math.Max(1, Stats.Values.Sum());
             Dictionary<AccountState, float> shares =
@@ -535,6 +487,8 @@ namespace NordChecker.ViewModels
                 }
             }
 
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+                return;
             Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
 
             if (Stats[AccountState.Unchecked] + Stats[AccountState.Reserved] > 0)
@@ -562,28 +516,26 @@ namespace NordChecker.ViewModels
 
         public MainWindowViewModel()
         {
-            distributor = new ThreadDistributor(Settings.ThreadCount, 600000);
-
-            DispatcherTimer updateTimer = new DispatcherTimer();
-            updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-            updateTimer.Tick += new EventHandler(UpdateStats);
-            updateTimer.Tick += (object sender, EventArgs e) =>
-            {
-                Trace.TraceInformation(CurrentBase.Accounts.Count.ToString());
-            };
-            //updateTimer.Tick += (object sender, EventArgs e) =>
-            //    CurrentBase.State = distributor.CountActiveThreads() > 0
-            //    ? ComboBaseState.Processing : ComboBaseState.Idle;
-            updateTimer.Start();
-
             #region Commands
 
             StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);
             StopCommand = new LambdaCommand(OnStopCommandExecuted, CanExecuteStopCommand);
+            ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
+
             LoadBaseCommand = new LambdaCommand(OnLoadBaseCommandExecuted, CanExecuteLoadBaseCommand);
+            ClearComboCommand = new LambdaCommand(OnClearComboCommandExecuted, CanExecuteClearComboCommand);
+
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
 
             #endregion
+
+            DispatcherTimer updateTimer = new DispatcherTimer();
+            updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            updateTimer.Tick += (object sender, EventArgs e) => UpdateStats();
+            //updateTimer.Tick += (object sender, EventArgs e) =>
+            //    CurrentBase.State = distributor.CountActiveThreads() > 0
+            //    ? ComboBaseState.Processing : ComboBaseState.Idle;
+            updateTimer.Start();
         }
     }
 }

@@ -16,9 +16,20 @@ namespace NordChecker.Models
         Unchecked
     }
 
-    internal class Account
+    internal class Account : INotifyPropertyChangedAdvanced
     {
-        public AccountState State { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        //public AccountState State { get; set; }
+        private AccountState _State;
+        public AccountState State
+        {
+            get => _State;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _State, value, PropertyChanged);
+        }
+
+
         public string Email { get; set; }
         public string Password { get; set; }
         public string Token { get; set; }
