@@ -43,54 +43,68 @@ namespace NordChecker.Models
 
     class ThreadDistributor<TPayload>
     {
-        private int threadCount;
-        private ObservableCollection<TPayload> targets;
-        private object locker = new object();
+        private ObservableCollection<TPayload> payloads;
         private Func<TPayload, bool> predicate;
         private Action<TPayload, ThreadMasterToken> handler;
         private ThreadMasterToken token;
+        private object locker = new object();
         public event Action OnTaskCompleted;
+
+        private int _ThreadCount;
+        public int ThreadCount
+        {
+            get => _ThreadCount;
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException();
+
+                int delta = value - _ThreadCount;
+                _ThreadCount = value;
+
+                // if delta is positive
+                for (var i = 0; i < delta; i++)
+                    Distribute();
+
+                // if delta is negative
+                for (var i = 0; i > delta; i--)
+                    payloads.CollectionChanged -= OnCollectionChanged;
+            }
+        }
 
         public ThreadDistributor(
             int threadCount,
-            ObservableCollection<TPayload> targets,
+            ObservableCollection<TPayload> payloads,
             Func<TPayload, bool> predicate,
             Action<TPayload, ThreadMasterToken> handler,
             ThreadMasterToken token)
         {
-            this.threadCount = threadCount;
-            this.targets = targets;
+            this.payloads = payloads;
             this.predicate = predicate;
             this.handler = handler;
             this.token = token;
-
             OnTaskCompleted += Distribute;
-            for (int i = 0; i < threadCount; i++)
-                Distribute();
+            ThreadCount = threadCount;
         }
 
         public void Distribute()
         {
             Task.Factory.StartNew(() =>
             {
-                Interlocked.Decrement(ref threadCount);
+            Console.WriteLine(DateTime.Now + " DESTRIBUTE");
                 token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
-                lock (locker)
+                try
                 {
-                    try
-                    {
-                        payload = targets.First(predicate);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("not found");
-                        targets.CollectionChanged +=
-                            (object sender, NotifyCollectionChangedEventArgs e) => Distribute();
-                        Console.WriteLine("new distribute");
-                        return;
-                    }
+                    lock (locker)
+                        payload = payloads.First(predicate);
+                }
+                catch
+                {
+                    payloads.CollectionChanged += OnCollectionChanged;
+                    Console.WriteLine(DateTime.Now + " new subscription" + payloads.Count);
+                    return;
                 }
 
                 try
@@ -103,6 +117,15 @@ namespace NordChecker.Models
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
+        }
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            payloads.CollectionChanged -= OnCollectionChanged;
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                Console.WriteLine(DateTime.Now + " subscribtion acquired" + payloads.Count);
+                Distribute();
+            }
         }
     }
 }

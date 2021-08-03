@@ -86,7 +86,7 @@ namespace NordChecker.ViewModels
         public object ConvertBack(object value, Type targetType, object parameter,
             CultureInfo culture) => (Visibility)value == Visibility.Visible;
     }
-
+    
     [ValueConversion(typeof(bool), typeof(bool))]
     public class InverseBooleanConverter : IValueConverter
     {
@@ -217,6 +217,9 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        private ThreadDistributor<Account> distributor;
+        Checker checker = new Checker(7 * 1000);
+
         #region Commands
 
         #region StartCommand
@@ -233,8 +236,7 @@ namespace NordChecker.ViewModels
             masterToken = new ThreadMasterToken();
             new Thread(() =>
             {
-                Checker checker = new Checker(Settings.TimeoutInSeconds * 1000);
-                ThreadDistributor<Account> distributor = new ThreadDistributor<Account>(
+                distributor = new ThreadDistributor<Account>(
                     Settings.ThreadCount,
                     CurrentBase.Accounts,
                     (acc) =>
@@ -249,52 +251,6 @@ namespace NordChecker.ViewModels
                     checker.ProcessAccount,
                     masterToken);
 
-                return;
-
-
-
-                /*
-
-                while (PipelineState == PipelineState.Working)
-                {
-                    List<Account> chunk = new List<Account>();
-                    lock (CurrentBase.Accounts)
-                    {
-                        chunk = CurrentBase.Accounts
-                            .Where(a => a.State == AccountState.Unchecked)
-                            .ToList().Take(5 * Settings.ThreadCount)
-                            .ToList();
-                    }
-
-                    foreach (Account account in chunk)
-                    {
-                        account.State = AccountState.Reserved;
-                        CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
-                        action.OnCanceled += () => account.State = AccountState.Invalid;
-                        distributor.Push(action);
-                    }*/
-
-                /*
-                 for (int i = 0; i < 5 * Settings.ThreadCount; i++)
-                {
-                    Account account = CurrentBase.Accounts.Find(a => a.State == AccountState.Unchecked);
-                    if (account == null)
-                        return;
-                    account.State = AccountState.Reserved;
-                    CancelableAction action = new CancelableAction(checker.ProcessAccount, account);
-                    action.OnCanceled += () => account.State = AccountState.Invalid;
-                    distributor.Push(action);
-                }
-
-                while (distributor.Threads.All(t => t.Count > 0))
-                    Task.Delay(1000).Wait();
-                Task.Delay(25).Wait();
-                 */
-
-                /*while (distributor.Threads.All(t => t.Count > 0))
-                    Task.Delay(1000).Wait();
-                Task.Delay(25).Wait();
-            }*/
             }).Start();
         }
 
@@ -536,6 +492,8 @@ namespace NordChecker.ViewModels
             //    CurrentBase.State = distributor.CountActiveThreads() > 0
             //    ? ComboBaseState.Processing : ComboBaseState.Idle;
             updateTimer.Start();
+
+
         }
     }
 }
