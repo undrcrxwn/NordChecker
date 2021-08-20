@@ -91,7 +91,7 @@ namespace NordChecker.Models
         {
             Task.Factory.StartNew(() =>
             {
-            Console.WriteLine(DateTime.Now + " DESTRIBUTE");
+                Console.WriteLine(DateTime.Now + " DISTRIBUTE");
                 token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
@@ -103,7 +103,7 @@ namespace NordChecker.Models
                 catch
                 {
                     payloads.CollectionChanged += OnCollectionChanged;
-                    Console.WriteLine(DateTime.Now + " new subscription" + payloads.Count);
+                    Console.WriteLine(DateTime.Now + " new subscription " + payloads.Count);
                     return;
                 }
 
@@ -118,6 +118,7 @@ namespace NordChecker.Models
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
         }
+
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             payloads.CollectionChanged -= OnCollectionChanged;

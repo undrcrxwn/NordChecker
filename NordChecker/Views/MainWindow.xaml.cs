@@ -114,7 +114,7 @@ namespace NordChecker.Views
                     dgAccounts.UnselectAll()));
 
             vm = (MainWindowViewModel)DataContext;
-            var _itemSourceList = new CollectionViewSource() { Source = vm.CurrentBase.Accounts };
+            var _itemSourceList = new CollectionViewSource() { Source = vm.ComboBase.Accounts };
             ICollectionView cv = _itemSourceList.View;
             dgAccounts.ItemsSource = cv;
             dgAccounts.Items.IsLiveSorting = true;

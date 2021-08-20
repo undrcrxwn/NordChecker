@@ -206,13 +206,12 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        //public ComboBase CurrentBase { get; set; } = new ComboBase();
-        private ComboBase _CurrentBase = new ComboBase();
-        public ComboBase CurrentBase
+        private ComboBase _ComboBase = new ComboBase();
+        public ComboBase ComboBase
         {
-            get => _CurrentBase;
+            get => _ComboBase;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _CurrentBase, value, PropertyChanged);
+                .Set(ref _ComboBase, value, PropertyChanged);
         }
 
         #endregion
@@ -238,7 +237,7 @@ namespace NordChecker.ViewModels
             {
                 distributor = new ThreadDistributor<Account>(
                     Settings.ThreadCount,
-                    CurrentBase.Accounts,
+                    ComboBase.Accounts,
                     (acc) =>
                     {
                         if (acc.State == AccountState.Unchecked)
@@ -256,13 +255,13 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region StopCommand
+        #region PauseCommand
 
-        public ICommand StopCommand { get; }
+        public ICommand PauseCommand { get; }
 
-        private bool CanExecuteStopCommand(object parameter) => PipelineState == PipelineState.Working;
+        private bool CanExecutePauseCommand(object parameter) => PipelineState == PipelineState.Working;
 
-        private void OnStopCommandExecuted(object parameter)
+        private void OnPauseCommandExecuted(object parameter)
         {
             Console.WriteLine("OnStopCommandExecuted");
             PipelineState = PipelineState.Paused;
@@ -320,13 +319,13 @@ namespace NordChecker.ViewModels
                         }
 
                         if (Settings.AreComboDuplicatesSkipped &&
-                            CurrentBase.Accounts.Any(a => a.Credentials == account.Credentials))
+                            ComboBase.Accounts.Any(a => a.Credentials == account.Credentials))
                         {
                             DuplicatesCount++;
                             continue;
                         }
 
-                        Application.Current.Dispatcher.Invoke(() => CurrentBase.Accounts.Add(account));
+                        Application.Current.Dispatcher.Invoke(() => ComboBase.Accounts.Add(account));
                     }
                 },
                 CancellationToken.None,
@@ -411,7 +410,7 @@ namespace NordChecker.ViewModels
         {
             #region Arc Progress
 
-            Stats = CurrentBase.CalculateStats();
+            Stats = ComboBase.CalculateStats();
             int loaded = Math.Max(1, Stats.Values.Sum());
             Dictionary<AccountState, float> shares =
                 Stats.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
@@ -475,7 +474,7 @@ namespace NordChecker.ViewModels
             #region Commands
 
             StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);
-            StopCommand = new LambdaCommand(OnStopCommandExecuted, CanExecuteStopCommand);
+            PauseCommand = new LambdaCommand(OnPauseCommandExecuted, CanExecutePauseCommand);
             ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
 
             LoadBaseCommand = new LambdaCommand(OnLoadBaseCommandExecuted, CanExecuteLoadBaseCommand);
@@ -489,7 +488,7 @@ namespace NordChecker.ViewModels
             updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             updateTimer.Tick += (object sender, EventArgs e) => UpdateStats();
             //updateTimer.Tick += (object sender, EventArgs e) =>
-            //    CurrentBase.State = distributor.CountActiveThreads() > 0
+            //    ComboBase.State = distributor.CountActiveThreads() > 0
             //    ? ComboBaseState.Processing : ComboBaseState.Idle;
             updateTimer.Start();
 

@@ -34,12 +34,11 @@
             <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
         
-        <Button Content="Старт"      Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <Button Content="Стоп"       Command="{Binding StopCommand}"     Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Content="Начать"     Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        
+
         <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
-            <Button Content="12345" IsEnabled="{Binding IsPipelineWorking}"/>
             <Canvas x:Name="progressCanvas" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                 <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Premium].StartAngle}"
@@ -64,7 +63,7 @@
                 <Grid Width="{Binding ActualWidth, ElementName=progressCanvas}"
                       Height="{Binding ActualWidth, ElementName=progressCanvas}">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding CurrentBase.Accounts.Count, Converter={StaticResource NumberConverter}}"
+                        <TextBlock Text="{Binding ComboBase.Accounts.Count, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"/>
@@ -159,9 +158,9 @@
                   MinRowHeight="5"
                   SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Header="Логин " IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True"/>
-                <DataGridTemplateColumn Header="Статус " IsReadOnly="True" SortMemberPath="State">
+                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Header="Логин " IsReadOnly="True" CanUserSort="False"/>
+                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
+                <DataGridTemplateColumn Header="Статус " SortMemberPath="State" IsReadOnly="True" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
