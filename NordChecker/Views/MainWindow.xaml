@@ -303,7 +303,7 @@
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Поверх всех окон" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Сворачивать в трей" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Показывать логи" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Показывать логи" IsChecked="{Binding IsConsoleVisible}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
                             <StackPanel Margin="2,0,0,2">
                                 <TextBlock Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>

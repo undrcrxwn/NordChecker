@@ -3,6 +3,8 @@ using Microsoft.WindowsAPICodePack.Taskbar;
 using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
+using NordChecker.Views;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -155,7 +157,6 @@ namespace NordChecker.ViewModels
         public AppSettings Settings { get; set; } = new AppSettings();
 
 
-
         public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
         public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
         public bool IsPipelineWorking { get => PipelineState == PipelineState.Working; }
@@ -168,7 +169,7 @@ namespace NordChecker.ViewModels
             {
                 INotifyPropertyChangedAdvanced inst = this;
                 inst.Set(ref _PipelineState, value, PropertyChanged);
-                Console.WriteLine("PIPELINE STATE: " + value);
+                Log.Information("PIPELINE STATE: " + value);
                 inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineIdle));
                 inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelinePaused));
                 inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineWorking));
@@ -184,6 +185,41 @@ namespace NordChecker.ViewModels
             get => _Title;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Title, value, PropertyChanged);
+        }
+
+        private bool _IsConsoleVisible;
+        public bool IsConsoleVisible
+        {
+            get => _IsConsoleVisible;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsConsoleVisible, value, PropertyChanged);
+
+                if (value)
+                {
+                    ConsoleWindow console = new ConsoleWindow();
+                    console.Owner = Application.Current.MainWindow;
+                    console.Closed += (object sender, EventArgs e) =>
+                    {
+                        _IsConsoleVisible = false;
+                        (this as INotifyPropertyChangedAdvanced)
+                        .OnPropertyChanged(PropertyChanged, "IsConsoleVisible");
+                    };
+                    console.Show();
+                    Log.Logger = new LoggerBuilder()
+                        .AddFileOutput()
+                        .AddRichTextBox(console.rtbConsoleOutput)
+                        .Build();
+                }
+                else
+                {
+                    Application.Current.Windows.OfType<ConsoleWindow>().First().Close();
+                    Log.Logger = new LoggerBuilder()
+                        .AddFileOutput()
+                        .Build();
+                }
+            }
         }
 
         #region Stats
@@ -229,7 +265,7 @@ namespace NordChecker.ViewModels
 
         private void OnStartCommandExecuted(object parameter)
         {
-            Console.WriteLine("OnStartCommandExecuted");
+            Log.Information("OnStartCommandExecuted");
 
             PipelineState = PipelineState.Working;
             masterToken = new ThreadMasterToken();
@@ -250,7 +286,7 @@ namespace NordChecker.ViewModels
                     checker.ProcessAccount,
                     masterToken);
 
-            }).Start();
+            }) { IsBackground = true }.Start();
         }
 
         #endregion
@@ -263,7 +299,7 @@ namespace NordChecker.ViewModels
 
         private void OnPauseCommandExecuted(object parameter)
         {
-            Console.WriteLine("OnStopCommandExecuted");
+            Log.Information("OnStopCommandExecuted");
             PipelineState = PipelineState.Paused;
             masterToken.Pause();
         }
@@ -278,7 +314,7 @@ namespace NordChecker.ViewModels
 
         private void OnContinueCommandExecuted(object parameter)
         {
-            Console.WriteLine("OnContinueCommandExecuted");
+            Log.Information("OnContinueCommandExecuted");
             PipelineState = PipelineState.Working;
             masterToken.Continue();
         }
@@ -293,8 +329,7 @@ namespace NordChecker.ViewModels
 
         private void OnLoadBaseCommandExecuted(object parameter)
         {
-            Console.WriteLine("OnLoadBaseCommandExecuted");
-
+            Log.Information("OnLoadBaseCommandExecuted");
             Task.Run(() =>
             {
                 var dialog = new OpenFileDialog();
@@ -344,7 +379,7 @@ namespace NordChecker.ViewModels
 
         private void OnClearComboCommandExecuted(object parameter)
         {
-            Console.WriteLine("OnClearComboCommandExecuted");
+            Log.Information("OnClearComboCommandExecuted");
         }
 
         #endregion

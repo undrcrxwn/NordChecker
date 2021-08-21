@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -91,7 +92,7 @@ namespace NordChecker.Models
         {
             Task.Factory.StartNew(() =>
             {
-                Console.WriteLine(DateTime.Now + " DISTRIBUTE");
+                Log.Verbose("DISTRIBUTE");
                 token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
@@ -103,7 +104,7 @@ namespace NordChecker.Models
                 catch
                 {
                     payloads.CollectionChanged += OnCollectionChanged;
-                    Console.WriteLine(DateTime.Now + " new subscription " + payloads.Count);
+                    Log.Verbose("New subscription " + payloads.Count);
                     return;
                 }
 
@@ -124,7 +125,7 @@ namespace NordChecker.Models
             payloads.CollectionChanged -= OnCollectionChanged;
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Console.WriteLine(DateTime.Now + " subscribtion acquired" + payloads.Count);
+                Log.Verbose("Subscribtion acquired " + payloads.Count);
                 Distribute();
             }
         }

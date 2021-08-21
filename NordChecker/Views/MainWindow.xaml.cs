@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Serilog;
 
 namespace NordChecker.Views
 {
@@ -50,7 +51,7 @@ namespace NordChecker.Views
         private void UpdateFiltering()
         {
             if (vm == null) return;
-            Console.WriteLine(DateTime.Now + " filtering updated");
+            Log.Information(DateTime.Now + " filtering updated");
             (
                 vm.VisibilityFilters[AccountState.Unchecked],
                 vm.VisibilityFilters[AccountState.Reserved],
@@ -65,7 +66,7 @@ namespace NordChecker.Views
                 btnArePremiumDisplayed.IsChecked ?? false
             );
             foreach (AccountState accountState in Enum.GetValues(typeof(AccountState)))
-                Console.WriteLine($"{accountState}     \t{vm.VisibilityFilters[accountState]}");
+                Log.Information($"{accountState}     \t{vm.VisibilityFilters[accountState]}");
 
             ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
@@ -87,27 +88,10 @@ namespace NordChecker.Views
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
 
-
-        [DllImport("Kernel32")]
-        public static extern void AllocConsole();
-
-        [DllImport("Kernel32")]
-        public static extern void FreeConsole();
-
-
         public MainWindow()
         {
             InitializeComponent();
             HideBoundingBox(this);
-
-            AllocConsole();
-            Console.WriteLine("test");
-            //FreeConsole();
-
-
-            int result = 23;
-            Console.WriteLine(result);
-
 
             dgAccounts.SelectionChanged += (obj, e) =>
                 Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
@@ -130,7 +114,7 @@ namespace NordChecker.Views
 
                     Thread.Sleep(500);
                 }
-            }).Start();
+            }){ IsBackground = true }.Start();
         }
     }
 }

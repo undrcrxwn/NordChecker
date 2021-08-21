@@ -154,5 +154,8 @@ namespace NordChecker.Models
             account.State = AccountState.Premium;
             return;*/
         }
+
+        private static string Base64Encode(string input) =>
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
     }
 }
