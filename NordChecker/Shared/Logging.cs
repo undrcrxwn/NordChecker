@@ -44,27 +44,6 @@ namespace NordChecker.Shared
         }
     }
 
-    class RichTextBoxSink : ILogEventSink
-    {
-        private RichTextBox control;
-        private readonly ITextFormatter textFormatter;
-        public ConcurrentQueue<string> Events { get; } = new ConcurrentQueue<string>();
-
-        public RichTextBoxSink(RichTextBox control, string outputTemplate, The,)
-        {
-            this.control = control;
-            textFormatter = new MessageTemplateTextFormatter(outputTemplate);
-        }
-
-        public void Emit(LogEvent logEvent)
-        {
-            if (logEvent == null) throw new ArgumentNullException(nameof(logEvent));
-            TextWriter writer = new StringWriter();
-            textFormatter.Format(logEvent, writer);
-            control.AppendText(writer.ToString());
-        }
-    }
-
     public class LoggerBuilder
     {
         private static AnsiConsoleTheme consoleTheme { get; } = new AnsiConsoleTheme(

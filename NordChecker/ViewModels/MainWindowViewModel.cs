@@ -88,7 +88,7 @@ namespace NordChecker.ViewModels
         public object ConvertBack(object value, Type targetType, object parameter,
             CultureInfo culture) => (Visibility)value == Visibility.Visible;
     }
-    
+
     [ValueConversion(typeof(bool), typeof(bool))]
     public class InverseBooleanConverter : IValueConverter
     {
@@ -141,7 +141,7 @@ namespace NordChecker.ViewModels
         public Arc(float startAngle, float endAngle, Visibility visibility)
         {
             StartAngle = startAngle;
-            EndAngle   = endAngle;
+            EndAngle = endAngle;
             Visibility = visibility;
         }
     }
@@ -198,27 +198,32 @@ namespace NordChecker.ViewModels
 
                 if (value)
                 {
-                    ConsoleWindow console = new ConsoleWindow();
-                    console.Owner = Application.Current.MainWindow;
-                    console.Closed += (object sender, EventArgs e) =>
-                    {
-                        _IsConsoleVisible = false;
-                        (this as INotifyPropertyChangedAdvanced)
-                        .OnPropertyChanged(PropertyChanged, "IsConsoleVisible");
-                    };
-                    console.Show();
+                    Utils.ShowConsole();
                     Log.Logger = new LoggerBuilder()
                         .AddFileOutput()
-                        .AddRichTextBox(console.rtbConsoleOutput)
+                        .AddConsole()
                         .Build();
                 }
                 else
                 {
-                    Application.Current.Windows.OfType<ConsoleWindow>().First().Close();
+                    Utils.HideConsole();
                     Log.Logger = new LoggerBuilder()
                         .AddFileOutput()
                         .Build();
                 }
+
+                Console.Write("CONSOLE LOGGING HAS BEEN ");
+                if (value)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("ENABLED");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("DISABLED");
+                }
+                Console.ResetColor();
             }
         }
 
@@ -286,7 +291,8 @@ namespace NordChecker.ViewModels
                     checker.ProcessAccount,
                     masterToken);
 
-            }) { IsBackground = true }.Start();
+            })
+            { IsBackground = true }.Start();
         }
 
         #endregion

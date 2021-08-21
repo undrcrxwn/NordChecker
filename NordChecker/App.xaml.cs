@@ -20,18 +20,15 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
-        [DllImport("Kernel32")]
-        public static extern void AllocConsole();
-
-        [DllImport("Kernel32")]
-        public static extern void FreeConsole();
-
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            Utils.AllocConsole();
+            Utils.HideConsole();
             Log.Logger = new LoggerBuilder()
-                .AddFileOutput()
-                .Build();
+                 .AddFileOutput()
+                 .Build();
 
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
@@ -46,7 +43,7 @@ namespace NordChecker
             base.OnExit(e);
             Log.Information("Exiting with exit code {@code}\n", e.ApplicationExitCode);
             Log.CloseAndFlush();
-            FreeConsole();
+            Utils.FreeConsole();
         }
     }
 }
