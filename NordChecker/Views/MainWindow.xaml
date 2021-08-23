@@ -41,7 +41,7 @@
             <ColumnDefinition Width="550"/>
             <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
-        
+
         <Button Content="Начать"     Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
@@ -154,7 +154,7 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-        
+
         <DataGrid x:Name="dgAccounts"
                   Padding="4,4,4,0"
                   RowStyle="{StaticResource DefaultRowStyle}"
@@ -196,7 +196,7 @@
             <TextBlock Text="Лицензия действительна до 28.08.2021 13:52" TextAlignment="Center"/>
             <TextBlock Text="Тикет e07fc1f90ae7" TextAlignment="Center"/>
         </StackPanel>
-        
+
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
             <ToggleButton x:Name="btnAreUncheckedDisplayed" Content="В очереди"   IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
             <ToggleButton x:Name="btnAreReservedDisplayed"  Content="В обработке" IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
@@ -342,6 +342,17 @@
                                     </Hyperlink>
                                 </TextBlock>
                             </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Конфигурация" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
+                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" HorizontalAlignment="Stretch">
+                                <CheckBox Content="Автосохранение параметров" HorizontalAlignment="Left"/>
+                                <Button Content="Восстановить начальные параметры" Width="230"/>
+                            </hc:UniformSpacingPanel>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>

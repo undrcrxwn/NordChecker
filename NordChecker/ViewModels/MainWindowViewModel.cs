@@ -317,7 +317,7 @@ namespace NordChecker.ViewModels
 
         public ICommand LoadCombosCommand { get; }
 
-        private bool CanExecuteCombosCommand(object parameter) => true;
+        private bool CanExecuteLoadCombosCommand(object parameter) => true;
 
         private void OnLoadCombosCommandExecuted(object parameter)
         {
@@ -362,13 +362,13 @@ namespace NordChecker.ViewModels
                                 cache.Any(a => a.Credentials == account.Credentials))
                             {
                                 DuplicatesCount++;
-                                Log.Debug("Account {account} has been skipped as duplicate", account);
+                                Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
                                 continue;
                             }
                         }
 
                         cache.Add(account);
-                        Log.Verbose("Account {account} has been added to the cache", account);
+                        Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
                     }
 
                     watch.Stop();
@@ -564,7 +564,7 @@ namespace NordChecker.ViewModels
             PauseCommand = new LambdaCommand(OnPauseCommandExecuted, CanExecutePauseCommand);
             ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
 
-            LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteCombosCommand);
+            LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteLoadCombosCommand);
             ClearComboCommand = new LambdaCommand(OnClearComboCommandExecuted, CanExecuteClearComboCommand);
 
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);

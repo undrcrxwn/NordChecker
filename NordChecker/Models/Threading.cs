@@ -49,7 +49,9 @@ namespace NordChecker.Models
         private Func<TPayload, bool> predicate;
         private Action<TPayload, ThreadMasterToken> handler;
         private ThreadMasterToken token;
-        private object locker = new object();
+        private int superfluousDistributonsCount;
+        private object abortionLocker = new object();
+        private object payloadsLocker = new object();
         public event Action OnTaskCompleted;
 
         private int _ThreadCount;
@@ -72,8 +74,8 @@ namespace NordChecker.Models
                     Distribute();
 
                 // if delta is negative
-                for (var i = 0; i > delta; i--)
-                    payloads.CollectionChanged -= OnCollectionChanged;
+                if (delta < 0)
+                    superfluousDistributonsCount -= delta;
             }
         }
 
@@ -96,13 +98,23 @@ namespace NordChecker.Models
         {
             Task.Factory.StartNew(() =>
             {
+                lock (abortionLocker)
+                {
+                    if (superfluousDistributonsCount > 0)
+                    {
+                        Log.Debug("New distribution");
+                        superfluousDistributonsCount--;
+                        return;
+                    }
+                }
+
                 Log.Debug("New distribution");
                 token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
                 try
                 {
-                    lock (locker)
+                    lock (payloadsLocker)
                         payload = payloads.First(predicate);
                 }
                 catch
@@ -126,9 +138,9 @@ namespace NordChecker.Models
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            payloads.CollectionChanged -= OnCollectionChanged;
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
+                payloads.CollectionChanged -= OnCollectionChanged;
                 Log.Debug("Subscribtion acquired");
                 Distribute();
             }
