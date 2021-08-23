@@ -11,14 +11,12 @@ namespace NordChecker.Models
 {
     internal class Parser
     {
-        public static string CredentialsMask = @"\W*(^\w+(?:[-+.']\w+|-)*@\w+(?:[-.]\w+)*\.\w+(?:[-.]\w+)*):(\w+)\W*$";
-
-        public static Account? Parse(string credentials)
+        public static Account? Parse(string credentials, string regexMask = @"\W*(^\w+(?:[-+.']\w+|-)*@\w+(?:[-.]\w+)*\.\w+(?:[-.]\w+)*):(\w+)\W*$")
         {
-            Match match = Regex.Match(credentials, CredentialsMask);
+            Match match = Regex.Match(credentials, regexMask);
             if (match.Success)
                 return new Account(match.Groups[1].Value, match.Groups[2].Value);
-            return null;
+            throw new InvalidOperationException();
         }
     }
 }

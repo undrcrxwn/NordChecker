@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using NordChecker.Shared;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -58,10 +59,13 @@ namespace NordChecker.Models
             set
             {
                 if (value < 0)
-                    throw new ArgumentException();
+                    throw new ArgumentOutOfRangeException();
 
                 int delta = value - _ThreadCount;
                 _ThreadCount = value;
+
+                Log.Information("Distributor's {property} has been set to {value} with {delta} delta",
+                    Utils.GetMemberName(() => ThreadCount), value, delta);
 
                 // if delta is positive
                 for (var i = 0; i < delta; i++)
@@ -92,7 +96,7 @@ namespace NordChecker.Models
         {
             Task.Factory.StartNew(() =>
             {
-                Log.Verbose("DISTRIBUTE");
+                Log.Debug("New distribution");
                 token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
@@ -104,7 +108,7 @@ namespace NordChecker.Models
                 catch
                 {
                     payloads.CollectionChanged += OnCollectionChanged;
-                    Log.Verbose("New subscription " + payloads.Count);
+                    Log.Debug("New subscription");
                     return;
                 }
 
@@ -125,7 +129,7 @@ namespace NordChecker.Models
             payloads.CollectionChanged -= OnCollectionChanged;
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Log.Verbose("Subscribtion acquired " + payloads.Count);
+                Log.Debug("Subscribtion acquired");
                 Distribute();
             }
         }

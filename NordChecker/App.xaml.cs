@@ -1,5 +1,7 @@
-﻿using NordChecker.Shared;
+﻿using NordChecker.Models;
+using NordChecker.Shared;
 using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,8 +12,10 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace NordChecker
 {
@@ -20,15 +24,31 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
+        public AppSettings Settings { get; set; } = new AppSettings();
+        public static ILogger FileLogger;
+        public static ILogger ConsoleLogger;
+        public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
             Utils.AllocConsole();
-            Utils.HideConsole();
-            Log.Logger = new LoggerBuilder()
-                 .AddFileOutput()
-                 .Build();
+            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
+            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
+            Log.Logger = FileLogger;
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+                LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            DispatcherUnhandledException += (sender, e) =>
+                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+
+            TaskScheduler.UnobservedTaskException += (sender, e) =>
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+
+            Settings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
+            Settings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
 
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
@@ -36,6 +56,11 @@ namespace NordChecker
                 assembly.GetName().Name,
                 assembly.GetName().Version,
                 configuration.ToLower());
+        }
+
+        private void LogUnhandledException(Exception exception, string type)
+        {
+            Log.Fatal(exception, "Unhandled {event}", type);
         }
 
         protected override void OnExit(ExitEventArgs e)

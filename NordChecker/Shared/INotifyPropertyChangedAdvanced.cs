@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Serilog;
+using Serilog.Events;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -15,11 +17,12 @@ namespace NordChecker.Shared
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public virtual bool Set<T>(ref T field, T value, PropertyChangedEventHandler handler, [CallerMemberName] string propertyName = null)
+        public virtual bool Set<T>(ref T field, T value, PropertyChangedEventHandler handler, LogEventLevel logEventLevel = LogEventLevel.Verbose, [CallerMemberName] string propertyName = null)
         {
-            if (Equals(field, value))
+            if (field != null && value != null && field.Equals(value))
                 return false;
             field = value;
+            Log.Write(logEventLevel, "{caller} has been set to {state}", propertyName, value);
             OnPropertyChanged(handler, propertyName);
             return true;
         }

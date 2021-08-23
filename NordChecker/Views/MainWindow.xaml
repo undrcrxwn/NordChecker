@@ -5,6 +5,8 @@
         xmlns:vm="clr-namespace:NordChecker.ViewModels"
         xmlns:m="clr-namespace:NordChecker.Models"
         xmlns:local="clr-namespace:NordChecker"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:events="clr-namespace:Serilog.Events;assembly=Serilog"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         x:Class="NordChecker.Views.MainWindow"
@@ -20,6 +22,12 @@
         <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>
         <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
         <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+
+        <ObjectDataProvider x:Key="logEventLevelEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="events:LogEventLevel"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -63,7 +71,7 @@
                 <Grid Width="{Binding ActualWidth, ElementName=progressCanvas}"
                       Height="{Binding ActualWidth, ElementName=progressCanvas}">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding ComboBase.Accounts.Count, Converter={StaticResource NumberConverter}}"
+                        <TextBlock Text="{Binding LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"/>
@@ -146,19 +154,21 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
+        
         <DataGrid x:Name="dgAccounts"
                   Padding="4,4,4,0"
                   RowStyle="{StaticResource DefaultRowStyle}"
                   Grid.Column="1" Grid.Row="1"
+                  Grid.ColumnSpan="2" Grid.RowSpan="2"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   VerticalScrollBarVisibility="Auto"
-                  Grid.ColumnSpan="2" Grid.RowSpan="2"
                   BorderBrush="Transparent"
+                  Background="#f8f8f8"
                   MinRowHeight="5"
                   SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Header="Логин " IsReadOnly="True" CanUserSort="False"/>
+                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин "  IsReadOnly="True" CanUserSort="False"/>
                 <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
                 <DataGridTemplateColumn Header="Статус " SortMemberPath="State" IsReadOnly="True" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
@@ -170,19 +180,23 @@
             </DataGrid.Columns>
             <DataGrid.Resources>
                 <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="5 5 0 0"/>
-                </Style>
-                <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle}">
-                    <Setter Property="ContextMenu">
-                        <Setter.Value>
-                            <ContextMenu>
-                                <MenuItem Header="Click Me" />
-                            </ContextMenu>
-                        </Setter.Value>
-                    </Setter>
+                    <Setter Property="CornerRadius" Value="5,5,0,0"/>
                 </Style>
             </DataGrid.Resources>
         </DataGrid>
+
+        <StackPanel Grid.Column="1" Grid.Row="1"
+                    Grid.ColumnSpan="2" Grid.RowSpan="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0,0,0,20"
+                    Visibility="{Binding IsGreetingVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <emoji:TextBlock Text="{Binding GreetingTitle}" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
+            <TextBlock Text="NordVPN Checker" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" TextAlignment="Center"/>
+            <TextBlock Text="Лицензия действительна до 28.08.2021 13:52" TextAlignment="Center"/>
+            <TextBlock Text="Тикет e07fc1f90ae7" TextAlignment="Center"/>
+        </StackPanel>
+        
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
             <ToggleButton x:Name="btnAreUncheckedDisplayed" Content="В очереди"   IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
             <ToggleButton x:Name="btnAreReservedDisplayed"  Content="В обработке" IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
@@ -190,7 +204,7 @@
             <ToggleButton x:Name="btnAreFreeDisplayed"      Content="Бесплатные"  IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
             <ToggleButton x:Name="btnArePremiumDisplayed"   Content="Премиум"     IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
         </hc:ButtonGroup>
-        <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadBaseCommand}" ToolTip="Выгрузка результатов работы в отдельные файлы" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadCombosCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
             <StackPanel Margin="10,0,10,4">
                 <StackPanel.Resources>
@@ -214,11 +228,11 @@
                                         <ColumnDefinition Width="4"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Content="Загрузить" Command="{Binding LoadBaseCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                                    <Button Content="Загрузить" Command="{Binding LoadCombosCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
                                     <Button Content="Очистить" Command="{Binding ClearComboCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,5" Visibility="{Binding Settings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
                                 <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
                                          ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
@@ -228,7 +242,7 @@
 &#10;– Groups[2] – пароль.
 &#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
                             </StackPanel>
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-10,0,0">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding Settings.AreComboDuplicatesSkipped}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
@@ -255,21 +269,23 @@
                                     <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,5" Visibility="{Binding Settings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
                                 <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
-                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси
+                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси.
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – IP-адрес;
 &#10;– Groups[2] – порт.
 &#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
-                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                             </StackPanel>
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
+                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
+                            </hc:UniformSpacingPanel>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Автоматизация" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                <Expander Header="Автоматизация" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4,-1,4,4">
                             <TextBlock Height="0" Margin="0,0,1000,0"/>
@@ -279,7 +295,7 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Параметры" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
                             <TextBlock Height="0" Margin="0,0,1000,0"/>
@@ -303,9 +319,22 @@
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Поверх всех окон" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Сворачивать в трей" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Показывать логи" IsChecked="{Binding IsConsoleVisible}" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Режим разработчика" IsChecked="{Binding Settings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Показывать логи" IsChecked="{Binding Settings.IsConsoleLoggingEnabled}" Visibility="{Binding Settings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
-                            <StackPanel Margin="2,0,0,2">
+                            <Grid Margin="0,0,0,10" Visibility="{Binding Settings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="LogEventLevel" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                <hc:ComboBox ItemsSource="{Binding Source={StaticResource logEventLevelEnumValues}}" SelectedValue="{Binding Settings.LogEventLevel}" Grid.Column="2"/>
+                            </Grid>
+                            <StackPanel Margin="2,-10,0,2">
                                 <TextBlock Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>
                                 <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
                                     <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">

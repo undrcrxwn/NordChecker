@@ -44,6 +44,18 @@ namespace NordChecker.Shared
         }
     }
 
+    public static class LoggerExtensions
+    {        
+        public static ILogger Merge(this ILogger target, ILogger logger)
+        {
+            return new LoggerConfiguration()
+                .MinimumLevel.ControlledBy(App.LogLevelSwitch)
+                .WriteTo.Logger(target)
+                .WriteTo.Logger(logger)
+                .CreateLogger();
+        }
+    }
+
     public class LoggerBuilder
     {
         private static AnsiConsoleTheme consoleTheme { get; } = new AnsiConsoleTheme(
@@ -77,15 +89,21 @@ namespace NordChecker.Shared
                 .Enrich.With<ThreadIconEnricher>()
                 .Enrich.With<ThreadIdEnricher>();
 
-        public LoggerBuilder AddConsole()
+        public LoggerBuilder SetLevelSwitch(LoggingLevelSwitch levelSwitch)
         {
-            configuration.WriteTo.Console(LogEventLevel.Information, outputTemplate: consoleOutputFormat, theme: consoleTheme);
+            configuration.MinimumLevel.ControlledBy(levelSwitch);
             return this;
         }
 
-        public LoggerBuilder AddFileOutput()
+        public LoggerBuilder AddConsole()
         {
-            configuration.WriteTo.File("logs/.log", LogEventLevel.Information, rollingInterval: RollingInterval.Day, outputTemplate: fileOutputFormat);
+            configuration.WriteTo.Console(outputTemplate: consoleOutputFormat, theme: consoleTheme);
+            return this;
+        }
+
+        public LoggerBuilder AddFile()
+        {
+            configuration.WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day, outputTemplate: fileOutputFormat);
             return this;
         }
 

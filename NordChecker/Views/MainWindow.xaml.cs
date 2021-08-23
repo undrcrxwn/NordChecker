@@ -51,7 +51,6 @@ namespace NordChecker.Views
         private void UpdateFiltering()
         {
             if (vm == null) return;
-            Log.Information(DateTime.Now + " filtering updated");
             (
                 vm.VisibilityFilters[AccountState.Unchecked],
                 vm.VisibilityFilters[AccountState.Reserved],
@@ -65,8 +64,7 @@ namespace NordChecker.Views
                 btnAreFreeDisplayed.IsChecked ?? false,
                 btnArePremiumDisplayed.IsChecked ?? false
             );
-            foreach (AccountState accountState in Enum.GetValues(typeof(AccountState)))
-                Log.Information($"{accountState}     \t{vm.VisibilityFilters[accountState]}");
+            Log.Information("DataGrid filters have been updated: {filters}", vm.VisibilityFilters);
 
             ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
@@ -74,16 +72,7 @@ namespace NordChecker.Views
                 cv.Filter = (acc) => vm.VisibilityFilters[(acc as Account).State];
                 cv.Refresh();
             });
-
-            /*
-            ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
-            if (cv == null) return;
-
-            Dispatcher.Invoke(() =>
-            {
-                cv.Filter = (acc) => vm.VisibilityFilters[(acc as Account).State].VisibilityState ?? false;
-                cv.Refresh();
-            });*/
+            Log.Information("New DataGrid filters have been applied");
         }
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();

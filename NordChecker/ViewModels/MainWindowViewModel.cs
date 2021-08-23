@@ -5,6 +5,7 @@ using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
 using Serilog;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Management;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -152,10 +155,9 @@ namespace NordChecker.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ThreadMasterToken masterToken = new ThreadMasterToken();
+        public AppSettings Settings => (Application.Current as App).Settings;
 
-        public AppSettings Settings { get; set; } = new AppSettings();
-
+        private ThreadMasterToken masterToken = new ThreadMasterToken();
 
         public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
         public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
@@ -168,16 +170,13 @@ namespace NordChecker.ViewModels
             set
             {
                 INotifyPropertyChangedAdvanced inst = this;
-                inst.Set(ref _PipelineState, value, PropertyChanged);
-                Log.Information("PIPELINE STATE: " + value);
-                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineIdle));
-                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelinePaused));
-                inst.OnPropertyChanged(PropertyChanged, GetMemberName(() => IsPipelineWorking));
+                inst.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
+                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineIdle));
+                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelinePaused));
+                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineWorking));
                 UpdateStats();
             }
         }
-
-        static string GetMemberName<T>(Expression<Func<T>> expr) => (expr.Body as MemberExpression).Member.Name;
 
         private string _Title = "NordVPN Checker";
         public string Title
@@ -187,47 +186,34 @@ namespace NordChecker.ViewModels
                 .Set(ref _Title, value, PropertyChanged);
         }
 
-        private bool _IsConsoleVisible;
-        public bool IsConsoleVisible
+        public string _GreetingTitle;
+        public string GreetingTitle
         {
-            get => _IsConsoleVisible;
+            get => _GreetingTitle;
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsConsoleVisible, value, PropertyChanged);
-
-                if (value)
-                {
-                    Utils.ShowConsole();
-                    Log.Logger = new LoggerBuilder()
-                        .AddFileOutput()
-                        .AddConsole()
-                        .Build();
-                }
-                else
-                {
-                    Utils.HideConsole();
-                    Log.Logger = new LoggerBuilder()
-                        .AddFileOutput()
-                        .Build();
-                }
-
-                Console.Write("CONSOLE LOGGING HAS BEEN ");
-                if (value)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("ENABLED");
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("DISABLED");
-                }
-                Console.ResetColor();
+                .Set(ref _GreetingTitle, value, PropertyChanged);
             }
         }
 
+        private bool _IsGreetingVisible = true;
+        public bool IsGreetingVisible
+        {
+            get => _IsGreetingVisible;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsGreetingVisible, value, PropertyChanged);
+        }
+
         #region Stats
+
+        private int _LoadedCount;
+        public int LoadedCount
+        {
+            get => _LoadedCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _LoadedCount, value, PropertyChanged);
+        }
 
         private int _MismatchedCount;
         public int MismatchedCount
@@ -290,7 +276,6 @@ namespace NordChecker.ViewModels
                     },
                     checker.ProcessAccount,
                     masterToken);
-
             })
             { IsBackground = true }.Start();
         }
@@ -306,6 +291,7 @@ namespace NordChecker.ViewModels
         private void OnPauseCommandExecuted(object parameter)
         {
             Log.Information("OnStopCommandExecuted");
+
             PipelineState = PipelineState.Paused;
             masterToken.Pause();
         }
@@ -327,15 +313,16 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region LoadBaseCommand
+        #region LoadCombosCommand
 
-        public ICommand LoadBaseCommand { get; }
+        public ICommand LoadCombosCommand { get; }
 
-        private bool CanExecuteLoadBaseCommand(object parameter) => true;
+        private bool CanExecuteCombosCommand(object parameter) => true;
 
-        private void OnLoadBaseCommandExecuted(object parameter)
+        private void OnLoadCombosCommandExecuted(object parameter)
         {
-            Log.Information("OnLoadBaseCommandExecuted");
+            Log.Information("OnLoadCombosCommandExecuted");
+
             Task.Run(() =>
             {
                 var dialog = new OpenFileDialog();
@@ -349,25 +336,51 @@ namespace NordChecker.ViewModels
                 StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName));
                 Task.Factory.StartNew(() =>
                 {
+                    Log.Information("Reading combos from {file}", dialog.FileName);
+                    Stopwatch watch = new Stopwatch();
+                    watch.Start();
+
                     string line;
+                    List<Account> cache = new List<Account>();
                     while ((line = reader.ReadLine()) != null)
                     {
-                        Account? account = Parser.Parse(line);
-                        if (account == null)
+                        Account account;
+                        try
+                        {
+                            account = Parser.Parse(line);
+                        }
+                        catch
                         {
                             MismatchedCount++;
+                            Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
                             continue;
                         }
 
-                        if (Settings.AreComboDuplicatesSkipped &&
-                            ComboBase.Accounts.Any(a => a.Credentials == account.Credentials))
+                        if (Settings.AreComboDuplicatesSkipped)
                         {
-                            DuplicatesCount++;
-                            continue;
+                            if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
+                                cache.Any(a => a.Credentials == account.Credentials))
+                            {
+                                DuplicatesCount++;
+                                Log.Debug("Account {account} has been skipped as duplicate", account);
+                                continue;
+                            }
                         }
 
-                        Application.Current.Dispatcher.Invoke(() => ComboBase.Accounts.Add(account));
+                        cache.Add(account);
+                        Log.Verbose("Account {account} has been added to the cache", account);
                     }
+
+                    watch.Stop();
+                    Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
+                        cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
+
+                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        foreach (Account account in cache)
+                            ComboBase.Accounts.Add(account);
+                        LoadedCount += cache.Count;
+                    });
                 },
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning,
@@ -386,11 +399,39 @@ namespace NordChecker.ViewModels
         private void OnClearComboCommandExecuted(object parameter)
         {
             Log.Information("OnClearComboCommandExecuted");
+            LoadedCount = 0;
+            MismatchedCount = 0;
+            DuplicatesCount = 0;
+            ComboBase.Accounts.Clear();
         }
 
         #endregion
 
         #region ContactAuthorCommand
+
+        private bool IsTelegramInstalled
+        {
+            get
+            {
+                string registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryKey))
+                {
+                    foreach (string subkeyName in key.GetSubKeyNames())
+                    {
+                        using (RegistryKey subkey = key.OpenSubKey(subkeyName))
+                        {
+                            try
+                            {
+                                if (subkey.GetValue("DisplayName").ToString().ToLower().StartsWith("telegram"))
+                                    return true;
+                            }
+                            catch { }
+                        }
+                    }
+                }
+                return false;
+            }
+        }
 
         public ICommand ContactAuthorCommand { get; }
 
@@ -398,7 +439,18 @@ namespace NordChecker.ViewModels
 
         private void OnContactAuthorCommandExecuted(object parameter)
         {
-            Process.Start("https://t.me/undrcrxwn");
+            Log.Information("OnContactAuthorCommandExecuted");
+            try
+            {
+                if (IsTelegramInstalled)
+                    Process.Start("cmd", "/c start tg://resolve?domain=undrcrxwn");
+                else
+                    Process.Start("cmd", "/c start https://t.me/undrcrxwn");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Cannot open Telegram URL due to {exception}", e.GetType());
+            }
         }
 
         #endregion
@@ -504,12 +556,6 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-
-
-
-
-
-
         public MainWindowViewModel()
         {
             #region Commands
@@ -518,12 +564,26 @@ namespace NordChecker.ViewModels
             PauseCommand = new LambdaCommand(OnPauseCommandExecuted, CanExecutePauseCommand);
             ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
 
-            LoadBaseCommand = new LambdaCommand(OnLoadBaseCommandExecuted, CanExecuteLoadBaseCommand);
+            LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteCombosCommand);
             ClearComboCommand = new LambdaCommand(OnClearComboCommandExecuted, CanExecuteClearComboCommand);
 
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
 
             #endregion
+
+            GreetingTitle = Settings.IsDeveloperModeEnabled ? "👨🏻‍🔬" : "🦄";
+            Settings.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
+            {
+                if (e.PropertyName == Utils.GetMemberName(() => Settings.IsDeveloperModeEnabled))
+                    GreetingTitle = Settings.IsDeveloperModeEnabled ? "👨🏻‍🔬" : "🦄";
+                else if (e.PropertyName == Utils.GetMemberName(() => Settings.ThreadCount))
+                    distributor.ThreadCount = Settings.ThreadCount;
+            };
+
+            ComboBase.Accounts.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
+            {
+                IsGreetingVisible = ComboBase.Accounts.Count == 0;
+            };
 
             DispatcherTimer updateTimer = new DispatcherTimer();
             updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
@@ -532,8 +592,6 @@ namespace NordChecker.ViewModels
             //    ComboBase.State = distributor.CountActiveThreads() > 0
             //    ? ComboBaseState.Processing : ComboBaseState.Idle;
             updateTimer.Start();
-
-
         }
     }
 }
