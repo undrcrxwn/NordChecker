@@ -1,4 +1,6 @@
-﻿using NordChecker.Models;
+﻿using HandyControl.Data;
+using HandyControl.Themes;
+using NordChecker.Models;
 using NordChecker.Shared;
 using Serilog;
 using Serilog.Core;
@@ -15,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace NordChecker
@@ -56,6 +59,9 @@ namespace NordChecker
                 assembly.GetName().Name,
                 assembly.GetName().Version,
                 configuration.ToLower());
+
+            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            //ThemeManager.Current.AccentColor = Brushes.Red;
         }
 
         private void LogUnhandledException(Exception exception, string type)

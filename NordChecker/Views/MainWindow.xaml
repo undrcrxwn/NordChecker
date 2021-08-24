@@ -13,7 +13,9 @@
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="630" Width="1050"
-        KeyboardNavigation.TabNavigation="None" MinWidth="976" MinHeight="600">
+        KeyboardNavigation.TabNavigation="None"
+        MinWidth="976" MinHeight="600"
+        Background="{StaticResource RegionBrush}">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
@@ -197,6 +199,12 @@
             <TextBlock Text="Тикет e07fc1f90ae7" TextAlignment="Center"/>
         </StackPanel>
 
+        <TextBlock Height="32" Width="32" HorizontalAlignment="Right" Grid.Column="1" Margin="0,0,10,0" TextAlignment="Center">
+            <Hyperlink Command="">
+                <emoji:TextBlock Text="☀️  🌒  🦄   🦉  🕷🕶🌑" FontSize="18" Margin="0,2.25,0,0" Padding="0,0,0,0"/>
+            </Hyperlink>
+        </TextBlock>
+        
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
             <ToggleButton x:Name="btnAreUncheckedDisplayed" Content="В очереди"   IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
             <ToggleButton x:Name="btnAreReservedDisplayed"  Content="В обработке" IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
@@ -249,8 +257,8 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Прокси" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                <Expander Header="Прокси" BorderBrush="{StaticResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                    <Border CornerRadius="0,0,5,5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,1,1">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
                             <TextBlock Height="0" Margin="0,0,1000,0"/>
                             <StackPanel>

@@ -381,10 +381,7 @@ namespace NordChecker.ViewModels
                             ComboBase.Accounts.Add(account);
                         LoadedCount += cache.Count;
                     });
-                },
-                CancellationToken.None,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default);
+                });
             });
         }
 

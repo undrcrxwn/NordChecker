@@ -49,7 +49,7 @@ namespace NordChecker.Shared
         public static ILogger Merge(this ILogger target, ILogger logger)
         {
             return new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(App.LogLevelSwitch)
+                .MinimumLevel.Verbose()
                 .WriteTo.Logger(target)
                 .WriteTo.Logger(logger)
                 .CreateLogger();
