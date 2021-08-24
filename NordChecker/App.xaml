@@ -11,10 +11,14 @@
                 <hc:Theme/>
                 <hc:ThemeResources>
                     <hc:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">
+                            <SolidColorBrush x:Key="DefaultBrush" Color="#f8f8f8" />
+                        </ResourceDictionary>
                         <ResourceDictionary x:Key="Dark" hc:ThemeDictionary.Key="Dark">
                             <SolidColorBrush x:Key="RegionBrush" Color="#272727" />
-                            <SolidColorBrush x:Key="AppBackgroundBrush" Color="Blue" />
+                            <SolidColorBrush x:Key="DefaultBrush" Color="#2b2b2b" />
                             <SolidColorBrush x:Key="BackgroundBrush" Color="#303030" />
+                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#eeeeee" />
                         </ResourceDictionary>
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>

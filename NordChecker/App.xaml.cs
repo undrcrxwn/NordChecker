@@ -60,7 +60,7 @@ namespace NordChecker
                 assembly.GetName().Version,
                 configuration.ToLower());
 
-            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            //ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             //ThemeManager.Current.AccentColor = Brushes.Red;
         }
 
