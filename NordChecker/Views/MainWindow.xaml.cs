@@ -78,16 +78,16 @@ namespace NordChecker.Views
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
 
-        public MainWindow()
+        public MainWindow(MainWindowViewModel viewModel)
         {
             InitializeComponent();
             HideBoundingBox(this);
+            vm = viewModel;
 
             dgAccounts.SelectionChanged += (obj, e) =>
                 Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
                     dgAccounts.UnselectAll()));
 
-            vm = (MainWindowViewModel)DataContext;
             var _itemSourceList = new CollectionViewSource() { Source = vm.ComboBase.Accounts };
             ICollectionView cv = _itemSourceList.View;
             dgAccounts.ItemsSource = cv;
@@ -104,7 +104,8 @@ namespace NordChecker.Views
 
                     Thread.Sleep(500);
                 }
-            }) { IsBackground = true }.Start();
+            })
+            { IsBackground = true }.Start();
         }
 
         private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)

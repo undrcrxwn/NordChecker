@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NordChecker.Shared
 {
-    internal interface INotifyPropertyChangedAdvanced : INotifyPropertyChanged
+    public interface INotifyPropertyChangedAdvanced : INotifyPropertyChanged
     {
         public virtual void OnPropertyChanged(PropertyChangedEventHandler handler, [CallerMemberName] string propertyName = null)
         {

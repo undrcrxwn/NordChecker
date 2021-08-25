@@ -1,7 +1,11 @@
 ﻿using HandyControl.Data;
 using HandyControl.Themes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NordChecker.Models;
 using NordChecker.Shared;
+using NordChecker.ViewModels;
+using NordChecker.Views;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -27,10 +31,20 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
-        public AppSettings Settings { get; set; } = new AppSettings();
+        public IAppSettings Settings { get; set; }
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
+        private ServiceProvider provider;
+
+        public App()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IAppSettings, AppSettings>();
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<MainWindow>();
+            provider = services.BuildServiceProvider();
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -50,6 +64,7 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
+            Settings = provider.GetService<IAppSettings>();
             Settings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
             Settings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
 
@@ -72,6 +87,13 @@ namespace NordChecker
             Log.Information("Exiting with exit code {@code}\n", e.ApplicationExitCode);
             Log.CloseAndFlush();
             Utils.FreeConsole();
+        }
+
+        private void App_OnStartup(object sender, StartupEventArgs e)
+        {
+            Window window = provider.GetService<MainWindow>();
+            window.DataContext = provider.GetService<MainWindowViewModel>();
+            window.Show();
         }
     }
 }

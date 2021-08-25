@@ -7,7 +7,7 @@ using System.Text;
 
 namespace NordChecker.Models
 {
-    internal enum AccountState
+    public enum AccountState
     {
         Premium,
         Free,
@@ -16,7 +16,7 @@ namespace NordChecker.Models
         Unchecked
     }
 
-    internal class Account : INotifyPropertyChangedAdvanced
+    public class Account : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

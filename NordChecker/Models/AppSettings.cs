@@ -14,7 +14,7 @@ using System.Windows.Media;
 
 namespace NordChecker.Models
 {
-    public class AppSettings : INotifyPropertyChangedAdvanced
+    public class AppSettings : IAppSettings
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -123,7 +123,5 @@ namespace NordChecker.Models
                 ThemeManager.Current.AccentColor = value;
             }
         }
-    
-    
     }
 }

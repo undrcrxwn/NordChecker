@@ -175,13 +175,13 @@ namespace NordChecker.ViewModels
         }
     }
 
-    internal class MainWindowViewModel : INotifyPropertyChangedAdvanced
+    public class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         #region Properties
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AppSettings Settings => (Application.Current as App).Settings;
+        public IAppSettings Settings { get; set; }
 
         private ThreadMasterToken masterToken = new ThreadMasterToken();
 
@@ -575,8 +575,10 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(IAppSettings settings)
         {
+            Settings = settings;
+
             #region Commands
 
             StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);

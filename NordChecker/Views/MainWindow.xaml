@@ -12,14 +12,12 @@
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         x:Class="NordChecker.Views.MainWindow"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Title="NordVPN Checker"
         Height="630" Width="1050"
         KeyboardNavigation.TabNavigation="None"
         MinWidth="976" MinHeight="600"
         Background="{DynamicResource RegionBrush}">
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
     <Window.Resources>
         <vm:NumberConverter x:Key="NumberConverter"/>
         <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>

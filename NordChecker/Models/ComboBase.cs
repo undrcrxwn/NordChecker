@@ -13,13 +13,13 @@ using System.Windows.Threading;
 
 namespace NordChecker.Models
 {
-    internal enum ComboBaseState
+    public enum ComboBaseState
     {
         Idle,
         Processing
     }
 
-    internal class ComboBase : INotifyPropertyChangedAdvanced
+    public class ComboBase : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
