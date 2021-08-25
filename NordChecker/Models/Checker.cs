@@ -47,10 +47,10 @@ namespace NordChecker.Models
                     throw new OperationCanceledException();
                 context.token.ThrowOrWaitIfRequested();
             }
-            catch (OperationCanceledException e)
+            catch
             {
                 context.account.State = AccountState.Invalid;
-                throw e;
+                throw;
             }
 
             context.watch.Start();
@@ -67,7 +67,14 @@ namespace NordChecker.Models
                 HandleBreakpointIfNeeded(context);
             }
 
-            account.State = AccountState.Premium;
+            //account.State = AccountState.Premium;
+            int rand = new Random().Next(11);
+            account.State = rand switch
+            {
+                <= 7 => AccountState.Invalid,
+                <= 9 => AccountState.Free,
+                <= 10 => AccountState.Premium
+            };
             return;
 
             /*

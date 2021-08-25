@@ -59,9 +59,6 @@ namespace NordChecker
                 assembly.GetName().Name,
                 assembly.GetName().Version,
                 configuration.ToLower());
-
-            //ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-            //ThemeManager.Current.AccentColor = Brushes.Red;
         }
 
         private void LogUnhandledException(Exception exception, string type)

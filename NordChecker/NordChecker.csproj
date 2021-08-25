@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.3.0" />
-    <PackageReference Include="HandyControl" Version="3.1.0" />
     <PackageReference Include="HandyControls" Version="3.3.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />

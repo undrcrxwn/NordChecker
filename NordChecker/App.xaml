@@ -17,8 +17,8 @@
                         <ResourceDictionary x:Key="Dark" hc:ThemeDictionary.Key="Dark">
                             <SolidColorBrush x:Key="RegionBrush" Color="#272727" />
                             <SolidColorBrush x:Key="DefaultBrush" Color="#2b2b2b" />
-                            <SolidColorBrush x:Key="BackgroundBrush" Color="#303030" />
-                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#eeeeee" />
+                            <SolidColorBrush x:Key="BackgroundBrush" Color="#343434" />
+                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#d6d6d6" />
                         </ResourceDictionary>
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>
@@ -39,7 +39,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ContextMenu}">
-                            <Border Background="{StaticResource DefaultBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="0,6,0,6">
+                            <Border Background="{DynamicResource DefaultBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="0,6,0,6">
                                 <StackPanel Margin="-20,0,-1,0" IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                             </Border>
                         </ControlTemplate>
@@ -49,7 +49,7 @@
             <Style x:Key="{x:Type MenuItem}" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource MenuItemBaseStyle}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                         <Setter Property="Foreground" Value="White"/>
                     </Trigger>
                 </Style.Triggers>
@@ -60,11 +60,11 @@
                 <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{StaticResource DefaultBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource DefaultBrush}" />
                     </Trigger>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource DefaultBrush}" />
-                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource DefaultBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -78,8 +78,8 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="ToolTip">
                             <Border Name="Border"
-					  Background="{StaticResource DefaultBrush}"
-					  BorderBrush="{StaticResource BorderBrush}"
+					  Background="{DynamicResource DefaultBrush}"
+					  BorderBrush="{DynamicResource BorderBrush}"
 					  BorderThickness="1"
 					  Width="{TemplateBinding Width}"
 					  Height="{TemplateBinding Height}">
@@ -109,18 +109,18 @@
                 <Setter Property="Control.Cursor" Value="Hand" />
                 <Style.Triggers>
                     <Trigger Property="Control.IsMouseOver" Value="True">
-                        <Setter Property="Control.Foreground" Value="{StaticResource PrimaryBrush}" />
+                        <Setter Property="Control.Foreground" Value="{DynamicResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
 
             <!-- CHECK BOX -->
             <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource CheckBoxBaseStyle}">
-                <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+                <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Style.Triggers>
                     <Trigger Property="IsChecked" Value="True">
-                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

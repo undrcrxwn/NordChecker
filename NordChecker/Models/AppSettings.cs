@@ -1,4 +1,5 @@
-﻿using NordChecker.Shared;
+﻿using HandyControl.Themes;
+using NordChecker.Shared;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace NordChecker.Models
 {
@@ -16,18 +18,18 @@ namespace NordChecker.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool _IsDeveloperModeOn;
+        private bool _IsDeveloperModeEnabled;
         public bool IsDeveloperModeEnabled
         {
-            get => _IsDeveloperModeOn;
+            get => _IsDeveloperModeEnabled;
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsDeveloperModeOn, value, PropertyChanged, LogEventLevel.Information);
+                .Set(ref _IsDeveloperModeEnabled, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
-        public bool _AreComboDuplicatesSkipped = true;
+        private bool _AreComboDuplicatesSkipped = true;
         public bool AreComboDuplicatesSkipped
         {
             get => _AreComboDuplicatesSkipped;
@@ -38,7 +40,7 @@ namespace NordChecker.Models
             }
         }
 
-        public int _ThreadCount = 50;
+        private int _ThreadCount = 50;
         public int ThreadCount
         {
             get => _ThreadCount;
@@ -52,7 +54,7 @@ namespace NordChecker.Models
             }
         }
 
-        public int _TimeoutInSeconds= 7;
+        private int _TimeoutInSeconds = 7;
         public int TimeoutInSeconds
         {
             get => _TimeoutInSeconds;
@@ -86,7 +88,7 @@ namespace NordChecker.Models
             }
         }
 
-        public LogEventLevel _LogEventLevel = LogEventLevel.Information;
+        private LogEventLevel _LogEventLevel = LogEventLevel.Information;
         public LogEventLevel LogEventLevel
         {
             get => _LogEventLevel;
@@ -97,5 +99,31 @@ namespace NordChecker.Models
                 App.LogLevelSwitch.MinimumLevel = value;
             }
         }
+
+        private ApplicationTheme _Theme = ApplicationTheme.Light;
+        public ApplicationTheme Theme
+        {
+            get => _Theme;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
+                ThemeManager.Current.ApplicationTheme = value;
+            }
+        }
+
+        private Brush _AccentColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#326cf3");
+        public Brush AccentColor
+        {
+            get => _AccentColor;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AccentColor, value, PropertyChanged, LogEventLevel.Information);
+                ThemeManager.Current.AccentColor = value;
+            }
+        }
+    
+    
     }
 }

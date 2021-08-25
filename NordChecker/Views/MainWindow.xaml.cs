@@ -25,6 +25,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Serilog;
+using HandyControl.Themes;
 
 namespace NordChecker.Views
 {
@@ -103,7 +104,13 @@ namespace NordChecker.Views
 
                     Thread.Sleep(500);
                 }
-            }){ IsBackground = true }.Start();
+            }) { IsBackground = true }.Start();
+        }
+
+        private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
+        {
+            if (vm == null) return;
+            vm.Settings.AccentColor = (sender as HandyControl.Controls.ColorPicker).SelectedBrush;
         }
     }
 }

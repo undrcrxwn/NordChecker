@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using HandyControl.Themes;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NordChecker.Commands;
 using NordChecker.Models;
@@ -102,6 +103,31 @@ namespace NordChecker.ViewModels
             CultureInfo culture) => !(bool)value;
     }
 
+    [ValueConversion(typeof(bool), typeof(string))]
+    public class Boolean2ModeIconStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            CultureInfo culture) => (bool)value ? "👨🏻‍🔬" : "🦄";
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            CultureInfo culture) => value.ToString() == "👨🏻‍🔬";
+    }
+
+    [ValueConversion(typeof(bool), typeof(string))]
+    public class ApplicationTheme2StringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => (ApplicationTheme)value switch
+            {
+                ApplicationTheme.Light => "Светлая",
+                ApplicationTheme.Dark => "Тёмная",
+                _ => throw new ArgumentException()
+            };
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
     #endregion
 
     public enum PipelineState
@@ -175,25 +201,6 @@ namespace NordChecker.ViewModels
                 inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelinePaused));
                 inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineWorking));
                 UpdateStats();
-            }
-        }
-
-        private string _Title = "NordVPN Checker";
-        public string Title
-        {
-            get => _Title;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Title, value, PropertyChanged);
-        }
-
-        public string _GreetingTitle;
-        public string GreetingTitle
-        {
-            get => _GreetingTitle;
-            set
-            {
-                (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _GreetingTitle, value, PropertyChanged);
             }
         }
 
@@ -452,6 +459,21 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        #region SwitchThemeCommand
+
+        public ICommand SwitchThemeCommand { get; }
+
+        private bool CanExecuteSwitchThemeCommand(object parameter) => true;
+
+        private void OnSwitchThemeCommandExecuted(object parameter)
+        {
+            Log.Information("OnSwitchThemeCommandExecuted");
+            Settings.Theme = Settings.Theme == ApplicationTheme.Light
+                ? ApplicationTheme.Dark : ApplicationTheme.Light;
+        }
+
+        #endregion
+
         #endregion
 
         #region UI
@@ -565,15 +587,13 @@ namespace NordChecker.ViewModels
             ClearComboCommand = new LambdaCommand(OnClearComboCommandExecuted, CanExecuteClearComboCommand);
 
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
+            SwitchThemeCommand = new LambdaCommand(OnSwitchThemeCommandExecuted, CanExecuteSwitchThemeCommand);
 
             #endregion
 
-            GreetingTitle = Settings.IsDeveloperModeEnabled ? "👨🏻‍🔬" : "🦄";
             Settings.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
             {
-                if (e.PropertyName == Utils.GetMemberName(() => Settings.IsDeveloperModeEnabled))
-                    GreetingTitle = Settings.IsDeveloperModeEnabled ? "👨🏻‍🔬" : "🦄";
-                else if (e.PropertyName == Utils.GetMemberName(() => Settings.ThreadCount))
+                if (e.PropertyName == Utils.GetMemberName(() => Settings.ThreadCount))
                     distributor.ThreadCount = Settings.ThreadCount;
             };
 
