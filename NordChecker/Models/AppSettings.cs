@@ -1,9 +1,11 @@
 ﻿using HandyControl.Themes;
+using Leaf.xNet;
 using NordChecker.Shared;
 using Serilog;
 using Serilog.Events;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -29,6 +31,40 @@ namespace NordChecker.Models
             }
         }
 
+        private bool _IsConsoleLoggingEnabled;
+        public bool IsConsoleLoggingEnabled
+        {
+            get => _IsConsoleLoggingEnabled;
+            set
+            {
+                if (value)
+                {
+                    Utils.ShowConsole();
+                    Log.Logger = Log.Logger.Merge(App.ConsoleLogger);
+                    (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
+                }
+                else
+                {
+                    (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
+                    Utils.HideConsole();
+                    Log.Logger = App.FileLogger;
+                }
+            }
+        }
+
+        private ObservableDictionary<AccountState, bool> _DataGridFilters;
+        public ObservableDictionary<AccountState, bool> DataGridFilters
+        {
+            get => _DataGridFilters;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _DataGridFilters, value, PropertyChanged, LogEventLevel.Information);
+            }
+        }
+
         private bool _AreComboDuplicatesSkipped = true;
         public bool AreComboDuplicatesSkipped
         {
@@ -37,6 +73,17 @@ namespace NordChecker.Models
             {
                 (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AreComboDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
+            }
+        }
+        
+        private ProxyType _LastChosenProxyType = ProxyType.Socks4;
+        public ProxyType LastChosenProxyType
+        {
+            get => _LastChosenProxyType;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _LastChosenProxyType, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -65,29 +112,6 @@ namespace NordChecker.Models
             }
         }
 
-        private bool _IsConsoleLoggingEnabled;
-        public bool IsConsoleLoggingEnabled
-        {
-            get => _IsConsoleLoggingEnabled;
-            set
-            {
-                if (value)
-                {
-                    Utils.ShowConsole();
-                    Log.Logger = Log.Logger.Merge(App.ConsoleLogger);
-                    (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
-                }
-                else
-                {
-                    (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
-                    Utils.HideConsole();
-                    Log.Logger = App.FileLogger;
-                }
-            }
-        }
-
         private LogEventLevel _LogEventLevel = LogEventLevel.Information;
         public LogEventLevel LogEventLevel
         {
@@ -112,16 +136,37 @@ namespace NordChecker.Models
             }
         }
 
-        private Brush _AccentColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#326cf3");
-        public Brush AccentColor
+        private SolidColorBrush _AccentColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#326cf3");
+        public SolidColorBrush AccentColor
         {
             get => _AccentColor;
             set
             {
+                if (_AccentColor.Color == value.Color) return;
                 (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AccentColor, value, PropertyChanged, LogEventLevel.Information);
                 ThemeManager.Current.AccentColor = value;
             }
+        }
+
+        public AppSettings()
+        {
+            _DataGridFilters = new ObservableDictionary<AccountState, bool>();
+            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
+                _DataGridFilters.Add(key, true);
+
+            DataGridFilters.CollectionChanged +=
+            (object sender, NotifyCollectionChangedEventArgs e) =>
+            {
+                var @this = this as INotifyPropertyChangedAdvanced;
+                @this.OnPropertyChanged(
+                    PropertyChanged,
+                    Utils.GetMemberName(() => DataGridFilters));
+                @this.LogPropertyChanged(
+                    LogEventLevel.Information,
+                    Utils.GetMemberName(() => DataGridFilters),
+                    DataGridFilters);
+            };
         }
     }
 }

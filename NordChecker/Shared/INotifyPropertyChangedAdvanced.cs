@@ -22,9 +22,12 @@ namespace NordChecker.Shared
             if (field != null && value != null && field.Equals(value))
                 return false;
             field = value;
-            Log.Write(logEventLevel, "{caller} has been set to {state}", propertyName, value);
+            LogPropertyChanged(logEventLevel, propertyName, value);
             OnPropertyChanged(handler, propertyName);
             return true;
         }
+
+        public void LogPropertyChanged<T>(LogEventLevel logEventLevel, string propertyName, T value) =>
+            Log.Write(logEventLevel, "{caller} has been set to {state}", propertyName, value);
     }
 }

@@ -28,7 +28,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using static NordChecker.ViewModels.MainWindowViewModel;
+using Leaf.xNet;
 
 namespace NordChecker.ViewModels
 {
@@ -177,13 +177,13 @@ namespace NordChecker.ViewModels
 
     public class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
-        #region Properties
-
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #region Properties
 
         public IAppSettings Settings { get; set; }
 
-        private ThreadMasterToken masterToken = new ThreadMasterToken();
+        private ThreadMasterToken masterToken;
 
         public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
         public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
@@ -210,6 +210,14 @@ namespace NordChecker.ViewModels
             get => _IsGreetingVisible;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _IsGreetingVisible, value, PropertyChanged);
+        }
+
+        private Account _SelectedAccount;
+        public Account SelectedAccount
+        {
+            get => _SelectedAccount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _SelectedAccount, value, PropertyChanged);
         }
 
         #region Stats
@@ -259,7 +267,7 @@ namespace NordChecker.ViewModels
 
         public ICommand StartCommand { get; }
 
-        private bool CanExecuteStartCommand(object parameter) => PipelineState != PipelineState.Working;
+        private bool CanExecuteStartCommand(object parameter) => PipelineState == PipelineState.Idle;
 
         private void OnStartCommandExecuted(object parameter)
         {
@@ -334,13 +342,9 @@ namespace NordChecker.ViewModels
             {
                 var dialog = new OpenFileDialog();
                 dialog.DefaultExt = ".txt";
-                dialog.Filter = "NordVPN Base|*.txt|Все файлы|*.*";
+                dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
+                if (dialog.ShowDialog() != true) return;
 
-                bool? result = dialog.ShowDialog();
-                if (result != true)
-                    return;
-
-                StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName));
                 Task.Factory.StartNew(() =>
                 {
                     Log.Information("Reading combos from {file}", dialog.FileName);
@@ -349,33 +353,36 @@ namespace NordChecker.ViewModels
 
                     string line;
                     List<Account> cache = new List<Account>();
-                    while ((line = reader.ReadLine()) != null)
+                    using (StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName)))
                     {
-                        Account account;
-                        try
+                        while ((line = reader.ReadLine()) != null)
                         {
-                            account = Parser.Parse(line);
-                        }
-                        catch
-                        {
-                            MismatchedCount++;
-                            Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
-                            continue;
-                        }
-
-                        if (Settings.AreComboDuplicatesSkipped)
-                        {
-                            if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
-                                cache.Any(a => a.Credentials == account.Credentials))
+                            Account account;
+                            try
                             {
-                                DuplicatesCount++;
-                                Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
+                                account = Parser.Parse(line);
+                            }
+                            catch
+                            {
+                                MismatchedCount++;
+                                Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
                                 continue;
                             }
-                        }
 
-                        cache.Add(account);
-                        Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
+                            if (Settings.AreComboDuplicatesSkipped)
+                            {
+                                if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
+                                    cache.Any(a => a.Credentials == account.Credentials))
+                                {
+                                    DuplicatesCount++;
+                                    Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
+                                    continue;
+                                }
+                            }
+
+                            cache.Add(account);
+                            Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
+                        }
                     }
 
                     watch.Stop();
@@ -394,19 +401,141 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region ClearComboCommand
+        #region ClearCombosCommand
 
-        public ICommand ClearComboCommand { get; }
+        public ICommand ClearCombosCommand { get; }
 
-        private bool CanExecuteClearComboCommand(object parameter) => PipelineState != PipelineState.Working;
+        private bool CanExecuteClearCombosCommand(object parameter) => PipelineState != PipelineState.Working;
 
-        private void OnClearComboCommandExecuted(object parameter)
+        private void OnClearCombosCommandExecuted(object parameter)
         {
-            Log.Information("OnClearComboCommandExecuted");
+            Log.Information("OnClearCombosCommandExecuted");
+            //masterToken.Cancel();
             LoadedCount = 0;
             MismatchedCount = 0;
             DuplicatesCount = 0;
             ComboBase.Accounts.Clear();
+            PipelineState = PipelineState.Idle;
+        }
+
+        #endregion
+
+        #region LoadProxiesCommand
+
+        public ICommand LoadProxiesCommand { get; }
+
+        private bool CanExecuteLoadProxiesCommand(object parameter) => true;
+
+        private void OnLoadProxiesCommandExecuted(object parameter)
+        {
+            Log.Information("OnLoadProxiesCommandExecuted");
+
+            Task.Run(() =>
+            {
+                var dialog = new OpenFileDialog();
+                dialog.DefaultExt = ".txt";
+                dialog.Filter = "NordVPN Proxy List|*.txt|Все файлы|*.*";
+                if (dialog.ShowDialog() != true) return;
+
+                Window window = null;
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    window = new LoadProxiesWindow(new LoadProxiesWindowViewModel(), Settings);
+                    window.Owner = Application.Current.MainWindow;
+                    if (window.ShowDialog() != true) return;
+                });
+
+                Task.Factory.StartNew(() =>
+                {
+                    Log.Information("Reading {type} proxies from {file}", Settings.LastChosenProxyType, dialog.FileName);
+                    Stopwatch watch = new Stopwatch();
+                    watch.Start();
+                    
+                    /*string line;
+                    using (StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName)))
+                    {
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            ProxyClient proxy;
+                            try
+                            {
+                                account = Parser.Parse(line);
+                            }
+                            catch
+                            {
+                                MismatchedCount++;
+                                Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
+                                continue;
+                            }
+
+                            if (Settings.AreComboDuplicatesSkipped)
+                            {
+                                if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
+                                    cache.Any(a => a.Credentials == account.Credentials))
+                                {
+                                    DuplicatesCount++;
+                                    Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
+                                    continue;
+                                }
+                            }
+
+                            cache.Add(account);
+                            Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
+                        }
+                    }
+
+                    watch.Stop();
+                    Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
+                        cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
+
+                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        foreach (Account account in cache)
+                            ComboBase.Accounts.Add(account);
+                        LoadedCount += cache.Count;
+                    });*/
+                });
+            });
+        }
+
+        #endregion
+
+        #region CopyAccountCredentialsCommand
+
+        public ICommand CopyAccountCredentialsCommand { get; }
+
+        private bool CanExecuteCopyAccountCredentialsCommand(object parameter) => true;
+
+        private void OnCopyAccountCredentialsCommandExecuted(object parameter)
+        {
+            Log.Information("OnCopyAccountCredentialsExecuted");
+            var (mail, password) = SelectedAccount.Credentials;
+            try
+            {
+                Clipboard.SetText($"{mail}:{password}");
+                Log.Information("Clipboard text has been set to {credentials}", $"{mail}:{password}");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Failed to write account credentials {credentials} to clipboard", (mail, password));
+            }
+        }
+
+        #endregion
+
+        #region RemoveAccountCommand
+
+        public ICommand RemoveAccountCommand { get; }
+
+        private bool CanExecuteRemoveAccountCommand(object parameter) => true;
+
+        private void OnRemoveAccountCommandExecuted(object parameter)
+        {
+            Log.Information("OnRemoveAccountCommandExecuted");
+            var account = SelectedAccount;
+            ComboBase.Accounts.Remove(account);
+            LoadedCount--;
+            Log.Information("{credentials} has been removed from combo-list", account.Credentials);
         }
 
         #endregion
@@ -459,50 +588,11 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region SwitchThemeCommand
-
-        public ICommand SwitchThemeCommand { get; }
-
-        private bool CanExecuteSwitchThemeCommand(object parameter) => true;
-
-        private void OnSwitchThemeCommandExecuted(object parameter)
-        {
-            Log.Information("OnSwitchThemeCommandExecuted");
-            Settings.Theme = Settings.Theme == ApplicationTheme.Light
-                ? ApplicationTheme.Dark : ApplicationTheme.Light;
-        }
-
-        #endregion
-
         #endregion
 
         #region UI
 
-        private Dictionary<AccountState, bool> _VisibilityFilters = new Dictionary<AccountState, bool>()
-        {
-            { AccountState.Premium,   true },
-            { AccountState.Free,      true },
-            { AccountState.Invalid,   true },
-            { AccountState.Reserved,  true },
-            { AccountState.Unchecked, true }
-        };
-
-        public Dictionary<AccountState, bool> VisibilityFilters
-        {
-            get => _VisibilityFilters;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _VisibilityFilters, value, PropertyChanged);
-        }
-
-        private Dictionary<AccountState, Arc> _Arcs = new Dictionary<AccountState, Arc>()
-        {
-            { AccountState.Premium,   new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Free,      new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Invalid,   new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Reserved,  new Arc(0, 1, Visibility.Hidden) },
-            { AccountState.Unchecked, new Arc(0, 1, Visibility.Hidden) }
-        };
-
+        private Dictionary<AccountState, Arc> _Arcs;
         public Dictionary<AccountState, Arc> Arcs
         {
             get => _Arcs;
@@ -575,8 +665,14 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        public MainWindowViewModel() { }
+
         public MainWindowViewModel(IAppSettings settings)
         {
+            _Arcs = new Dictionary<AccountState, Arc>();
+            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
+                _Arcs.Add(key, new Arc(0, 1, Visibility.Hidden));
+
             Settings = settings;
 
             #region Commands
@@ -586,10 +682,13 @@ namespace NordChecker.ViewModels
             ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
 
             LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteLoadCombosCommand);
-            ClearComboCommand = new LambdaCommand(OnClearComboCommandExecuted, CanExecuteClearComboCommand);
+            ClearCombosCommand = new LambdaCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
+            LoadProxiesCommand = new LambdaCommand(OnLoadProxiesCommandExecuted, CanExecuteLoadProxiesCommand);
+
+            CopyAccountCredentialsCommand = new LambdaCommand(OnCopyAccountCredentialsCommandExecuted, CanExecuteCopyAccountCredentialsCommand);
+            RemoveAccountCommand = new LambdaCommand(OnRemoveAccountCommandExecuted, CanExecuteRemoveAccountCommand);
 
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
-            SwitchThemeCommand = new LambdaCommand(OnSwitchThemeCommandExecuted, CanExecuteSwitchThemeCommand);
 
             #endregion
 
@@ -600,9 +699,7 @@ namespace NordChecker.ViewModels
             };
 
             ComboBase.Accounts.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
-            {
                 IsGreetingVisible = ComboBase.Accounts.Count == 0;
-            };
 
             DispatcherTimer updateTimer = new DispatcherTimer();
             updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);

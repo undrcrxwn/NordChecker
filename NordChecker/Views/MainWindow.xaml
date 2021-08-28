@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:NordChecker.ViewModels"
-        xmlns:m="clr-namespace:NordChecker.Models"
+        xmlns:models="clr-namespace:NordChecker.Models"
         xmlns:local="clr-namespace:NordChecker"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:events="clr-namespace:Serilog.Events;assembly=Serilog"
@@ -13,6 +13,7 @@
         x:Class="NordChecker.Views.MainWindow"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        WindowStartupLocation="CenterScreen"
         Title="NordVPN Checker"
         Height="630" Width="1050"
         KeyboardNavigation.TabNavigation="None"
@@ -60,7 +61,7 @@
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Premium].StartAngle}"
                         EndAngle   = "{Binding Path=Arcs[(m:AccountState)Premium].EndAngle}"
                         Visibility = "{Binding Path=Arcs[(m:AccountState)Premium].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#326cf3" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Free].StartAngle}"
                         EndAngle   = "{Binding Path=Arcs[(m:AccountState)Free].EndAngle}"
                         Visibility = "{Binding Path=Arcs[(m:AccountState)Free].Visibility}"/>
@@ -68,11 +69,11 @@
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Invalid].StartAngle}"
                         EndAngle   = "{Binding Path=Arcs[(m:AccountState)Invalid].EndAngle}"
                         Visibility = "{Binding Path=Arcs[(m:AccountState)Invalid].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{DynamicResource BorderBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Reserved].StartAngle}"
                         EndAngle   = "{Binding Path=Arcs[(m:AccountState)Reserved].EndAngle}"
                         Visibility = "{Binding Path=Arcs[(m:AccountState)Reserved].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{DynamicResource BackgroundBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=Arcs[(m:AccountState)Unchecked].StartAngle}"
                         EndAngle   = "{Binding Path=Arcs[(m:AccountState)Unchecked].EndAngle}"
                         Visibility = "{Binding Path=Arcs[(m:AccountState)Unchecked].Visibility}"/>
@@ -117,7 +118,7 @@
                         <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
                                 <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource PrimaryBrush}"/>
+                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#326cf3"/>
                             </hc:SimplePanel>
                             <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
@@ -135,7 +136,7 @@
                         <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
                                 <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource ThirdlyTextBrush}"/>
+                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                             </hc:SimplePanel>
                             <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
@@ -144,7 +145,7 @@
                         <Grid>
                             <hc:SimplePanel VerticalAlignment="Top" Height="23">
                                 <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource BorderBrush}"/>
+                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
                             </hc:SimplePanel>
                             <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                         </Grid>
@@ -167,6 +168,7 @@
 
         <DataGrid x:Name="dgAccounts"
                   Padding="4,4,4,0"
+                  CellStyle="{StaticResource DefaultCellStyle}"
                   RowStyle="{StaticResource DefaultRowStyle}"
                   Grid.Column="1" Grid.Row="1"
                   Grid.ColumnSpan="2" Grid.RowSpan="2"
@@ -176,7 +178,8 @@
                   BorderBrush="Transparent"
                   Background="{DynamicResource DefaultBrush}"
                   MinRowHeight="5"
-                  SelectionMode="Single">
+                  SelectionMode="Single"
+                  SelectedItem="{Binding SelectedAccount}">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин "  IsReadOnly="True" CanUserSort="False"/>
                 <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
@@ -184,6 +187,33 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn CanUserResize="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
+                            <hc:UniformSpacingPanel x:Name="pRowMenu" Spacing="7" Visibility="Hidden">
+                                <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.CopyAccountCredentialsCommand}">
+                                    <emoji:TextBlock Text="💾 Копировать"/>
+                                </Button>
+                                <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.RemoveAccountCommand}">
+                                    <emoji:TextBlock Text="❌ Удалить"/>
+                                </Button>
+                                <hc:UniformSpacingPanel.Resources>
+                                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonDefault}">
+                                        <Style.Setters>
+                                            <Setter Property="Width" Value="120"/>
+                                        </Style.Setters>
+                                    </Style>
+                                </hc:UniformSpacingPanel.Resources>
+                            </hc:UniformSpacingPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                    <Setter Property="Visibility" TargetName="pRowMenu" Value="Visible"/>
+                                    <!--<Setter Property="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>-->
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -207,19 +237,14 @@
             <TextBlock Text="Тикет e07fc1f90ae7" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
         </StackPanel>
 
-        <TextBlock Height="32" Width="32" HorizontalAlignment="Right" Grid.Column="1" Margin="0,0,10,0" TextAlignment="Center">
-            <Hyperlink Command="{Binding SwitchThemeCommand}">
-                <emoji:TextBlock Text="{Binding ThemeSwitchText}" FontSize="18" Margin="0,2.25,0,0" Padding="0,0,0,0"/>
-            </Hyperlink>
-        </TextBlock>
-
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
-            <ToggleButton x:Name="btnAreUncheckedDisplayed" Content="В очереди"   IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton x:Name="btnAreReservedDisplayed"  Content="В обработке" IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton x:Name="btnAreInvalidDisplayed"   Content="Невалидные"  IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton x:Name="btnAreFreeDisplayed"      Content="Бесплатные"  IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
-            <ToggleButton x:Name="btnArePremiumDisplayed"   Content="Премиум"     IsChecked="True" Checked="OnFilteringSettingsUpdated" Unchecked="OnFilteringSettingsUpdated"/>
+            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Unchecked]}"/>
+            <ToggleButton Content="В обработке" IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Reserved]}"/>
+            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Invalid]}"/>
+            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Free]}"/>
+            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Premium]}"/>
         </hc:ButtonGroup>
+        
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadCombosCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
             <StackPanel Margin="10,0,10,4">
@@ -245,7 +270,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Content="Загрузить" Command="{Binding LoadCombosCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button Content="Очистить" Command="{Binding ClearComboCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                                    <Button Content="Очистить" Command="{Binding ClearCombosCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
                             <StackPanel Margin="0,0,0,5" Visibility="{Binding Settings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -281,7 +306,7 @@
                                         <ColumnDefinition Width="4"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Content="Загрузить" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                                    <Button Content="Загрузить" Command="{Binding LoadProxiesCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
                                     <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>

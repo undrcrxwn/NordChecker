@@ -24,47 +24,23 @@
                 </hc:ThemeResources>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ROW MENU -->
-            <ContextMenu x:Key="RowMenu" VerticalOffset="-7" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                <MenuItem Header="Скопировать L:P" Command=""/>
-                <MenuItem Header="Скопировать L:P I token" Command=""/>
-                <MenuItem Header="Скопировать L:P I yyyy-MM-dd hh:mm:ss" Command=""/>
-                <MenuItem Header="Скопировать L:P I token I yyyy-MM-dd hh:mm:ss" Command=""/>
-                <MenuItem Header="Скопировать L:P I JSON" Command=""/>
-            </ContextMenu>
-            <Style TargetType="{x:Type ContextMenu}">
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="OverridesDefaultStyle" Value="True" />
-                <Setter Property="Grid.IsSharedSizeScope" Value="true" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type ContextMenu}">
-                            <Border Background="{DynamicResource DefaultBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="0,6,0,6">
-                                <StackPanel Margin="-20,0,-1,0" IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <Style x:Key="{x:Type MenuItem}" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource MenuItemBaseStyle}">
+            <!-- DATA GRID CELL -->
+            <Style x:Key="DefaultCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource DataGridCellStyle}">
                 <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                        <Setter Property="Foreground" Value="White"/>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
-
-            <!-- DATA GRID -->
+            
+            <!-- DATA GRID ROW -->
             <Style x:Key="DefaultRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle}">
-                <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
                 <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource DefaultBrush}" />
-                    </Trigger>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource DefaultBrush}" />
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                        <Setter Property="IsSelected" Value="True"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>

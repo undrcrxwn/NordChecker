@@ -34,7 +34,7 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel vm = null;
+        public IAppSettings Settings { get; set; }
 
         private static void HideBoundingBox(object root)
         {
@@ -51,26 +51,10 @@ namespace NordChecker.Views
 
         private void UpdateFiltering()
         {
-            if (vm == null) return;
-            (
-                vm.VisibilityFilters[AccountState.Unchecked],
-                vm.VisibilityFilters[AccountState.Reserved],
-                vm.VisibilityFilters[AccountState.Invalid],
-                vm.VisibilityFilters[AccountState.Free],
-                vm.VisibilityFilters[AccountState.Premium]
-            ) = (
-                btnAreUncheckedDisplayed.IsChecked ?? false,
-                btnAreReservedDisplayed.IsChecked ?? false,
-                btnAreInvalidDisplayed.IsChecked ?? false,
-                btnAreFreeDisplayed.IsChecked ?? false,
-                btnArePremiumDisplayed.IsChecked ?? false
-            );
-            Log.Information("DataGrid filters have been updated: {filters}", vm.VisibilityFilters);
-
             ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
             {
-                cv.Filter = (acc) => vm.VisibilityFilters[(acc as Account).State];
+                cv.Filter = (acc) => Settings.DataGridFilters[(acc as Account).State];
                 cv.Refresh();
             });
             Log.Information("New DataGrid filters have been applied");
@@ -78,30 +62,31 @@ namespace NordChecker.Views
 
         private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
 
-        public MainWindow(MainWindowViewModel viewModel)
+        public MainWindow() { }
+
+        public MainWindow(MainWindowViewModel viewModel, IAppSettings settings)
         {
             InitializeComponent();
             HideBoundingBox(this);
-            vm = viewModel;
 
-            dgAccounts.SelectionChanged += (obj, e) =>
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                    dgAccounts.UnselectAll()));
+            Settings = settings;
 
-            var _itemSourceList = new CollectionViewSource() { Source = vm.ComboBase.Accounts };
-            ICollectionView cv = _itemSourceList.View;
+            settings.DataGridFilters.CollectionChanged +=
+                (object sender, NotifyCollectionChangedEventArgs e) =>
+                UpdateFiltering();
+
+            var source = new CollectionViewSource() { Source = viewModel.ComboBase.Accounts };
+            ICollectionView cv = source.View;
             dgAccounts.ItemsSource = cv;
-            dgAccounts.Items.IsLiveSorting = true;
 
             new Thread(() =>
             {
                 while (true)
                 {
+                    while (viewModel.SelectedAccount != null)
+                        Thread.Sleep(10);
                     var filter = cv.Filter;
-                    Dispatcher.BeginInvoke(() => cv.Filter = filter);
-
-                    //dgAccounts.ItemsSource = cv;
-
+                    Dispatcher.BeginInvoke(() => cv.Refresh()).Wait();
                     Thread.Sleep(500);
                 }
             })
@@ -110,8 +95,7 @@ namespace NordChecker.Views
 
         private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
         {
-            if (vm == null) return;
-            vm.Settings.AccentColor = (sender as HandyControl.Controls.ColorPicker).SelectedBrush;
+            Settings.AccentColor = (sender as HandyControl.Controls.ColorPicker).SelectedBrush;
         }
     }
 }

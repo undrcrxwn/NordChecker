@@ -71,9 +71,9 @@ namespace NordChecker.Models
             int rand = new Random().Next(11);
             account.State = rand switch
             {
-                <= 7 => AccountState.Invalid,
-                <= 9 => AccountState.Free,
-                <= 10 => AccountState.Premium
+                <= 1 => AccountState.Premium,
+                <= 3 => AccountState.Free,
+                _ => AccountState.Invalid
             };
             return;
 
