@@ -79,8 +79,8 @@ namespace NordChecker.Shared
                 [ConsoleThemeStyle.LevelFatal] = "\x1b[38;5;0196m\x1b[4m"
             });
 
-        private static readonly string consoleOutputFormat = "{Timestamp:yyyy-MM-dTHH:mm:ss.ffffffzzz} {ThreadColor} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
-        private static readonly string fileOutputFormat = "{Timestamp:yyyy-MM-dTHH:mm:ss.ffffffzzz} {ThreadIcon} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
+        private static readonly string consoleOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadColor} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
+        private static readonly string fileOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadIcon} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
         private LoggerConfiguration configuration;
 
         public LoggerBuilder() =>

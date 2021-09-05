@@ -38,13 +38,12 @@ namespace NordChecker.Views
 
         private static void HideBoundingBox(object root)
         {
-            Control control = root as Control;
-            if (control != null)
+            if (root is Control control)
                 control.FocusVisualStyle = null;
 
-            if (root is DependencyObject)
+            if (root is DependencyObject @object)
             {
-                foreach (object child in LogicalTreeHelper.GetChildren((DependencyObject)root))
+                foreach (object child in LogicalTreeHelper.GetChildren(@object))
                     HideBoundingBox(child);
             }
         }

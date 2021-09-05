@@ -18,25 +18,4 @@ namespace NordChecker.Models
         Idle,
         Processing
     }
-
-    public class ComboBase : INotifyPropertyChangedAdvanced
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private ObservableCollection<Account> _Accounts = new ObservableCollection<Account>();
-        public ObservableCollection<Account> Accounts
-        {
-            get => _Accounts;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Accounts, value, PropertyChanged);
-        }
-
-        public Dictionary<AccountState, int> CalculateStats()
-        {
-            var result = new Dictionary<AccountState, int>();
-            foreach (AccountState accountState in Enum.GetValues(typeof(AccountState)))
-                result[accountState] = Accounts.Count(a => a.State == accountState);
-            return result;
-        }
-    }
 }

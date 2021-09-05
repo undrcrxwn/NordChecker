@@ -21,10 +21,21 @@ namespace NordChecker.Views
     /// </summary>
     public partial class LoadProxiesWindow : Window
     {
-        public LoadProxiesWindow(LoadProxiesWindowViewModel viewModel, IAppSettings settings)
+        public LoadProxiesWindow()
         {
             InitializeComponent();
-            DataContext = viewModel;
+            DataContext = new LoadProxiesWindowViewModel();
+        }
+
+        private void btnProceed_Click(object sender, RoutedEventArgs e)
+        {
+            (DataContext as LoadProxiesWindowViewModel).IsOperationConfirmed = true;
+            Close();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

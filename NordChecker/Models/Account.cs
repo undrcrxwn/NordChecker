@@ -20,15 +20,13 @@ namespace NordChecker.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //public AccountState State { get; set; }
-        private AccountState _State;
+        private AccountState _State = AccountState.Unchecked;
         public AccountState State
         {
             get => _State;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _State, value, PropertyChanged);
         }
-
 
         public string Email { get; set; }
         public string Password { get; set; }
@@ -43,11 +41,10 @@ namespace NordChecker.Models
             set => (Email, Password) = value;
         }
 
-        public Account(string email, string password, AccountState state = AccountState.Unchecked)
+        public Account(string email, string password)
         {
             Email = email;
             Password = password;
-            State = state;
         }
     }
 }

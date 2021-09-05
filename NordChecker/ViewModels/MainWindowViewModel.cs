@@ -107,10 +107,10 @@ namespace NordChecker.ViewModels
     public class Boolean2ModeIconStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter,
-            CultureInfo culture) => (bool)value ? "👨🏻‍🔬" : "🦄";
+            CultureInfo culture) => (bool)value ? "👨🏻‍🔬" : "🕊";
 
         public object ConvertBack(object value, Type targetType, object parameter,
-            CultureInfo culture) => value.ToString() == "👨🏻‍🔬";
+            CultureInfo culture) => throw new NotSupportedException();
     }
 
     [ValueConversion(typeof(bool), typeof(string))]
@@ -137,44 +137,6 @@ namespace NordChecker.ViewModels
         Working
     }
 
-    public class Arc : INotifyPropertyChangedAdvanced
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private float _StartAngle;
-        public float StartAngle
-        {
-            get => _StartAngle;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _StartAngle, value, PropertyChanged);
-        }
-
-        private float _EndAngle;
-        public float EndAngle
-        {
-            get => _EndAngle;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _EndAngle, value, PropertyChanged);
-        }
-
-
-        private Visibility _Visibility;
-
-        public Visibility Visibility
-        {
-            get => _Visibility;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Visibility, value, PropertyChanged);
-        }
-
-        public Arc(float startAngle, float endAngle, Visibility visibility)
-        {
-            StartAngle = startAngle;
-            EndAngle = endAngle;
-            Visibility = visibility;
-        }
-    }
-
     public class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -184,6 +146,22 @@ namespace NordChecker.ViewModels
         public IAppSettings Settings { get; set; }
 
         private ThreadMasterToken masterToken;
+
+        private ComboBaseViewModel _ComboBase = new ComboBaseViewModel();
+        public ComboBaseViewModel ComboBase
+        {
+            get => _ComboBase;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ComboBase, value, PropertyChanged);
+        }
+
+        private ProxyDispenserViewModel _ProxyDispenser = new ProxyDispenserViewModel();
+        public ProxyDispenserViewModel ProxyDispenser
+        {
+            get => _ProxyDispenser;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ProxyDispenser, value, PropertyChanged);
+        }
 
         public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
         public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
@@ -200,7 +178,7 @@ namespace NordChecker.ViewModels
                 inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineIdle));
                 inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelinePaused));
                 inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineWorking));
-                UpdateStats();
+                ComboBase.Refresh();
             }
         }
 
@@ -248,18 +226,10 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        private ComboBase _ComboBase = new ComboBase();
-        public ComboBase ComboBase
-        {
-            get => _ComboBase;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ComboBase, value, PropertyChanged);
-        }
-
         #endregion
 
         private ThreadDistributor<Account> distributor;
-        Checker checker = new Checker(7 * 1000);
+        private Checker checker = new Checker(7000);
 
         #region Commands
 
@@ -432,68 +402,59 @@ namespace NordChecker.ViewModels
 
             Task.Run(() =>
             {
-                var dialog = new OpenFileDialog();
-                dialog.DefaultExt = ".txt";
-                dialog.Filter = "NordVPN Proxy List|*.txt|Все файлы|*.*";
-                if (dialog.ShowDialog() != true) return;
-
                 Window window = null;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    window = new LoadProxiesWindow(new LoadProxiesWindowViewModel(), Settings);
+                    window = new LoadProxiesWindow();
                     window.Owner = Application.Current.MainWindow;
-                    if (window.ShowDialog() != true) return;
-                });
+                    window.ShowDialog();
 
-                Task.Factory.StartNew(() =>
-                {
-                    Log.Information("Reading {type} proxies from {file}", Settings.LastChosenProxyType, dialog.FileName);
-                    Stopwatch watch = new Stopwatch();
-                    watch.Start();
-                    
-                    /*string line;
-                    using (StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName)))
+                    var result = window.DataContext as LoadProxiesWindowViewModel;
+                    if (!result.IsOperationConfirmed) return;
+
+                    Task.Factory.StartNew(() =>
                     {
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            ProxyClient proxy;
-                            try
-                            {
-                                account = Parser.Parse(line);
-                            }
-                            catch
-                            {
-                                MismatchedCount++;
-                                Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
-                                continue;
-                            }
+                        Log.Information("Reading {type} proxies from {file}", result.ProxyType, result.Path);
+                        Stopwatch watch = new Stopwatch();
+                        watch.Start();
 
-                            if (Settings.AreComboDuplicatesSkipped)
+                        string line;
+                        using (StreamReader reader = new StreamReader(File.OpenRead(result.Path)))
+                        {
+                            lock (ProxyDispenser.Proxies)
                             {
-                                if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
-                                    cache.Any(a => a.Credentials == account.Credentials))
+                                while ((line = reader.ReadLine()) != null)
                                 {
-                                    DuplicatesCount++;
-                                    Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
-                                    continue;
+                                    ProxyClient client;
+                                    try
+                                    {
+                                        client = ProxyClient.Parse(result.ProxyType, line);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Log.Error(e, "Line \"{line}\" has been skipped as mismatched", line);
+                                        continue;
+                                    }
+
+                                    if (Settings.AreProxyDuplicatesSkipped)
+                                    {
+                                        if (ProxyDispenser.Proxies.Any(p => p.Client.ToString() == client.ToString()))
+                                        {
+                                            Log.Debug("Proxy {proxy} has been skipped as duplicate", client);
+                                            continue;
+                                        }
+                                    }
+
+                                    ProxyDispenser.Proxies.Add(new Proxy(client));
+                                    Log.Debug("Proxy {proxy} has been added to the dispenser", client);
                                 }
                             }
-
-                            cache.Add(account);
-                            Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
                         }
-                    }
 
-                    watch.Stop();
-                    Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
-                        cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
-
-                    Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        foreach (Account account in cache)
-                            ComboBase.Accounts.Add(account);
-                        LoadedCount += cache.Count;
-                    });*/
+                        watch.Stop();
+                        Log.Information("{total} proxies have been extracted from {file} in {elapsed}ms",
+                            ProxyDispenser.Proxies.Count, result.Path, watch.ElapsedMilliseconds);
+                    });
                 });
             });
         }
@@ -590,89 +551,10 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region UI
-
-        private Dictionary<AccountState, Arc> _Arcs;
-        public Dictionary<AccountState, Arc> Arcs
-        {
-            get => _Arcs;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Arcs, value, PropertyChanged);
-        }
-
-        private Dictionary<AccountState, int> _Stats = new Dictionary<AccountState, int>();
-        public Dictionary<AccountState, int> Stats
-        {
-            get => _Stats;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Stats, value, PropertyChanged);
-        }
-
-        private void UpdateStats()
-        {
-            #region Arc Progress
-
-            Stats = ComboBase.CalculateStats();
-            int loaded = Math.Max(1, Stats.Values.Sum());
-            Dictionary<AccountState, float> shares =
-                Stats.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
-
-            float margin = 6;
-            float pivot = margin / 2;
-            float maxPossibleAngle = 360 - (shares.Values.Count(v => v > 0) * margin);
-            foreach (var (state, share) in shares)
-            {
-                if (share == 0)
-                {
-                    Arcs[state].StartAngle = 0;
-                    Arcs[state].EndAngle = 0;
-                    Arcs[state].Visibility = Visibility.Hidden;
-                }
-                else if (share == 1)
-                {
-                    Arcs[state].StartAngle = 0;
-                    Arcs[state].EndAngle = 360;
-                    Arcs[state].Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    Arcs[state].StartAngle = pivot;
-                    pivot += share * maxPossibleAngle;
-                    Arcs[state].EndAngle = pivot;
-                    pivot += margin;
-                    Arcs[state].Visibility = Visibility.Visible;
-                }
-            }
-
-            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
-                return;
-            Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
-
-            if (Stats[AccountState.Unchecked] + Stats[AccountState.Reserved] > 0)
-            {
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
-                    = 1 - shares[AccountState.Unchecked] - shares[AccountState.Reserved];
-            }
-            else
-            {
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         public MainWindowViewModel() { }
 
         public MainWindowViewModel(IAppSettings settings)
         {
-            _Arcs = new Dictionary<AccountState, Arc>();
-            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
-                _Arcs.Add(key, new Arc(0, 1, Visibility.Hidden));
-
             Settings = settings;
 
             #region Commands
@@ -692,7 +574,7 @@ namespace NordChecker.ViewModels
 
             #endregion
 
-            Settings.PropertyChanged += (object sender, PropertyChangedEventArgs e) =>
+            Settings.PropertyChanged += (sender, e) =>
             {
                 if (e.PropertyName == Utils.GetMemberName(() => Settings.ThreadCount))
                     distributor.ThreadCount = Settings.ThreadCount;
@@ -703,10 +585,12 @@ namespace NordChecker.ViewModels
 
             DispatcherTimer updateTimer = new DispatcherTimer();
             updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-            updateTimer.Tick += (object sender, EventArgs e) => UpdateStats();
-            //updateTimer.Tick += (object sender, EventArgs e) =>
-            //    ComboBase.State = distributor.CountActiveThreads() > 0
-            //    ? ComboBaseState.Processing : ComboBaseState.Idle;
+            updateTimer.Tick += (sender, e) =>
+            {
+                ComboBase.Refresh();
+                ProxyDispenser.Refresh();
+            };
+
             updateTimer.Start();
         }
     }

@@ -5,13 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NordChecker.Views"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
-        xmlns:models="clr-namespace:NordChecker.Models"
+        xmlns:vm="clr-namespace:NordChecker.ViewModels"
         xmlns:xnet="clr-namespace:Leaf.xNet;assembly=Leaf.xNet"
         xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=models:AppSettings, IsDesignTimeCreatable=True}"
         WindowStartupLocation="CenterScreen"
-        Title="Загрузить прокси" Height="450" Width="800">
+        Title="Загрузить прокси-лист"
+        Width="400"
+        Topmost="True"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        Background="{DynamicResource RegionBrush}">
     <Window.Resources>
         <ObjectDataProvider x:Key="ProxyTypeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -20,6 +25,36 @@
         </ObjectDataProvider>
     </Window.Resources>
     <Grid>
-        <hc:ComboBox ItemsSource="{Binding Source={StaticResource ProxyTypeEnumValues}}" SelectedValue="{Binding Settings.LastChosenProxyType}" Grid.Column="2"/>
+        <hc:UniformSpacingPanel Margin="10" Orientation="Vertical" Spacing="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Path}" IsReadOnly="True"/>
+                <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
+            </Grid>
+            <hc:ComboBox ItemsSource="{Binding Source={StaticResource ProxyTypeEnumValues}}" SelectedValue="{Binding ProxyType}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btnProceed" Content="Продолжить" Click="btnProceed_Click" HorizontalAlignment="Stretch">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="btnCancel" Content="Отмена" Click="btnCancel_Click" Grid.Column="2" HorizontalAlignment="Stretch"/>
+            </Grid>
+        </hc:UniformSpacingPanel>
     </Grid>
 </Window>

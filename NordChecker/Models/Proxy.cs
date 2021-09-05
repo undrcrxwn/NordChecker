@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Leaf.xNet;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +8,25 @@ using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
-    internal class Proxy
+    public enum ProxyState
     {
-        public string Content;
+        Valid,
+        Invalid,
+        Unchecked
+    }
 
-        public Proxy(string content)
+    public class Proxy
+    {
+        public ProxyClient Client { get; private set; }
+        public ProxyState State = ProxyState.Unchecked;
+
+        public Proxy(ProxyClient client)
         {
-            Content = content;
+            Client = client;
         }
     }
 
-    internal class ProxyEnumerator : IEnumerator
+    public class ProxyEnumerator : IEnumerator
     {
         private int i = -1;
         private List<Proxy> proxies;
@@ -49,15 +58,15 @@ namespace NordChecker.Models
         }
     }
 
-    internal class ProxyDispenser
+    public class ProxyDispenser
     {
-        private List<Proxy> Proxies;
+        public List<Proxy> Proxies;
         private ProxyEnumerator enumerator;
         private object locker = new object();
 
-        public ProxyDispenser(List<Proxy> proxies)
+        public ProxyDispenser()
         {
-            Proxies = proxies;
+            Proxies = new List<Proxy>();
             enumerator = new ProxyEnumerator(Proxies);
         }
 

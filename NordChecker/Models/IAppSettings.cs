@@ -18,6 +18,7 @@ namespace NordChecker.Models
         public bool IsConsoleLoggingEnabled { get; set; }
         public ObservableDictionary<AccountState, bool> DataGridFilters { get; set; }
         public bool AreComboDuplicatesSkipped { get; set; }
+        public bool AreProxyDuplicatesSkipped { get; set; }
         public ProxyType LastChosenProxyType { get; set; }
         public int ThreadCount { get; set; }
         public int TimeoutInSeconds { get; set; }

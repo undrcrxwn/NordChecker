@@ -3,11 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:NordChecker.ViewModels"
-        xmlns:models="clr-namespace:NordChecker.Models"
+        xmlns:m="clr-namespace:NordChecker.Models"
         xmlns:local="clr-namespace:NordChecker"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:events="clr-namespace:Serilog.Events;assembly=Serilog"
         xmlns:themes="clr-namespace:HandyControl.Themes;assembly=HandyControl"
+        xmlns:xnet="clr-namespace:Leaf.xNet;assembly=Leaf.xNet"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         x:Class="NordChecker.Views.MainWindow"
@@ -41,7 +42,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="140"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -55,116 +55,256 @@
         <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
 
-        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
-            <Canvas x:Name="progressCanvas" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=Arcs[(m:AccountState)Premium].StartAngle}"
-                        EndAngle   = "{Binding Path=Arcs[(m:AccountState)Premium].EndAngle}"
-                        Visibility = "{Binding Path=Arcs[(m:AccountState)Premium].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#326cf3" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=Arcs[(m:AccountState)Free].StartAngle}"
-                        EndAngle   = "{Binding Path=Arcs[(m:AccountState)Free].EndAngle}"
-                        Visibility = "{Binding Path=Arcs[(m:AccountState)Free].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="{DynamicResource DangerBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=Arcs[(m:AccountState)Invalid].StartAngle}"
-                        EndAngle   = "{Binding Path=Arcs[(m:AccountState)Invalid].EndAngle}"
-                        Visibility = "{Binding Path=Arcs[(m:AccountState)Invalid].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=Arcs[(m:AccountState)Reserved].StartAngle}"
-                        EndAngle   = "{Binding Path=Arcs[(m:AccountState)Reserved].EndAngle}"
-                        Visibility = "{Binding Path=Arcs[(m:AccountState)Reserved].Visibility}"/>
-                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvas}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=Arcs[(m:AccountState)Unchecked].StartAngle}"
-                        EndAngle   = "{Binding Path=Arcs[(m:AccountState)Unchecked].EndAngle}"
-                        Visibility = "{Binding Path=Arcs[(m:AccountState)Unchecked].Visibility}"/>
-                <Grid Width="{Binding ActualWidth, ElementName=progressCanvas}"
-                      Height="{Binding ActualWidth, ElementName=progressCanvas}">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding LoadedCount, Converter={StaticResource NumberConverter}}"
+        <TabControl Grid.Row="2" TabStripPlacement="Bottom">
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
+                </TabItem.Header>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="140"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+                        <Canvas x:Name="progressCanvasComboChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].EndAngle}"
+                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#326cf3" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].EndAngle}"
+                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="{DynamicResource DangerBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].EndAngle}"
+                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].EndAngle}"
+                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].EndAngle}"
+                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].Visibility}"/>
+                            <Grid Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}"
+                      Height="{Binding ActualWidth, ElementName=progressCanvasComboChart}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-                        <TextBlock Text="всего"
+                                    <TextBlock Text="всего"
                                    HorizontalAlignment="Center"
                                    Margin="0,-6,0,0"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Canvas>
                     </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <ScrollViewer>
+                            <StackPanel Orientation="Vertical" Margin="10,0,10,4">
+                                <StackPanel.Resources>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="Height" Value="60"/>
+                                        <Setter Property="Margin" Value="0,0,0,6"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#FF9135FF"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#326cf3"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource DangerBrush}"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border Visibility="{Binding Settings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Grid>
+                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </Grid>
-            </Canvas>
-        </StackPanel>
-        <Grid Grid.Row="2">
-            <ScrollViewer>
-                <StackPanel Orientation="Vertical" Margin="10,0,10,4">
-                    <StackPanel.Resources>
-                        <Style TargetType="{x:Type Border}">
-                            <Setter Property="Height" Value="60"/>
-                            <Setter Property="Margin" Value="0,0,0,6"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                            <Setter Property="CornerRadius" Value="5"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <Border>
-                        <Grid>
-                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#FF9135FF"/>
-                            </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border>
-                        <Grid>
-                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#326cf3"/>
-                            </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border>
-                        <Grid>
-                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource DangerBrush}"/>
-                            </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border>
-                        <Grid>
-                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
-                            </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border>
-                        <Grid>
-                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
-                            </hc:SimplePanel>
-                            <hc:SimpleText Text="{Binding Path=Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border>
-                        <Grid>
-                            <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                            <hc:SimpleText Text="{Binding MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                    <Border Visibility="{Binding Settings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
-                        <Grid>
-                            <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                            <hc:SimpleText Text="{Binding DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="Прокси" Width="55" TextAlignment="Center"/>
+                </TabItem.Header>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="140"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+                        <Canvas x:Name="progressCanvasProxyChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#FF9135FF" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4].EndAngle}"
+                        Visibility = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#326cf3" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4A].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4A].EndAngle}"
+                        Visibility = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks4A].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="{DynamicResource DangerBrush}" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks5].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks5].EndAngle}"
+                        Visibility = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)Socks5].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)HTTP].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)HTTP].EndAngle}"
+                        Visibility = "{Binding Path=ProxyDispenser.Arcs[(xnet:ProxyType)HTTP].Visibility}"/>
+                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        StartAngle = "{Binding Path=ProxyDispenser.ArcInvalid.StartAngle}"
+                        EndAngle   = "{Binding Path=ProxyDispenser.ArcInvalid.EndAngle}"
+                        Visibility = "{Binding Path=ProxyDispenser.ArcInvalid.Visibility}"/>
+                            <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
+                      Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding LoadedCount, Converter={StaticResource NumberConverter}}"
+                                   HorizontalAlignment="Center"
+                                   FontWeight="Medium"
+                                   FontSize="24"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="всего"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,-6,0,0"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Canvas>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <ScrollViewer>
+                            <StackPanel Orientation="Vertical" Margin="10,0,10,4">
+                                <StackPanel.Resources>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="Height" Value="60"/>
+                                        <Setter Property="Margin" Value="0,0,0,6"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#FF9135FF"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#326cf3"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="{DynamicResource DangerBrush}"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                            <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
+                                        </hc:SimplePanel>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border>
+                                    <Grid>
+                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                                <Border Visibility="{Binding Settings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Grid>
+                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
         <DataGrid x:Name="dgAccounts"
                   Padding="4,4,4,0"
@@ -211,7 +351,6 @@
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
                                     <Setter Property="Visibility" TargetName="pRowMenu" Value="Visible"/>
-                                    <!--<Setter Property="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>-->
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>
@@ -244,7 +383,7 @@
             <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Free]}"/>
             <ToggleButton Content="Премиум"     IsChecked="{Binding Path=Settings.DataGridFilters[(m:AccountState)Premium]}"/>
         </hc:ButtonGroup>
-        
+
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding LoadCombosCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
             <StackPanel Margin="10,0,10,4">
@@ -322,6 +461,7 @@
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding Settings.AreProxyDuplicatesSkipped}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
                         </hc:UniformSpacingPanel>
                     </Border>

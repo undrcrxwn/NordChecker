@@ -76,6 +76,17 @@ namespace NordChecker.Models
             }
         }
         
+        private bool _AreProxyDuplicatesSkipped = true;
+        public bool AreProxyDuplicatesSkipped
+        {
+            get => _AreProxyDuplicatesSkipped;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreProxyDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
+            }
+        }
+
         private ProxyType _LastChosenProxyType = ProxyType.Socks4;
         public ProxyType LastChosenProxyType
         {
