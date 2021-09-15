@@ -30,8 +30,5 @@ namespace NordChecker.Shared
 
         public static void HideConsole() =>
             ShowWindow(GetConsoleWindow(), SW_HIDE);
-
-        public static string GetMemberName<T>(Expression<Func<T>> expr) =>
-            (expr.Body as MemberExpression).Member.Name;
     }
 }

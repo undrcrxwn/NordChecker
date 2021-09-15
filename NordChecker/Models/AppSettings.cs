@@ -123,6 +123,14 @@ namespace NordChecker.Models
             }
         }
 
+        private string _ExportFormatScheme = "{mail}:{pass} | {expiration} | {services}";
+        public string ExportFormatScheme
+        {
+            get => _ExportFormatScheme;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ExportFormatScheme, value, PropertyChanged);
+        }
+
         private LogEventLevel _LogEventLevel = LogEventLevel.Information;
         public LogEventLevel LogEventLevel
         {
@@ -172,10 +180,10 @@ namespace NordChecker.Models
                 var @this = this as INotifyPropertyChangedAdvanced;
                 @this.OnPropertyChanged(
                     PropertyChanged,
-                    Utils.GetMemberName(() => DataGridFilters));
+                    nameof(DataGridFilters));
                 @this.LogPropertyChanged(
                     LogEventLevel.Information,
-                    Utils.GetMemberName(() => DataGridFilters),
+                    nameof(DataGridFilters),
                     DataGridFilters);
             };
         }

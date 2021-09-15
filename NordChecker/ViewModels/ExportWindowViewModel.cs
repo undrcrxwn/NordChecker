@@ -1,5 +1,5 @@
-﻿using Leaf.xNet;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
@@ -10,15 +10,18 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace NordChecker.ViewModels
 {
-    public class LoadProxiesWindowViewModel : INotifyPropertyChangedAdvanced
+    public class ExportWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Properties
+
+        public IAppSettings Settings { get; set; }
 
         private bool _IsWindowVisible = true;
         public bool IsWindowVisible
@@ -28,20 +31,44 @@ namespace NordChecker.ViewModels
                 .Set(ref _IsWindowVisible, value, PropertyChanged);
         }
 
-        private ProxyType _ProxyType = ProxyType.Socks4;
-        public ProxyType ProxyType
-        {
-            get => _ProxyType;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ProxyType, value, PropertyChanged);
-        }
-
         private string _Path;
         public string Path
         {
             get => _Path;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Path, value, PropertyChanged);
+        }
+
+        private bool _ArePremiumIncluded = true;
+        public bool ArePremiumIncluded
+        {
+            get => _ArePremiumIncluded;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ArePremiumIncluded, value, PropertyChanged);
+        }
+
+        private bool _AreFreeIncluded = true;
+        public bool AreFreeIncluded
+        {
+            get => _AreFreeIncluded;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreFreeIncluded, value, PropertyChanged);
+        }
+
+        private bool _AreInvalidIncluded = true;
+        public bool AreInvalidIncluded
+        {
+            get => _AreInvalidIncluded;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreInvalidIncluded, value, PropertyChanged);
+        }
+
+        private bool _AreUncheckedIncluded = true;
+        public bool AreUncheckedIncluded
+        {
+            get => _AreUncheckedIncluded;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreUncheckedIncluded, value, PropertyChanged);
         }
 
         private bool _IsOperationConfirmed = false;
@@ -64,19 +91,19 @@ namespace NordChecker.ViewModels
 
             Task.Run(() =>
             {
-                var dialog = new OpenFileDialog();
-                dialog.DefaultExt = ".txt";
-                dialog.Filter = "NordVPN Proxy List|*.txt|Все файлы|*.*";
+                var dialog = new CommonOpenFileDialog() { IsFolderPicker = true };
                 IsWindowVisible = false;
-                if (dialog.ShowDialog() != true) return;
+                CommonFileDialogResult result = Application.Current.Dispatcher.Invoke(dialog.ShowDialog);
                 IsWindowVisible = true;
-
+                if (result != CommonFileDialogResult.Ok) return;
+                
                 Path = dialog.FileName;
             });
         }
 
-        public LoadProxiesWindowViewModel()
+        public ExportWindowViewModel(IAppSettings settings)
         {
+            Settings = settings;
             ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
         }
     }

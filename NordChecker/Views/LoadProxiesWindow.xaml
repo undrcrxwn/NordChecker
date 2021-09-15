@@ -16,6 +16,7 @@
         Topmost="True"
         ResizeMode="NoResize"
         SizeToContent="Height"
+        Visibility="{Binding IsWindowVisible, Converter={StaticResource Boolean2VisibilityConverter}, Mode=TwoWay}"
         Background="{DynamicResource RegionBrush}">
     <Window.Resources>
         <ObjectDataProvider x:Key="ProxyTypeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">

@@ -67,7 +67,7 @@ namespace NordChecker.Models
                 _ThreadCount = value;
 
                 Log.Information("Distributor's {property} has been set to {value} with {delta} delta",
-                    Utils.GetMemberName(() => ThreadCount), value, delta);
+                    nameof(ThreadCount), value, delta);
 
                 // if delta is positive
                 for (var i = 0; i < delta; i++)

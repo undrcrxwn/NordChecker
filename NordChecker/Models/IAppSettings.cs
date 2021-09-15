@@ -22,6 +22,7 @@ namespace NordChecker.Models
         public ProxyType LastChosenProxyType { get; set; }
         public int ThreadCount { get; set; }
         public int TimeoutInSeconds { get; set; }
+        public string ExportFormatScheme { get; set; }
         public LogEventLevel LogEventLevel { get; set; }
         public ApplicationTheme Theme { get; set; }
         public SolidColorBrush AccentColor { get; set; }

@@ -32,6 +32,30 @@ namespace NordChecker.ViewModels
                 .Set(ref _Stats, value, PropertyChanged);
         }
 
+        private int _LoadedCount;
+        public int LoadedCount
+        {
+            get => _LoadedCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _LoadedCount, value, PropertyChanged);
+        }
+
+        private int _MismatchedCount;
+        public int MismatchedCount
+        {
+            get => _MismatchedCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _MismatchedCount, value, PropertyChanged);
+        }
+
+        private int _DuplicatesCount;
+        public int DuplicatesCount
+        {
+            get => _DuplicatesCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _DuplicatesCount, value, PropertyChanged);
+        }
+
         private Dictionary<AccountState, ArcViewModel> _Arcs;
         public Dictionary<AccountState, ArcViewModel> Arcs
         {
@@ -45,7 +69,7 @@ namespace NordChecker.ViewModels
             foreach (AccountState accountState in Enum.GetValues(typeof(AccountState)))
                 Stats[accountState] = Accounts.Count(a => a.State == accountState);
             var inst = this as INotifyPropertyChangedAdvanced;
-            inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => Stats));
+            inst.OnPropertyChanged(PropertyChanged, nameof(Stats));
 
             int loaded = Math.Max(1, Stats.Values.Sum());
             Dictionary<AccountState, float> shares =
@@ -59,7 +83,7 @@ namespace NordChecker.ViewModels
                 if (share == 0)
                 {
                     Arcs[state].StartAngle = 0;
-                    Arcs[state].EndAngle = 0;
+                    Arcs[state].EndAngle = 1;
                     Arcs[state].Visibility = Visibility.Hidden;
                 }
                 else if (share == 1)

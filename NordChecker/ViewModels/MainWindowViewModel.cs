@@ -32,104 +32,6 @@ using Leaf.xNet;
 
 namespace NordChecker.ViewModels
 {
-    #region Converters
-
-    [ValueConversion(typeof(int), typeof(string))]
-    public class NumberConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var nfi = (NumberFormatInfo)culture.NumberFormat.Clone();
-            nfi.NumberGroupSeparator = " ";
-            return ((int)value).ToString("#,0", nfi);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            int result;
-            if (int.TryParse(value.ToString(), NumberStyles.Any, culture, out result))
-                return result;
-            else if (int.TryParse(value.ToString(), NumberStyles.Any, culture, out result))
-                return result;
-            return value;
-        }
-    }
-
-    [ValueConversion(typeof(AccountState), typeof(string))]
-    public class AccState2StringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (AccountState)value switch
-            {
-                AccountState.Unchecked => "🕒 В очереди",
-                AccountState.Reserved => "🕖 В обработке",
-                AccountState.Invalid => "❌ Невалидный",
-                AccountState.Free => "✔️ Бесплатный",
-                AccountState.Premium => "⭐ Премиум",
-                _ => throw new ArgumentException()
-            };
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            string lowerCase = value.ToString().ToLower();
-            if (lowerCase.Contains("в очереди")) return AccountState.Unchecked;
-            if (lowerCase.Contains("в обработке")) return AccountState.Reserved;
-            if (lowerCase.Contains("невалидный")) return AccountState.Invalid;
-            if (lowerCase.Contains("бесплатный")) return AccountState.Free;
-            if (lowerCase.Contains("премиум")) return AccountState.Premium;
-            throw new ArgumentException();
-        }
-    }
-
-    [ValueConversion(typeof(bool), typeof(Visibility))]
-    public class Boolean2VisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter,
-            CultureInfo culture) => (bool)value ? Visibility.Visible : Visibility.Collapsed;
-
-        public object ConvertBack(object value, Type targetType, object parameter,
-            CultureInfo culture) => (Visibility)value == Visibility.Visible;
-    }
-
-    [ValueConversion(typeof(bool), typeof(bool))]
-    public class InverseBooleanConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter,
-            CultureInfo culture) => !(bool)value;
-
-        public object ConvertBack(object value, Type targetType, object parameter,
-            CultureInfo culture) => !(bool)value;
-    }
-
-    [ValueConversion(typeof(bool), typeof(string))]
-    public class Boolean2ModeIconStringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter,
-            CultureInfo culture) => (bool)value ? "👨🏻‍🔬" : "🕊";
-
-        public object ConvertBack(object value, Type targetType, object parameter,
-            CultureInfo culture) => throw new NotSupportedException();
-    }
-
-    [ValueConversion(typeof(bool), typeof(string))]
-    public class ApplicationTheme2StringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => (ApplicationTheme)value switch
-            {
-                ApplicationTheme.Light => "Светлая",
-                ApplicationTheme.Dark => "Тёмная",
-                _ => throw new ArgumentException()
-            };
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotSupportedException();
-    }
-
-    #endregion
-
     public enum PipelineState
     {
         Idle,
@@ -175,9 +77,9 @@ namespace NordChecker.ViewModels
             {
                 INotifyPropertyChangedAdvanced inst = this;
                 inst.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
-                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineIdle));
-                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelinePaused));
-                inst.OnPropertyChanged(PropertyChanged, Utils.GetMemberName(() => IsPipelineWorking));
+                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
+                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
+                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
                 ComboBase.Refresh();
             }
         }
@@ -197,34 +99,6 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _SelectedAccount, value, PropertyChanged);
         }
-
-        #region Stats
-
-        private int _LoadedCount;
-        public int LoadedCount
-        {
-            get => _LoadedCount;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _LoadedCount, value, PropertyChanged);
-        }
-
-        private int _MismatchedCount;
-        public int MismatchedCount
-        {
-            get => _MismatchedCount;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _MismatchedCount, value, PropertyChanged);
-        }
-
-        private int _DuplicatesCount;
-        public int DuplicatesCount
-        {
-            get => _DuplicatesCount;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _DuplicatesCount, value, PropertyChanged);
-        }
-
-        #endregion
 
         #endregion
 
@@ -334,7 +208,7 @@ namespace NordChecker.ViewModels
                             }
                             catch
                             {
-                                MismatchedCount++;
+                                ComboBase.MismatchedCount++;
                                 Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
                                 continue;
                             }
@@ -344,7 +218,7 @@ namespace NordChecker.ViewModels
                                 if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
                                 {
-                                    DuplicatesCount++;
+                                    ComboBase.DuplicatesCount++;
                                     Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
                                     continue;
                                 }
@@ -363,7 +237,7 @@ namespace NordChecker.ViewModels
                     {
                         foreach (Account account in cache)
                             ComboBase.Accounts.Add(account);
-                        LoadedCount += cache.Count;
+                        ComboBase.LoadedCount += cache.Count;
                     });
                 });
             });
@@ -381,9 +255,9 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnClearCombosCommandExecuted");
             //masterToken.Cancel();
-            LoadedCount = 0;
-            MismatchedCount = 0;
-            DuplicatesCount = 0;
+            ComboBase.LoadedCount = 0;
+            ComboBase.MismatchedCount = 0;
+            ComboBase.DuplicatesCount = 0;
             ComboBase.Accounts.Clear();
             PipelineState = PipelineState.Idle;
         }
@@ -402,10 +276,9 @@ namespace NordChecker.ViewModels
 
             Task.Run(() =>
             {
-                Window window = null;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    window = new LoadProxiesWindow();
+                    Window window = new LoadProxiesWindow();
                     window.Owner = Application.Current.MainWindow;
                     window.ShowDialog();
 
@@ -423,15 +296,20 @@ namespace NordChecker.ViewModels
                         {
                             lock (ProxyDispenser.Proxies)
                             {
+                                Log.Warning("Locked {0}", nameof(ProxyDispenser.Proxies));
                                 while ((line = reader.ReadLine()) != null)
                                 {
                                     ProxyClient client;
                                     try
                                     {
-                                        client = ProxyClient.Parse(result.ProxyType, line);
+                                        var types = Enum.GetValues(typeof(ProxyType));
+                                        var type = (ProxyType)types.GetValue(new Random().Next(0, types.Length));
+                                        //client = ProxyClient.Parse(result.ProxyType, line);
+                                        client = ProxyClient.Parse(type, line);
                                     }
                                     catch (Exception e)
                                     {
+                                        ProxyDispenser.MismatchedCount++;
                                         Log.Error(e, "Line \"{line}\" has been skipped as mismatched", line);
                                         continue;
                                     }
@@ -440,12 +318,19 @@ namespace NordChecker.ViewModels
                                     {
                                         if (ProxyDispenser.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
+                                            ProxyDispenser.DuplicatesCount++;
                                             Log.Debug("Proxy {proxy} has been skipped as duplicate", client);
                                             continue;
                                         }
                                     }
 
-                                    ProxyDispenser.Proxies.Add(new Proxy(client));
+                                    Proxy proxy = new Proxy(client);
+
+                                    var states = Enum.GetValues(typeof(ProxyState));
+                                    proxy.State = (ProxyState)states.GetValue(new Random().Next(0, states.Length));
+
+                                    ProxyDispenser.Proxies.Add(proxy);
+                                    ProxyDispenser.LoadedCount++;
                                     Log.Debug("Proxy {proxy} has been added to the dispenser", client);
                                 }
                             }
@@ -454,6 +339,45 @@ namespace NordChecker.ViewModels
                         watch.Stop();
                         Log.Information("{total} proxies have been extracted from {file} in {elapsed}ms",
                             ProxyDispenser.Proxies.Count, result.Path, watch.ElapsedMilliseconds);
+                    });
+                });
+            });
+        }
+
+        #endregion
+
+        #region LoadProxiesCommand
+
+        public ICommand ExportCommand { get; }
+
+        private bool CanExecuteExportCommand(object parameter)
+            => PipelineState != PipelineState.Working
+            && ComboBase.Accounts.Count > 0;
+
+        private void OnExportCommandExecuted(object parameter)
+        {
+            Log.Information("OnExportCommandExecuted");
+
+            Task.Run(() =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Window window = new ExportWindow(Settings);
+                    window.Owner = Application.Current.MainWindow;
+                    window.ShowDialog();
+
+                    var result = window.DataContext as ExportWindowViewModel;
+                    if (!result.IsOperationConfirmed) return;
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        Log.Information("Exporting combos to {path}", result.Path);
+                        Stopwatch watch = new Stopwatch();
+                        watch.Start();
+
+                        watch.Stop();
+                        Log.Information("??? proxies have been exported to {path} in {elapsed}ms",
+                            result.Path, watch.ElapsedMilliseconds);
                     });
                 });
             });
@@ -495,7 +419,7 @@ namespace NordChecker.ViewModels
             Log.Information("OnRemoveAccountCommandExecuted");
             var account = SelectedAccount;
             ComboBase.Accounts.Remove(account);
-            LoadedCount--;
+            ComboBase.LoadedCount--;
             Log.Information("{credentials} has been removed from combo-list", account.Credentials);
         }
 
@@ -566,6 +490,7 @@ namespace NordChecker.ViewModels
             LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteLoadCombosCommand);
             ClearCombosCommand = new LambdaCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
             LoadProxiesCommand = new LambdaCommand(OnLoadProxiesCommandExecuted, CanExecuteLoadProxiesCommand);
+            ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
 
             CopyAccountCredentialsCommand = new LambdaCommand(OnCopyAccountCredentialsCommandExecuted, CanExecuteCopyAccountCredentialsCommand);
             RemoveAccountCommand = new LambdaCommand(OnRemoveAccountCommandExecuted, CanExecuteRemoveAccountCommand);
@@ -576,7 +501,7 @@ namespace NordChecker.ViewModels
 
             Settings.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == Utils.GetMemberName(() => Settings.ThreadCount))
+                if (e.PropertyName == nameof(Settings.ThreadCount))
                     distributor.ThreadCount = Settings.ThreadCount;
             };
 

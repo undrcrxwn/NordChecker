@@ -1,0 +1,96 @@
+﻿<Window x:Class="NordChecker.Views.ExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NordChecker.Views"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:vm="clr-namespace:NordChecker.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel, IsDesignTimeCreatable=True}"
+        Title="Экспорт"
+        Width="400"
+        Topmost="True"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        Visibility="{Binding IsWindowVisible, Converter={StaticResource Boolean2VisibilityConverter}, Mode=TwoWay}"
+        Background="{DynamicResource RegionBrush}">
+    <Grid>
+        <hc:UniformSpacingPanel Margin="10" Orientation="Vertical" Spacing="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Path}" IsReadOnly="True"/>
+                <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
+            </Grid>
+
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                <TextBlock Text="Файловая структура" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Content="Премиум"       IsChecked="{Binding ArePremiumIncluded}"   HorizontalAlignment="Left"/>
+                    <CheckBox Content="Бесплатные"    IsChecked="{Binding AreFreeIncluded}"      HorizontalAlignment="Left" Grid.Row="2"/>
+                    <CheckBox Content="Невалидные"    IsChecked="{Binding AreInvalidIncluded}"   HorizontalAlignment="Left" Grid.Column="2"/>
+                    <CheckBox Content="Непроверенные" IsChecked="{Binding AreUncheckedIncluded}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
+                </Grid>
+            </hc:UniformSpacingPanel>
+
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                <TextBlock Text="Форматирование" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
+                <hc:TextBox Text="{Binding Settings.ExportFormatScheme}" FontFamily="Consolas"/>
+                <TextBlock Grid.Column="2" Grid.Row="4" TextWrapping="Wrap">
+                    Пользовательский шаблон форматирования чувствителен к таким плейсхолдерам, как
+                    <Run FontFamily="Consolas">{email}</Run>,
+                    <Run FontFamily="Consolas">{password}</Run>,
+                    <Run FontFamily="Consolas">{proxy}</Run>,
+                    <Run FontFamily="Consolas">{expiration}</Run>,
+                    <Run FontFamily="Consolas">{services}</Run> и
+                    <Run FontFamily="Consolas">{json}</Run>.
+                </TextBlock>
+            </hc:UniformSpacingPanel>
+
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
+                <RichTextBox Height="100" IsReadOnly="True">
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run FontFamily="Consolas" Text="mitch13banks@gmail.com:Sardine13"/>
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
+            </hc:UniformSpacingPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btnProceed" Content="Экспортировать" Click="btnProceed_Click" HorizontalAlignment="Stretch">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="btnCancel" Content="Отмена" Click="btnCancel_Click" Grid.Column="2" HorizontalAlignment="Stretch"/>
+            </Grid>
+        </hc:UniformSpacingPanel>
+    </Grid>
+</Window>
