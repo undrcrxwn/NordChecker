@@ -6,10 +6,11 @@
         xmlns:local="clr-namespace:NordChecker.Views"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:vm="clr-namespace:NordChecker.ViewModels"
+        xmlns:m="clr-namespace:NordChecker.Models"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel}"
         Title="Экспорт"
-        Width="400"
+        Width="550"
         Topmost="True"
         ResizeMode="NoResize"
         SizeToContent="Height"
@@ -23,10 +24,9 @@
                     <ColumnDefinition Width="4"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Path}" IsReadOnly="True"/>
+                <TextBox Text="{Binding Settings.RootPath}" IsReadOnly="True"/>
                 <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
             </Grid>
-
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                 <TextBlock Text="Файловая структура" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
                 <Grid>
@@ -40,16 +40,16 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Content="Премиум"       IsChecked="{Binding ArePremiumIncluded}"   HorizontalAlignment="Left"/>
-                    <CheckBox Content="Бесплатные"    IsChecked="{Binding AreFreeIncluded}"      HorizontalAlignment="Left" Grid.Row="2"/>
-                    <CheckBox Content="Невалидные"    IsChecked="{Binding AreInvalidIncluded}"   HorizontalAlignment="Left" Grid.Column="2"/>
-                    <CheckBox Content="Непроверенные" IsChecked="{Binding AreUncheckedIncluded}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
+                    <CheckBox Content="Премиум"       IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Premium].IsActivated}"   HorizontalAlignment="Left"/>
+                    <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Free].IsActivated}"      HorizontalAlignment="Left" Grid.Row="2"/>
+                    <CheckBox Content="Невалидные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Invalid].IsActivated}"   HorizontalAlignment="Left" Grid.Column="2"/>
+                    <CheckBox Content="Непроверенные" IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Unchecked].IsActivated}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
                 </Grid>
             </hc:UniformSpacingPanel>
 
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                 <TextBlock Text="Форматирование" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
-                <hc:TextBox Text="{Binding Settings.ExportFormatScheme}" FontFamily="Consolas"/>
+                <hc:TextBox Text="{Binding Settings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
                 <TextBlock Grid.Column="2" Grid.Row="4" TextWrapping="Wrap">
                     Пользовательский шаблон форматирования чувствителен к таким плейсхолдерам, как
                     <Run FontFamily="Consolas">{email}</Run>,
@@ -63,34 +63,23 @@
 
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                 <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
-                <RichTextBox Height="100" IsReadOnly="True">
+                <RichTextBox Height="100" IsReadOnly="True" Padding="0">
                     <FlowDocument>
-                        <Paragraph>
-                            <Run FontFamily="Consolas" Text="mitch13banks@gmail.com:Sardine13"/>
+                        <Paragraph Padding="0,5,0,5">
+                            <TextBlock FontFamily="Consolas" Text="{Binding SampleOutput}" TextWrapping="Wrap"/>
                         </Paragraph>
                     </FlowDocument>
                 </RichTextBox>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="btnProceed" Content="Экспортировать" Click="btnProceed_Click" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="btnCancel" Content="Отмена" Click="btnCancel_Click" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                </Grid>
             </hc:UniformSpacingPanel>
-
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="btnProceed" Content="Экспортировать" Click="btnProceed_Click" HorizontalAlignment="Stretch">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path}" Value="{x:Null}">
-                                    <Setter Property="IsEnabled" Value="False"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-                <Button x:Name="btnCancel" Content="Отмена" Click="btnCancel_Click" Grid.Column="2" HorizontalAlignment="Stretch"/>
-            </Grid>
         </hc:UniformSpacingPanel>
     </Grid>
 </Window>

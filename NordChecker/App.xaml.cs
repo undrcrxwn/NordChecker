@@ -31,7 +31,7 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
-        public IAppSettings Settings { get; set; }
+        public AppSettings Settings { get; set; }
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
@@ -40,7 +40,7 @@ namespace NordChecker
         public App()
         {
             ServiceCollection services = new ServiceCollection();
-            services.AddSingleton<IAppSettings, AppSettings>();
+            services.AddSingleton<AppSettings, AppSettings>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
             provider = services.BuildServiceProvider();
@@ -64,7 +64,7 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            Settings = provider.GetService<IAppSettings>();
+            Settings = provider.GetService<AppSettings>();
             Settings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
             Settings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
 

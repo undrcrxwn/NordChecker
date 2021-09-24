@@ -34,7 +34,7 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public IAppSettings Settings { get; set; }
+        public AppSettings Settings { get; set; }
 
         private static void HideBoundingBox(object root)
         {
@@ -63,7 +63,7 @@ namespace NordChecker.Views
 
         public MainWindow() { }
 
-        public MainWindow(MainWindowViewModel viewModel, IAppSettings settings)
+        public MainWindow(MainWindowViewModel viewModel, AppSettings settings)
         {
             InitializeComponent();
             HideBoundingBox(this);

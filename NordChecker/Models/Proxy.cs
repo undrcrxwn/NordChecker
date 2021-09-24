@@ -24,6 +24,8 @@ namespace NordChecker.Models
         {
             Client = client;
         }
+
+        public override string ToString() => Client.ToString();
     }
 
     public class ProxyEnumerator : IEnumerator

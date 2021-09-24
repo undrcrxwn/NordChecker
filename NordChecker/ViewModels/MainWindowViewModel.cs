@@ -45,7 +45,7 @@ namespace NordChecker.ViewModels
 
         #region Properties
 
-        public IAppSettings Settings { get; set; }
+        public AppSettings Settings { get; set; }
 
         private ThreadMasterToken masterToken;
 
@@ -75,11 +75,11 @@ namespace NordChecker.ViewModels
             get => _PipelineState;
             set
             {
-                INotifyPropertyChangedAdvanced inst = this;
-                inst.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
-                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
-                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
-                inst.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
+                INotifyPropertyChangedAdvanced @this = this;
+                @this.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
+                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
+                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
+                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
                 ComboBase.Refresh();
             }
         }
@@ -346,7 +346,7 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        #region LoadProxiesCommand
+        #region ExportCommand
 
         public ICommand ExportCommand { get; }
 
@@ -362,24 +362,54 @@ namespace NordChecker.ViewModels
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    Window window = new ExportWindow(Settings);
+                    Window window = new ExportWindow(Settings.ExportSettings.Clone() as ExportSettings);
                     window.Owner = Application.Current.MainWindow;
-                    window.ShowDialog();
-
-                    var result = window.DataContext as ExportWindowViewModel;
-                    if (!result.IsOperationConfirmed) return;
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        Log.Information("Exporting combos to {path}", result.Path);
-                        Stopwatch watch = new Stopwatch();
-                        watch.Start();
-
-                        watch.Stop();
-                        Log.Information("??? proxies have been exported to {path} in {elapsed}ms",
-                            result.Path, watch.ElapsedMilliseconds);
-                    });
+                    window.Closed += OnExportDialogClosed;
+                    window.Show();
                 });
+            });
+        }
+
+        private void OnExportDialogClosed(object sender, EventArgs e)
+        {
+            Log.Information("OnExportDialogClosed");
+
+            var result = (sender as ExportWindow).DataContext as ExportWindowViewModel;
+            Log.Information("data context fetched");
+            if (!result.IsOperationConfirmed) return;
+
+            Settings.ExportSettings = result.Settings;
+            Task.Factory.StartNew(() =>
+            {
+                Settings.ExportSettings = result.Settings;
+                Log.Information("Exporting combos to {path}", Settings.ExportSettings.RootPath);
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
+                int counter = 0;
+                foreach (var (state, parameter) in Settings.ExportSettings.Filters)
+                {
+                    if (!parameter.IsActivated) continue;
+                    foreach (Account account in ComboBase.Accounts.Where(acc => acc.State == state))
+                    {
+                        string directory =
+                            $"{Settings.ExportSettings.RootPath}" +
+                            $"/NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
+                            $" at {DateTime.Now.ToString("HH-mm-ss")}";
+
+                        Directory.CreateDirectory(directory);
+                        using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}.txt"))
+                        {
+                            sw.WriteLine(result.Formatter.Format(account));
+                            counter++;
+                            Log.Verbose("{0} has been saved as {1}", account.Credentials, state);
+                        }
+                    }
+                }
+
+                watch.Stop();
+                Log.Information("{0} accounts have been exported to {1} in {2}ms",
+                    counter, Settings.ExportSettings.RootPath, watch.ElapsedMilliseconds);
             });
         }
 
@@ -475,9 +505,7 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        public MainWindowViewModel() { }
-
-        public MainWindowViewModel(IAppSettings settings)
+        public MainWindowViewModel(AppSettings settings)
         {
             Settings = settings;
 

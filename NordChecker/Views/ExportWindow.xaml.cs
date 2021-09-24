@@ -1,5 +1,6 @@
 ﻿using NordChecker.Models;
 using NordChecker.ViewModels;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace NordChecker.Views
     /// </summary>
     public partial class ExportWindow : Window
     {
-        public ExportWindow(IAppSettings settings)
+        public ExportWindow(ExportSettings settings)
         {
             InitializeComponent();
             DataContext = new ExportWindowViewModel(settings);
