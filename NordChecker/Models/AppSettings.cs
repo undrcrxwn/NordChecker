@@ -57,7 +57,7 @@ namespace NordChecker.Models
 
         public object Clone()
         {
-            ExportFilterParameter result = MemberwiseClone() as ExportFilterParameter;
+            var result = MemberwiseClone() as ExportFilterParameter;
             result.PropertyChanged = null;
             return result;
         }
@@ -85,9 +85,16 @@ namespace NordChecker.Models
                 .Set(ref _FormatScheme, value, PropertyChanged);
         }
 
+        private bool _AreRowCountsAddedToFileNames;
+        public bool AreRowCountsAddedToFileNames
+        {
+            get => _AreRowCountsAddedToFileNames;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AreRowCountsAddedToFileNames, value, PropertyChanged);
+        }
+
         public ExportSettings()
         {
-
             var uncheckedExportParameter = new ExportFilterParameter(true, "Unchecked");
             Filters = new ObservableDictionary<AccountState, ExportFilterParameter>()
             {
@@ -118,34 +125,31 @@ namespace NordChecker.Models
             foreach (var (state, parameter) in Filters)
             {
                 if (state == AccountState.Reserved) continue;
-                Log.Information("{0}\tsubscribed", state);
+                Log.Debug("{0} subscribed", state);
                 parameter.PropertyChanged += (sender, e) =>
                 {
-                    var @this = this as INotifyPropertyChangedAdvanced;
-                    @this.OnPropertyChanged(
-                        PropertyChanged,
-                        nameof(Filters));
-
                     (this as INotifyPropertyChangedAdvanced)
                     .OnPropertyChanged(PropertyChanged, nameof(Filters));
-
-                    Log.Warning("ExportSettings object: parameter.PropertyChanged!!!");
                 };
             }
 
-            PropertyChanged += (sender, e) =>
-            {
-                Log.Warning("some ExportSettings' PropertyChanged");
-                Log.Warning("{0}", Filters.Values.Select(x => x.IsActivated));
-            };
+            Filters[AccountState.Unchecked].PropertyChanged += (sender, e)
+                => Filters[AccountState.Reserved] = Filters[AccountState.Unchecked];
         }
 
         public object Clone()
         {
-            //var result = MemberwiseClone() as ExportSettings;
             ExportSettings result = MemberwiseClone() as ExportSettings;
+            //ExportSettings result = new ExportSettings();
+            //result.FormatScheme = FormatScheme;
+            //result.RootPath = RootPath;
+
+            var dictionary = Filters.ToDictionary(x => x.Key, x => x.Value.Clone() as ExportFilterParameter);
+            result.Filters = new ObservableDictionary<AccountState, ExportFilterParameter>(dictionary);
+
             result.PropertyChanged = null;
             result.SubscribeToFiltersChanged();
+
             return result;
         }
     }
@@ -314,7 +318,7 @@ namespace NordChecker.Models
             DataGridFilters.CollectionChanged +=
             (object sender, NotifyCollectionChangedEventArgs e) =>
             {
-                var @this = this as INotifyPropertyChangedAdvanced;
+                INotifyPropertyChangedAdvanced @this = this;
                 @this.OnPropertyChanged(
                     PropertyChanged,
                     nameof(DataGridFilters));

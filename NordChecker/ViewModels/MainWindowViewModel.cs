@@ -377,11 +377,11 @@ namespace NordChecker.ViewModels
             var result = (sender as ExportWindow).DataContext as ExportWindowViewModel;
             Log.Information("data context fetched");
             if (!result.IsOperationConfirmed) return;
+            Settings.ExportSettings = result.Settings.Clone() as ExportSettings;
+            Log.Information("New export settings: {@0}", Settings.ExportSettings);
 
-            Settings.ExportSettings = result.Settings;
             Task.Factory.StartNew(() =>
             {
-                Settings.ExportSettings = result.Settings;
                 Log.Information("Exporting combos to {path}", Settings.ExportSettings.RootPath);
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
@@ -390,15 +390,15 @@ namespace NordChecker.ViewModels
                 foreach (var (state, parameter) in Settings.ExportSettings.Filters)
                 {
                     if (!parameter.IsActivated) continue;
-                    foreach (Account account in ComboBase.Accounts.Where(acc => acc.State == state))
-                    {
-                        string directory =
+                    string directory =
                             $"{Settings.ExportSettings.RootPath}" +
                             $"/NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
                             $" at {DateTime.Now.ToString("HH-mm-ss")}";
 
-                        Directory.CreateDirectory(directory);
-                        using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}.txt"))
+                    Directory.CreateDirectory(directory);
+                    using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}.txt", true))
+                    {
+                        foreach (Account account in ComboBase.Accounts.Where(acc => acc.State == state))
                         {
                             sw.WriteLine(result.Formatter.Format(account));
                             counter++;
@@ -408,7 +408,7 @@ namespace NordChecker.ViewModels
                 }
 
                 watch.Stop();
-                Log.Information("{0} accounts have been exported to {1} in {2}ms",
+                Log.Information("{0} records have been exported to {1} in {2}ms",
                     counter, Settings.ExportSettings.RootPath, watch.ElapsedMilliseconds);
             });
         }

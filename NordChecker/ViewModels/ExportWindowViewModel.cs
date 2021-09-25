@@ -44,12 +44,12 @@ namespace NordChecker.ViewModels
                 .Set(ref _IsWindowVisible, value, PropertyChanged);
         }
 
-        private string _SampleOutput;
-        public string SampleOutput
+        private string _OutputPreview;
+        public string OutputPreview
         {
-            get => _SampleOutput;
+            get => _OutputPreview;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _SampleOutput, value, PropertyChanged);
+                .Set(ref _OutputPreview, value, PropertyChanged);
         }
 
         private bool _CanProceed = false;
@@ -91,7 +91,6 @@ namespace NordChecker.ViewModels
         }
 
         private static readonly Account sampleAccount;
-
         static ExportWindowViewModel()
         {
             sampleAccount = new Account("mitch13banks@gmail.com", "Sardine13");
@@ -105,40 +104,23 @@ namespace NordChecker.ViewModels
         private void UpdateSampleOutput()
         {
             Formatter.FormatScheme = Settings.FormatScheme;
-            SampleOutput = Formatter.Format(sampleAccount);
+            OutputPreview = Formatter.Format(sampleAccount);
         }
 
         private void UpdateCanProceed()
-        {
-            Log.Warning("UpdateCanProceed");
-            CanProceed = Directory.Exists(Settings.RootPath)
+            => CanProceed = Directory.Exists(Settings.RootPath)
+            && !string.IsNullOrEmpty(Settings.FormatScheme)
             && Settings.Filters.Values.Any(x => x.IsActivated);
-            Log.Warning("{0}\t{1}", Settings.RootPath, Directory.Exists(Settings.RootPath));
-            Log.Warning("{0}\t{1}", Settings.Filters.Values.Select(x => x.IsActivated), Settings.Filters.Values.Any(x => x.IsActivated));
-        }
 
         public ExportWindowViewModel(ExportSettings settings)
         {
             Settings = settings;
-            Log.Information("Settings CLONED");
-
-            Task.Run(() =>
-            {
-                while (this != null)
-                {
-                    Log.Information("CURRENT EXPORT SETTINGS: {0}", Settings.Filters.Values.Select(x => x.IsActivated));
-                    Task.Delay(1000).Wait();
-                }
-            });
-
             Settings.PropertyChanged += (sender, e) =>
             {
-                Log.Warning("Settings.PropertyChanged {0}", e.PropertyName);
                 UpdateCanProceed();
                 if (e.PropertyName == nameof(Settings.FormatScheme))
                     UpdateSampleOutput();
             };
-            Log.Information("subscribed Settings.PropertyChanged");
 
             Formatter = new AccountFormatter();
             Formatter.AddPlaceholder("email", acc => acc.Email);
