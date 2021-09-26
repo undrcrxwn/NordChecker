@@ -40,286 +40,287 @@
         </ObjectDataProvider>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="550"/>
-            <ColumnDefinition Width="260"/>
-        </Grid.ColumnDefinitions>
+        <Grid Effect="{Binding ContentVisualEffect}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="550"/>
+                <ColumnDefinition Width="260"/>
+            </Grid.ColumnDefinitions>
 
-        <Button Content="Начать"     Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+            <Button Content="Начать"     Command="{Binding StartCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+            <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+            <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
 
-        <TabControl Grid.Row="2" TabStripPlacement="Bottom">
-            <TabItem>
-                <TabItem.Header>
-                    <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
-                </TabItem.Header>
+            <TabControl Grid.Row="2" TabStripPlacement="Bottom">
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
+                    </TabItem.Header>
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="140"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="140"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
-                        <Canvas x:Name="progressCanvasComboChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+                            <Canvas x:Name="progressCanvasComboChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].StartAngle}"
                         EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].EndAngle}"
                         Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].StartAngle}"
                         EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].EndAngle}"
                         Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].StartAngle}"
                         EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].EndAngle}"
                         Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].StartAngle}"
                         EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].EndAngle}"
                         Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].StartAngle}"
                         EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].EndAngle}"
                         Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].Visibility}"/>
-                            <Grid Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}"
+                                <Grid Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasComboChart}">
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding ComboBase.LoadedCount, Converter={StaticResource NumberConverter}}"
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ComboBase.LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <TextBlock Text="всего"
+                                        <TextBlock Text="всего"
                                    HorizontalAlignment="Center"
                                    Margin="0,-6,0,0"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Canvas>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1">
+                            <ScrollViewer>
+                                <StackPanel Orientation="Vertical" Margin="10,0,10,4">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Height" Value="60"/>
+                                            <Setter Property="Margin" Value="0,0,0,6"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Setter Property="CornerRadius" Value="5"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="{Binding ComboBase.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Grid>
+                                            <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="{Binding ComboBase.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
                                 </StackPanel>
-                            </Grid>
-                        </Canvas>
-                    </StackPanel>
-
-                    <Grid Grid.Row="1">
-                        <ScrollViewer>
-                            <StackPanel Orientation="Vertical" Margin="10,0,10,4">
-                                <StackPanel.Resources>
-                                    <Style TargetType="{x:Type Border}">
-                                        <Setter Property="Height" Value="60"/>
-                                        <Setter Property="Margin" Value="0,0,0,6"/>
-                                        <Setter Property="BorderThickness" Value="1"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                        <Setter Property="CornerRadius" Value="5"/>
-                                    </Style>
-                                </StackPanel.Resources>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ComboBase.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                    <Grid>
-                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ComboBase.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                            </ScrollViewer>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <TextBlock Text="Прокси" Width="55" TextAlignment="Center"/>
-                </TabItem.Header>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Прокси" Width="55" TextAlignment="Center"/>
+                    </TabItem.Header>
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="140"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="140"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
-                        <Canvas x:Name="progressCanvasProxyChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                        <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
+                            <Canvas x:Name="progressCanvasProxyChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8ac926" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8ac926" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#ffca3a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#ffca3a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].Visibility}"/>
-                            <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+                                <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
                         StartAngle = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].StartAngle}"
                         EndAngle   = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].EndAngle}"
                         Visibility = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].Visibility}"/>
-                            <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
+                                <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding ProxyDispenser.LoadedCount, Converter={StaticResource NumberConverter}}"
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ProxyDispenser.LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <TextBlock Text="всего"
+                                        <TextBlock Text="всего"
                                    HorizontalAlignment="Center"
                                    Margin="0,-6,0,0"
                                    Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Canvas>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1">
+                            <ScrollViewer>
+                                <StackPanel Orientation="Vertical" Margin="10,0,10,4">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Height" Value="60"/>
+                                            <Setter Property="Margin" Value="0,0,0,6"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Setter Property="CornerRadius" Value="5"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="HTTP(s)" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Socks4" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Socks4A" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8ac926"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Socks5" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#ffca3a"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimplePanel VerticalAlignment="Top" Height="23">
+                                                <hc:SimpleText Text="Не использовано" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                                <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
+                                            </hc:SimplePanel>
+                                            <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border>
+                                        <Grid>
+                                            <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="{Binding ProxyDispenser.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Grid>
+                                            <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="{Binding ProxyDispenser.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
                                 </StackPanel>
-                            </Grid>
-                        </Canvas>
-                    </StackPanel>
-
-                    <Grid Grid.Row="1">
-                        <ScrollViewer>
-                            <StackPanel Orientation="Vertical" Margin="10,0,10,4">
-                                <StackPanel.Resources>
-                                    <Style TargetType="{x:Type Border}">
-                                        <Setter Property="Height" Value="60"/>
-                                        <Setter Property="Margin" Value="0,0,0,6"/>
-                                        <Setter Property="BorderThickness" Value="1"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                        <Setter Property="CornerRadius" Value="5"/>
-                                    </Style>
-                                </StackPanel.Resources>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="HTTP(s)" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks4" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks4A" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8ac926"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks5" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#ffca3a"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Не использовано" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                            <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
-                                        </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border>
-                                    <Grid>
-                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                                <Border Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                    <Grid>
-                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                            </ScrollViewer>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                </TabItem>
+            </TabControl>
 
-        <DataGrid x:Name="dgAccounts"
+            <DataGrid x:Name="dgAccounts"
                   Padding="4,4,4,0"
                   CellStyle="{StaticResource DefaultCellStyle}"
                   RowStyle="{StaticResource DefaultRowStyle}"
@@ -333,250 +334,252 @@
                   MinRowHeight="5"
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedAccount}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин "  IsReadOnly="True" CanUserSort="False"/>
-                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
-                <DataGridTemplateColumn Header="Статус " SortMemberPath="State" IsReadOnly="True" CanUserSort="False">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn CanUserResize="False">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
-                            <hc:UniformSpacingPanel x:Name="pRowMenu" Spacing="7" Visibility="Hidden">
-                                <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.CopyAccountCredentialsCommand}">
-                                    <emoji:TextBlock Text="💾 Копировать"/>
-                                </Button>
-                                <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.RemoveAccountCommand}">
-                                    <emoji:TextBlock Text="❌ Удалить"/>
-                                </Button>
-                                <hc:UniformSpacingPanel.Resources>
-                                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonDefault}">
-                                        <Style.Setters>
-                                            <Setter Property="Width" Value="120"/>
-                                        </Style.Setters>
-                                    </Style>
-                                </hc:UniformSpacingPanel.Resources>
-                            </hc:UniformSpacingPanel>
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
-                                    <Setter Property="Visibility" TargetName="pRowMenu" Value="Visible"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-            <DataGrid.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="5,5,0,0"/>
-                </Style>
-            </DataGrid.Resources>
-        </DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин "  IsReadOnly="True" CanUserSort="False"/>
+                    <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
+                    <DataGridTemplateColumn Header="Статус " SortMemberPath="State" IsReadOnly="True" CanUserSort="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
+                                <hc:UniformSpacingPanel x:Name="pRowMenu" Spacing="7" Visibility="Hidden">
+                                    <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.CopyAccountCredentialsCommand}">
+                                        <emoji:TextBlock Text="💾 Копировать"/>
+                                    </Button>
+                                    <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.RemoveAccountCommand}">
+                                        <emoji:TextBlock Text="❌ Удалить"/>
+                                    </Button>
+                                    <hc:UniformSpacingPanel.Resources>
+                                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonDefault}">
+                                            <Style.Setters>
+                                                <Setter Property="Width" Value="120"/>
+                                            </Style.Setters>
+                                        </Style>
+                                    </hc:UniformSpacingPanel.Resources>
+                                </hc:UniformSpacingPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                        <Setter Property="Visibility" TargetName="pRowMenu" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="5,5,0,0"/>
+                    </Style>
+                </DataGrid.Resources>
+            </DataGrid>
 
-        <StackPanel Grid.Column="1" Grid.Row="1"
+            <StackPanel Grid.Column="1" Grid.Row="1"
                     Grid.ColumnSpan="2" Grid.RowSpan="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Margin="0,0,0,20"
                     Visibility="{Binding IsGreetingVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
-            <emoji:TextBlock Text="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2ModeIconStringConverter}}" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
-            <TextBlock Text="NordVPN Checker" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" TextAlignment="Center"/>
-            <TextBlock Text="Лицензия действительна до 28.08.2021 13:52" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
-            <TextBlock Text="Тикет e07fc1f90ae7" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
-        </StackPanel>
+                <emoji:TextBlock Text="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2ModeIconStringConverter}}" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
+                <TextBlock Text="NordVPN Checker" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" TextAlignment="Center"/>
+                <TextBlock Text="Лицензия действительна до 28.08.2021 13:52" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
+                <TextBlock Text="Тикет e07fc1f90ae7" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
+            </StackPanel>
 
-        <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
-            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Unchecked]}"/>
-            <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Reserved]}"/>
-            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Invalid]}"/>
-            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Free]}"/>
-            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Premium]}"/>
-        </hc:ButtonGroup>
+            <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
+                <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Unchecked]}"/>
+                <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Reserved]}"/>
+                <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Invalid]}"/>
+                <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Free]}"/>
+                <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Premium]}"/>
+            </hc:ButtonGroup>
 
-        <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
-        <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
-            <StackPanel Margin="10,0,10,4">
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource ExpanderBaseStyle}">
-                        <Setter Property="Margin" Value="0,0,0,6"/>
-                    </Style>
-                </StackPanel.Resources>
-                <Expander Header="База" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
-                            <StackPanel>
-                                <TextBlock Text="mail:pass строки NordVPN" Margin="2,0,0,4"/>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="4"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Content="Загрузить" Command="{Binding LoadCombosCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button Content="Очистить" Command="{Binding ClearCombosCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
+            <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+            <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
+                <StackPanel Margin="10,0,10,4">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource ExpanderBaseStyle}">
+                            <Setter Property="Margin" Value="0,0,0,6"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Expander Header="База" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                        <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
+                                <TextBlock Height="0" Margin="0,0,1000,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="mail:pass строки NordVPN" Margin="2,0,0,4"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Загрузить" Command="{Binding LoadCombosCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                                        <Button Content="Очистить" Command="{Binding ClearCombosCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
+                                    <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
                                          ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – почтовый адрес;
 &#10;– Groups[2] – пароль.
 &#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
-                            </StackPanel>
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
-                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreComboDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
+                                    <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreComboDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                </hc:UniformSpacingPanel>
                             </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
-                <Expander Header="Прокси" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
-                            <StackPanel>
-                                <TextBlock Text="HTTP(s), Socks4, Socks4A, Socks5" Margin="2,0,0,4"/>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="4"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Content="Загрузить" Command="{Binding LoadProxiesCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
+                        </Border>
+                    </Expander>
+                    <Expander Header="Прокси" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                        <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
+                                <TextBlock Height="0" Margin="0,0,1000,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="HTTP(s), Socks4, Socks4A, Socks5" Margin="2,0,0,4"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Загрузить" Command="{Binding LoadProxiesCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                                        <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
+                                    <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
                                          ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси.
 &#10;Ожидаемые группы захвата:
 &#10;– Groups[0] – полное совпадение;
 &#10;– Groups[1] – IP-адрес;
 &#10;– Groups[2] – порт.
 &#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
-                            </StackPanel>
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
-                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreProxyDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
+                                    <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreProxyDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                </hc:UniformSpacingPanel>
                             </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
-                <Expander Header="Автоматизация" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4,-1,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
-                            <CheckBox Content="Визуальное уведомление" IsChecked="True" ToolTip="Показать на экране уведомление Windows с краткой статистикой по завершении обработки базы&#10;при условии, что окно приложения свёрнуто" HorizontalAlignment="Left"/>
-                            <CheckBox Content="Звуковое уведомление" IsChecked="True" ToolTip="Проиграть звуковой сигнал по завершении обработки базы" HorizontalAlignment="Left"/>
-                            <CheckBox Content="Завершение работы ПК" ToolTip="Выключить ПК по завершении обработки базы. Завершение работы ПК можно отменить через&#10;диалоговое окно, которое будет доступно в течение 15 секунд до выключения" HorizontalAlignment="Left"/>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
-                <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                        </Border>
+                    </Expander>
+                    <Expander Header="Автоматизация" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                        <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4,-1,4,4">
+                                <TextBlock Height="0" Margin="0,0,1000,0"/>
+                                <CheckBox Content="Визуальное уведомление" IsChecked="True" ToolTip="Показать на экране уведомление Windows с краткой статистикой по завершении обработки базы&#10;при условии, что окно приложения свёрнуто" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Звуковое уведомление" IsChecked="True" ToolTip="Проиграть звуковой сигнал по завершении обработки базы" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Завершение работы ПК" ToolTip="Выключить ПК по завершении обработки базы. Завершение работы ПК можно отменить через&#10;диалоговое окно, которое будет доступно в течение 15 секунд до выключения" HorizontalAlignment="Left"/>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
+                    <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                        <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
+                                <TextBlock Height="0" Margin="0,0,1000,0"/>
 
-                            <StackPanel>
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="4"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="4"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Потоки" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                        <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.ThreadCount}" Minimum="1" Maximum="5000" Grid.Column="2" Increment="50"/>
+                                        <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="2"/>
+                                        <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="15" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
+                                    </Grid>
+                                    <Grid Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="LogEventLevel" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                        <hc:ComboBox ItemsSource="{Binding Source={StaticResource LogEventLevelEnumValues}}" SelectedValue="{Binding AppSettings.LogEventLevel}" Grid.Column="2"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                    <CheckBox Content="Поверх всех окон" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Сворачивать в трей" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Режим разработчика" Margin="0,0,0,-6" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Показывать логи" Margin="0,6,0,0" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Автосохранение параметров" HorizontalAlignment="Left"/>
+                                </hc:UniformSpacingPanel>
+                                <Button Content="Восстановить начальные параметры" Width="230"/>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
+                    <Expander Header="Кастомизация" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                        <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
+                                <TextBlock Height="0" Margin="0,0,1000,0"/>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="4"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="4"/>
-                                        <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="4"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Потоки" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.ThreadCount}" Minimum="1" Maximum="5000" Grid.Column="2" Increment="50"/>
-                                    <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="2"/>
-                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="15" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
-                                </Grid>
-                                <Grid Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="4"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="LogEventLevel" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource LogEventLevelEnumValues}}" SelectedValue="{Binding AppSettings.LogEventLevel}" Grid.Column="2"/>
-                                </Grid>
-                            </StackPanel>
-
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <CheckBox Content="Поверх всех окон" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Сворачивать в трей" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Режим разработчика" Margin="0,0,0,-6" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Показывать логи" Margin="0,6,0,0" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Автосохранение параметров" HorizontalAlignment="Left"/>
-                            </hc:UniformSpacingPanel>
-                            <Button Content="Восстановить начальные параметры" Width="230"/>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
-                <Expander Header="Кастомизация" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
-                    <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Тема" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="4"/>
-                                <hc:ComboBox ItemsSource="{Binding Source={StaticResource ApplicationThemeEnumValues}}"
+                                    <TextBlock Text="Тема" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="4"/>
+                                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource ApplicationThemeEnumValues}}"
                                              SelectedValue="{Binding AppSettings.Theme}"
                                              Grid.Row="4" Grid.Column="2">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource ApplicationTheme2StringConverter}}"/>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </hc:ComboBox>
-                            </Grid>
-                            <hc:ColorPicker SelectedBrush="{Binding AppSettings.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0,-7,0,0"/>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
-                <Border CornerRadius="4" Padding="4" Margin="0,0,0,6" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="По всем вопросам и предложениям" Foreground="{DynamicResource PrimaryTextBrush}" Margin="2,0,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource ApplicationTheme2StringConverter}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                </Grid>
+                                <hc:ColorPicker SelectedBrush="{Binding AppSettings.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0,-7,0,0"/>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
+                    <Border CornerRadius="4" Padding="4" Margin="0,0,0,6" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="По всем вопросам и предложениям" Foreground="{DynamicResource PrimaryTextBrush}" Margin="2,0,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
                             <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">
                                 <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="👽 t.me/undrcrxwn" Cursor="Hand"/>
                             </Hyperlink>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+        <hc:SimplePanel Background="Transparent" Visibility="{Binding IsContentLocked, Converter={StaticResource Boolean2VisibilityConverter}, Mode=TwoWay}"/>
     </Grid>
 </Window>

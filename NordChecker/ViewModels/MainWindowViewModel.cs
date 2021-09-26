@@ -29,6 +29,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using Leaf.xNet;
+using System.Windows.Media.Effects;
 
 namespace NordChecker.ViewModels
 {
@@ -44,6 +45,26 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Properties
+
+        private bool _IsContentLocked;
+        public bool IsContentLocked
+        {
+            get => _IsContentLocked;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsContentLocked, value, PropertyChanged);
+                ContentVisualEffect = value ? new BlurEffect() { Radius = 45 } : null;
+            }
+        }
+
+        private Effect _ContentVisualEffect;
+        public Effect ContentVisualEffect
+        {
+            get => _ContentVisualEffect;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ContentVisualEffect, value, PropertyChanged);
+        }
 
         public AppSettings AppSettings { get; set; }
         public ExportSettings ExportSettings { get; set; }
@@ -366,6 +387,7 @@ namespace NordChecker.ViewModels
                     Window window = new ExportWindow(ExportSettings.Clone() as ExportSettings);
                     window.Owner = Application.Current.MainWindow;
                     window.Closed += OnExportDialogClosed;
+                    IsContentLocked = true;
                     window.Show();
                 });
             });
@@ -374,7 +396,7 @@ namespace NordChecker.ViewModels
         private void OnExportDialogClosed(object sender, EventArgs e)
         {
             Log.Information("OnExportDialogClosed");
-
+            
             var result = (sender as ExportWindow).DataContext as ExportWindowViewModel;
             if (!result.IsOperationConfirmed) return;
             ExportSettings = result.Settings.Clone() as ExportSettings;
@@ -413,6 +435,8 @@ namespace NordChecker.ViewModels
                 watch.Stop();
                 Log.Information("{0} records have been exported to {1} in {2}ms",
                     counter, directory, watch.ElapsedMilliseconds);
+
+                IsContentLocked = false;
             });
         }
 
