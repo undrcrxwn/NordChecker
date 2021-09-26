@@ -98,7 +98,7 @@ namespace NordChecker.ViewModels
             sampleAccount.Proxy = new Proxy(Socks4ProxyClient.Parse("81.18.34.98:47680"));
             sampleAccount.Token = "3761f993137551ac965ab71f8a4564305ddce3c8b2ecbcdac3bc30722cce4fa0";
             sampleAccount.RenewToken = "2f7bf7b922ccdfa091f4b66e30af996e8e06682921e02831e9589243014702ef";
-            sampleAccount.ExpiresAt = DateTime.Now.AddDays(2);
+            sampleAccount.ExpiresAt = DateTime.Now.AddDays(14);
         }
 
         private void UpdateSampleOutput()

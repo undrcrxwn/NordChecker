@@ -31,7 +31,8 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
-        public AppSettings Settings { get; set; }
+        public AppSettings AppSettings { get; set; }
+        public ExportSettings ExportSettings { get; set; }
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
@@ -40,9 +41,12 @@ namespace NordChecker
         public App()
         {
             ServiceCollection services = new ServiceCollection();
-            services.AddSingleton<AppSettings, AppSettings>();
+            services.AddSingleton<AppSettings>();
+            services.AddSingleton<ExportSettings>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
+            services.AddSingleton<ExportWindowViewModel>();
+            services.AddSingleton<ExportWindow>();
             provider = services.BuildServiceProvider();
         }
 
@@ -64,9 +68,9 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            Settings = provider.GetService<AppSettings>();
-            Settings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
-            Settings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
+            AppSettings = provider.GetService<AppSettings>();
+            AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
+            AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
 
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;

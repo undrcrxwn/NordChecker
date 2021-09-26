@@ -45,7 +45,8 @@ namespace NordChecker.ViewModels
 
         #region Properties
 
-        public AppSettings Settings { get; set; }
+        public AppSettings AppSettings { get; set; }
+        public ExportSettings ExportSettings { get; set; }
 
         private ThreadMasterToken masterToken;
 
@@ -122,7 +123,7 @@ namespace NordChecker.ViewModels
             new Thread(() =>
             {
                 distributor = new ThreadDistributor<Account>(
-                    Settings.ThreadCount,
+                    AppSettings.ThreadCount,
                     ComboBase.Accounts,
                     (acc) =>
                     {
@@ -213,7 +214,7 @@ namespace NordChecker.ViewModels
                                 continue;
                             }
 
-                            if (Settings.AreComboDuplicatesSkipped)
+                            if (AppSettings.AreComboDuplicatesSkipped)
                             {
                                 if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
@@ -314,7 +315,7 @@ namespace NordChecker.ViewModels
                                         continue;
                                     }
 
-                                    if (Settings.AreProxyDuplicatesSkipped)
+                                    if (AppSettings.AreProxyDuplicatesSkipped)
                                     {
                                         if (ProxyDispenser.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
@@ -362,7 +363,7 @@ namespace NordChecker.ViewModels
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    Window window = new ExportWindow(Settings.ExportSettings.Clone() as ExportSettings);
+                    Window window = new ExportWindow(ExportSettings.Clone() as ExportSettings);
                     window.Owner = Application.Current.MainWindow;
                     window.Closed += OnExportDialogClosed;
                     window.Show();
@@ -375,30 +376,32 @@ namespace NordChecker.ViewModels
             Log.Information("OnExportDialogClosed");
 
             var result = (sender as ExportWindow).DataContext as ExportWindowViewModel;
-            Log.Information("data context fetched");
             if (!result.IsOperationConfirmed) return;
-            Settings.ExportSettings = result.Settings.Clone() as ExportSettings;
-            Log.Information("New export settings: {@0}", Settings.ExportSettings);
+            ExportSettings = result.Settings.Clone() as ExportSettings;
 
             Task.Factory.StartNew(() =>
             {
-                Log.Information("Exporting combos to {path}", Settings.ExportSettings.RootPath);
+                Log.Information("Exporting combos of states {0} to {1}",
+                    ExportSettings.Filters.Where(x => x.Value.IsActivated).Select(x => x.Key),
+                    ExportSettings.RootPath);
+
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                int counter = 0;
-                foreach (var (state, parameter) in Settings.ExportSettings.Filters)
-                {
-                    if (!parameter.IsActivated) continue;
-                    string directory =
-                            $"{Settings.ExportSettings.RootPath}" +
-                            $"/NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
-                            $" at {DateTime.Now.ToString("HH-mm-ss")}";
+                string directory =
+                    $"{ExportSettings.RootPath}" +
+                    $"/NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
+                    $" at {DateTime.Now.ToString("HH-mm-ss")}";
+                Directory.CreateDirectory(directory);
 
-                    Directory.CreateDirectory(directory);
-                    using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}.txt", true))
+                int counter = 0;
+                foreach (var (state, parameter) in ExportSettings.Filters.Where(x => x.Value.IsActivated))
+                {
+                    var selection = ComboBase.Accounts.Where(acc => acc.State == state);
+                    string suffix = ExportSettings.AreRowCountsAddedToFileNames ? $" ({selection.Count()})" : "";
+                    using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}{suffix}.txt", true))
                     {
-                        foreach (Account account in ComboBase.Accounts.Where(acc => acc.State == state))
+                        foreach (Account account in selection)
                         {
                             sw.WriteLine(result.Formatter.Format(account));
                             counter++;
@@ -409,7 +412,7 @@ namespace NordChecker.ViewModels
 
                 watch.Stop();
                 Log.Information("{0} records have been exported to {1} in {2}ms",
-                    counter, Settings.ExportSettings.RootPath, watch.ElapsedMilliseconds);
+                    counter, directory, watch.ElapsedMilliseconds);
             });
         }
 
@@ -505,9 +508,10 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        public MainWindowViewModel(AppSettings settings)
+        public MainWindowViewModel(AppSettings appSettings, ExportSettings exportSettings)
         {
-            Settings = settings;
+            AppSettings = appSettings;
+            ExportSettings = exportSettings;
 
             #region Commands
 
@@ -527,10 +531,10 @@ namespace NordChecker.ViewModels
 
             #endregion
 
-            Settings.PropertyChanged += (sender, e) =>
+            AppSettings.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(Settings.ThreadCount))
-                    distributor.ThreadCount = Settings.ThreadCount;
+                if (e.PropertyName == nameof(AppSettings.ThreadCount))
+                    distributor.ThreadCount = AppSettings.ThreadCount;
             };
 
             ComboBase.Accounts.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
