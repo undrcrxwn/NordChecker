@@ -29,10 +29,11 @@ namespace NordChecker.Views
     {
         public AppSettings AppSettings { get; set; }
 
-        public MainPage(MainPageViewModel viewModel, AppSettings appSettings)
+        public MainPage(MainPageViewModel viewModel)
         {
+            DataContext = viewModel;
+            AppSettings = viewModel.AppSettings;
             InitializeComponent();
-            AppSettings = appSettings;
 
             AppSettings.DataGridFilters.CollectionChanged +=
                 (object sender, NotifyCollectionChangedEventArgs e) =>

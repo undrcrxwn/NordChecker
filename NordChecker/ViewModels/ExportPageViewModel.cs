@@ -17,7 +17,7 @@ using System.Windows.Input;
 
 namespace NordChecker.ViewModels
 {
-    public class ExportWindowViewModel : INotifyPropertyChangedAdvanced
+    public class ExportPageViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -27,11 +27,8 @@ namespace NordChecker.ViewModels
         public ExportSettings Settings
         {
             get => _Settings;
-            set
-            {
-                (this as INotifyPropertyChangedAdvanced)
+            set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Settings, value, PropertyChanged);
-            }
         }
 
         public AccountFormatter Formatter { get; set; }
@@ -91,7 +88,7 @@ namespace NordChecker.ViewModels
         }
 
         private static readonly Account sampleAccount;
-        static ExportWindowViewModel()
+        static ExportPageViewModel()
         {
             sampleAccount = new Account("mitch13banks@gmail.com", "Sardine13");
             sampleAccount.UserId = 121211441;
@@ -112,7 +109,7 @@ namespace NordChecker.ViewModels
             && !string.IsNullOrEmpty(Settings.FormatScheme)
             && Settings.Filters.Values.Any(x => x.IsActivated);
 
-        public ExportWindowViewModel(ExportSettings settings)
+        public ExportPageViewModel(ExportSettings settings)
         {
             Settings = settings;
             Settings.PropertyChanged += (sender, e) =>

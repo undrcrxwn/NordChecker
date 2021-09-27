@@ -27,6 +27,22 @@
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>
                 <ResourceDictionary>
+                    <DrawingImage x:Key="HomeDrawingImage">
+                        <DrawingImage.Drawing>
+                            <DrawingGroup ClipGeometry="M0,0 V16 H16 V0 H0 Z">
+                                <GeometryDrawing Brush="#FF000000" Geometry="F1 M16,16z M0,0z M8.354,1.146A0.5,0.5,0,0,0,7.646,1.146L1.646,7.146A0.5,0.5,0,0,0,1.5,7.5L1.5,14.5A0.5,0.5,0,0,0,2,15L6.5,15A0.5,0.5,0,0,0,7,14.5L7,10.5 9,10.5 9,14.5A0.5,0.5,0,0,0,9.5,15L14,15A0.5,0.5,0,0,0,14.5,14.5L14.5,7.5A0.5,0.5,0,0,0,14.354,7.146L13,5.793 13,2.5A0.5,0.5,0,0,0,12.5,2L11.5,2A0.5,0.5,0,0,0,11,2.5L11,3.793 8.354,1.146z M2.5,14L2.5,7.707 8,2.207 13.5,7.707 13.5,14 10,14 10,10A0.5,0.5,0,0,0,9.5,9.5L6.5,9.5A0.5,0.5,0,0,0,6,10L6,14 2.5,14z" />
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                    
+                    <DrawingImage x:Key="PathSeparatorDrawingImage">
+                        <DrawingImage.Drawing>
+                            <DrawingGroup ClipGeometry="M0,0 V16 H16 V0 H0 Z">
+                                <GeometryDrawing Brush="#FF000000" Geometry="F0 M16,16z M0,0z M6.776,1.553A0.5,0.5,0,0,1,7.447,1.776L10.447,7.776A0.5,0.5,0,0,1,10.447,8.224L7.447,14.224A0.5,0.5,0,1,1,6.553,13.776L9.44,8 6.553,2.224A0.5,0.5,0,0,1,6.776,1.553z" />
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+
                     <vm:NumberConverter x:Key="NumberConverter"/>
                     <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>
                     <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
@@ -39,6 +55,7 @@
                             <x:Type TypeName="events:LogEventLevel"/>
                         </ObjectDataProvider.MethodParameters>
                     </ObjectDataProvider>
+                    
                     <ObjectDataProvider x:Key="ApplicationThemeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                         <ObjectDataProvider.MethodParameters>
                             <x:Type TypeName="themes:ApplicationTheme"/>
@@ -56,7 +73,7 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            
+
             <!-- DATA GRID ROW -->
             <Style x:Key="DefaultRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle}">
                 <Style.Triggers>

@@ -404,13 +404,22 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
-                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
-&#10;Ожидаемые группы захвата:
-&#10;– Groups[0] – полное совпадение;
-&#10;– Groups[1] – почтовый адрес;
-&#10;– Groups[2] – пароль.
-&#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
+                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                    <TextBox.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN.
+<LineBreak/>
+<LineBreak/>Ожидаемые группы захвата:
+<LineBreak/>– Groups[0] – полное совпадение;
+<LineBreak/>– Groups[1] – почтовый адрес;
+<LineBreak/>– Groups[2] – пароль.
+<LineBreak/>
+<LineBreak/>Для тестирования пользовательских масок посетите <Run>https://regex101.com/</Run>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </TextBox.ToolTip>
+                                </TextBox>
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
@@ -441,13 +450,21 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}"
-                                         ToolTip="Регулярное выражение, применяемое к каждой строке загружаемой базы прокси.
-&#10;Ожидаемые группы захвата:
-&#10;– Groups[0] – полное совпадение;
-&#10;– Groups[1] – IP-адрес;
-&#10;– Groups[2] – порт.
-&#10;Для тестирования пользовательских масок посетите https://regex101.com/" FontFamily="Consolas" Margin="0,0,0,4" />
+                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                    <TextBox.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+Регулярное выражение, применяемое к каждой строке загружаемой базы прокси.
+<LineBreak/>Ожидаемые группы захвата:
+<LineBreak/>– Groups[0] – полное совпадение;
+<LineBreak/>– Groups[1] – IP-адрес;
+<LineBreak/>– Groups[2] – порт.
+<LineBreak/>
+<LineBreak/>Для тестирования пользовательских масок посетите <Run>https://regex101.com/</Run>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </TextBox.ToolTip>
+                                </TextBox>
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>

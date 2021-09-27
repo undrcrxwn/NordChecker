@@ -7,68 +7,103 @@
       xmlns:hc="https://handyorg.github.io/handycontrol"
       xmlns:vm="clr-namespace:NordChecker.ViewModels"
       xmlns:m="clr-namespace:NordChecker.Models"
+      xmlns:svgc1="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d"
-      d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel}"
-      d:Width="600"
+      d:DataContext="{d:DesignInstance Type=vm:ExportPageViewModel}"
       d:Background="{DynamicResource RegionBrush}">
     <Grid>
-        <hc:UniformSpacingPanel Margin="10" Orientation="Vertical" Spacing="20">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="30"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Settings.RootPath}" IsReadOnly="True"/>
-                <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
-            </Grid>
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                <TextBlock Text="Файловая структура" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="5"/>
-                        <RowDefinition/>
-                        <RowDefinition Height="5"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="5"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <CheckBox Content="Премиум"       IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Premium].IsActivated}"   HorizontalAlignment="Left"/>
-                    <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Free].IsActivated}"      HorizontalAlignment="Left" Grid.Row="2"/>
-                    <CheckBox Content="Невалидные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Invalid].IsActivated}"   HorizontalAlignment="Left" Grid.Column="2"/>
-                    <CheckBox Content="Непроверенные" IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Unchecked].IsActivated}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
-                    <CheckBox Content="Добавлять количество строк в названия файлов" IsChecked="{Binding Path=Settings.AreRowCountsAddedToFileNames}" HorizontalAlignment="Left" Grid.Row="4" Grid.ColumnSpan="3"/>
-                </Grid>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <hc:UniformSpacingPanel Spacing="5">
+                <hc:UniformSpacingPanel Spacing="10" Opacity="0.6">
+                    <Image Source="{StaticResource HomeDrawingImage}" Height="20"/>
+                    <TextBlock Text="Главная" FontSize="16" FontWeight="Medium"/>
+                </hc:UniformSpacingPanel>
+                <Image Source="{StaticResource PathSeparatorDrawingImage}" Height="18" VerticalAlignment="Bottom" Opacity="0.5"/>
+                <TextBlock Text="Экспорт" FontSize="16" FontWeight="Medium"/>
             </hc:UniformSpacingPanel>
 
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                <TextBlock Text="Форматирование" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
-                <hc:TextBox Text="{Binding Settings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
-                <TextBlock Grid.Column="2" Grid.Row="4" TextWrapping="Wrap">
-                    Пользовательский шаблон форматирования чувствителен к таким плейсхолдерам, как
-                    <Run FontFamily="Consolas">{email}</Run>,
-                    <Run FontFamily="Consolas">{password}</Run>,
-                    <Run FontFamily="Consolas">{proxy}</Run>,
-                    <Run FontFamily="Consolas">{expiration}</Run>,
-                    <Run FontFamily="Consolas">{services}</Run> и
-                    <Run FontFamily="Consolas">{json}</Run>.
-                </TextBlock>
+            <hc:UniformSpacingPanel Grid.Row="2" Orientation="Vertical" Spacing="15">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <TextBlock Text="Конечная директория" FontSize="18" FontWeight="Medium"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="4"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding Settings.RootPath}" IsReadOnly="True"/>
+                        <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
+                    </Grid>
+                </hc:UniformSpacingPanel>
+
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <TextBlock Text="Файловая структура" FontSize="18" FontWeight="Medium"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Content="Премиум"       IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Premium].IsActivated}"   HorizontalAlignment="Left"/>
+                        <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Free].IsActivated}"      HorizontalAlignment="Left" Grid.Row="2"/>
+                        <CheckBox Content="Невалидные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Invalid].IsActivated}"   HorizontalAlignment="Left" Grid.Column="2"/>
+                        <CheckBox Content="Непроверенные" IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Unchecked].IsActivated}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
+                        <CheckBox Content="Добавлять количество строк в названия файлов" IsChecked="{Binding Path=Settings.AreRowCountsAddedToFileNames}" HorizontalAlignment="Left" Grid.Row="4" Grid.ColumnSpan="3"/>
+                    </Grid>
+                </hc:UniformSpacingPanel>
+
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <TextBlock Text="Форматирование" FontSize="18" FontWeight="Medium"/>
+                    <TextBox Text="{Binding Settings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas">
+                        <TextBox.ToolTip>
+                            <ToolTip>
+                                <TextBlock>
+Пользовательский шаблон форматирования, чувствителен к таким плейсхолдерам, как:
+<LineBreak/>– <Run FontFamily="Consolas">{email}</Run> — почтовый адрес (логин) учётной записи;
+<LineBreak/>– <Run FontFamily="Consolas">{password}</Run> — пароль от учётной записи;
+<LineBreak/>– <Run FontFamily="Consolas">{proxy}</Run> — IP-адрес прокси, использованного при обработке аккаунта;
+<LineBreak/>– <Run FontFamily="Consolas">{expiration}</Run> — «действителен до»;
+<LineBreak/>– <Run FontFamily="Consolas">{services}</Run> — список приобретённых сервисов;
+<LineBreak/>– <Run FontFamily="Consolas">{json}</Run> — полная информация об аккаунте в формате JSON.
+                                </TextBlock>
+                            </ToolTip>
+                        </TextBox.ToolTip>
+                    </TextBox>
+                </hc:UniformSpacingPanel>
             </hc:UniformSpacingPanel>
 
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
-                <RichTextBox Height="100" IsReadOnly="True" Padding="0">
+            <Grid Grid.Row="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium"/>
+                <RichTextBox Grid.Row="2" IsReadOnly="True" Padding="0">
                     <FlowDocument>
                         <Paragraph Padding="0,5,0,5">
                             <TextBlock FontFamily="Consolas" Text="{Binding OutputPreview}" TextWrapping="Wrap"/>
                         </Paragraph>
                     </FlowDocument>
                 </RichTextBox>
-                <Grid>
+                <Grid Grid.Row="4" VerticalAlignment="Bottom">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="4"/>
@@ -77,7 +112,7 @@
                     <Button x:Name="btnProceed" Content="Экспортировать" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
                     <Button x:Name="btnCancel" Content="Отмена" Grid.Column="2" HorizontalAlignment="Stretch"/>
                 </Grid>
-            </hc:UniformSpacingPanel>
-        </hc:UniformSpacingPanel>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>

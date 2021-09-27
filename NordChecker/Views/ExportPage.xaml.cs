@@ -25,7 +25,7 @@ namespace NordChecker.Views
         public ExportPage(ExportSettings settings)
         {
             InitializeComponent();
-            DataContext = new ExportWindowViewModel(settings);
+            DataContext = new ExportPageViewModel(settings);
         }
     }
 }
