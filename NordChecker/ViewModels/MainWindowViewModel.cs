@@ -22,14 +22,16 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Threading;
 using Leaf.xNet;
 using System.Windows.Media.Effects;
+using HandyControl.Tools.Command;
+using System.Windows.Navigation;
+using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace NordChecker.ViewModels
 {
@@ -45,6 +47,8 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Properties
+
+        private INavigationService navigationService;
 
         private bool _IsContentLocked;
         public bool IsContentLocked
@@ -114,15 +118,7 @@ namespace NordChecker.ViewModels
                 .Set(ref _IsGreetingVisible, value, PropertyChanged);
         }
 
-        private Account _SelectedAccount;
-        public Account SelectedAccount
-        {
-            get => _SelectedAccount;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _SelectedAccount, value, PropertyChanged);
-        }
-
-        #endregion
+                #endregion
 
         private ThreadDistributor<Account> distributor;
         private Checker checker = new Checker(7000);
@@ -379,105 +375,7 @@ namespace NordChecker.ViewModels
         private void OnExportCommandExecuted(object parameter)
         {
             Log.Information("OnExportCommandExecuted");
-
-            Task.Run(() =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Window window = new ExportWindow(ExportSettings.Clone() as ExportSettings);
-                    window.Owner = Application.Current.MainWindow;
-                    window.Closed += OnExportDialogClosed;
-                    IsContentLocked = true;
-                    window.Show();
-                });
-            });
-        }
-
-        private void OnExportDialogClosed(object sender, EventArgs e)
-        {
-            Log.Information("OnExportDialogClosed");
-            
-            var result = (sender as ExportWindow).DataContext as ExportWindowViewModel;
-            if (!result.IsOperationConfirmed) return;
-            ExportSettings = result.Settings.Clone() as ExportSettings;
-
-            Task.Factory.StartNew(() =>
-            {
-                Log.Information("Exporting combos of states {0} to {1}",
-                    ExportSettings.Filters.Where(x => x.Value.IsActivated).Select(x => x.Key),
-                    ExportSettings.RootPath);
-
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-
-                string directory =
-                    $"{ExportSettings.RootPath}" +
-                    $"/NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
-                    $" at {DateTime.Now.ToString("HH-mm-ss")}";
-                Directory.CreateDirectory(directory);
-
-                int counter = 0;
-                foreach (var (state, parameter) in ExportSettings.Filters.Where(x => x.Value.IsActivated))
-                {
-                    var selection = ComboBase.Accounts.Where(acc => acc.State == state);
-                    string suffix = ExportSettings.AreRowCountsAddedToFileNames ? $" ({selection.Count()})" : "";
-                    using (StreamWriter sw = new StreamWriter(directory + $"/{parameter.FileName}{suffix}.txt", true))
-                    {
-                        foreach (Account account in selection)
-                        {
-                            sw.WriteLine(result.Formatter.Format(account));
-                            counter++;
-                            Log.Verbose("{0} has been saved as {1}", account.Credentials, state);
-                        }
-                    }
-                }
-
-                watch.Stop();
-                Log.Information("{0} records have been exported to {1} in {2}ms",
-                    counter, directory, watch.ElapsedMilliseconds);
-
-                IsContentLocked = false;
-            });
-        }
-
-        #endregion
-
-        #region CopyAccountCredentialsCommand
-
-        public ICommand CopyAccountCredentialsCommand { get; }
-
-        private bool CanExecuteCopyAccountCredentialsCommand(object parameter) => true;
-
-        private void OnCopyAccountCredentialsCommandExecuted(object parameter)
-        {
-            Log.Information("OnCopyAccountCredentialsExecuted");
-            var (mail, password) = SelectedAccount.Credentials;
-            try
-            {
-                Clipboard.SetText($"{mail}:{password}");
-                Log.Information("Clipboard text has been set to {credentials}", $"{mail}:{password}");
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Failed to write account credentials {credentials} to clipboard", (mail, password));
-            }
-        }
-
-        #endregion
-
-        #region RemoveAccountCommand
-
-        public ICommand RemoveAccountCommand { get; }
-
-        private bool CanExecuteRemoveAccountCommand(object parameter) => true;
-
-        private void OnRemoveAccountCommandExecuted(object parameter)
-        {
-            Log.Information("OnRemoveAccountCommandExecuted");
-            var account = SelectedAccount;
-            ComboBase.Accounts.Remove(account);
-            ComboBase.LoadedCount--;
-            Log.Information("{credentials} has been removed from combo-list", account.Credentials);
+            navigationService.Navigate(new ExportPage(ExportSettings.Clone() as ExportSettings));
         }
 
         #endregion
@@ -532,8 +430,9 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        public MainWindowViewModel(AppSettings appSettings, ExportSettings exportSettings)
+        public MainWindowViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
+            this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings;
 
@@ -547,9 +446,6 @@ namespace NordChecker.ViewModels
             ClearCombosCommand = new LambdaCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
             LoadProxiesCommand = new LambdaCommand(OnLoadProxiesCommandExecuted, CanExecuteLoadProxiesCommand);
             ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
-
-            CopyAccountCredentialsCommand = new LambdaCommand(OnCopyAccountCredentialsCommandExecuted, CanExecuteCopyAccountCredentialsCommand);
-            RemoveAccountCommand = new LambdaCommand(OnRemoveAccountCommandExecuted, CanExecuteRemoveAccountCommand);
 
             ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
 
@@ -573,6 +469,13 @@ namespace NordChecker.ViewModels
             };
 
             updateTimer.Start();
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                Task.Delay(5000).Wait();
+                (Application.Current.MainWindow as NavigationWindow)
+                .Navigate(new MainPage(new MainPageViewModel(navigationService), AppSettings));
+            }).Wait();
+            //navigationService.Navigate(typeof(MainPage));
         }
     }
 }

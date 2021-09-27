@@ -32,7 +32,7 @@ namespace NordChecker.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : NavigationWindow
     {
         public AppSettings Settings { get; set; }
 
@@ -48,53 +48,12 @@ namespace NordChecker.Views
             }
         }
 
-        private void UpdateFiltering()
-        {
-            ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
-            Dispatcher.Invoke(() =>
-            {
-                cv.Filter = (acc) => Settings.DataGridFilters[(acc as Account).State];
-                cv.Refresh();
-            });
-            Log.Information("New DataGrid filters have been applied");
-        }
-
-        private void OnFilteringSettingsUpdated(object sender, RoutedEventArgs e) => UpdateFiltering();
-
         public MainWindow() { }
 
-        public MainWindow(MainWindowViewModel viewModel, AppSettings settings)
+        public MainWindow(AppSettings settings)
         {
             InitializeComponent();
             HideBoundingBox(this);
-
-            Settings = settings;
-
-            settings.DataGridFilters.CollectionChanged +=
-                (object sender, NotifyCollectionChangedEventArgs e) =>
-                UpdateFiltering();
-
-            var source = new CollectionViewSource() { Source = viewModel.ComboBase.Accounts };
-            ICollectionView cv = source.View;
-            dgAccounts.ItemsSource = cv;
-
-            new Thread(() =>
-            {
-                while (true)
-                {
-                    while (viewModel.SelectedAccount != null)
-                        Thread.Sleep(10);
-                    var filter = cv.Filter;
-                    Dispatcher.BeginInvoke(() => cv.Refresh()).Wait();
-                    Thread.Sleep(500);
-                }
-            })
-            { IsBackground = true }.Start();
-        }
-
-        private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
-        {
-            Settings.AccentColor = (sender as HandyControl.Controls.ColorPicker).SelectedBrush;
         }
     }
 }

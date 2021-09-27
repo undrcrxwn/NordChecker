@@ -1,21 +1,16 @@
-﻿<Window x:Class="NordChecker.Views.ExportWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NordChecker.Views"
-        xmlns:hc="https://handyorg.github.io/handycontrol"
-        xmlns:vm="clr-namespace:NordChecker.ViewModels"
-        xmlns:m="clr-namespace:NordChecker.Models"
-        mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel}"
-        Title="Экспорт"
-        Width="550"
-        Topmost="True"
-        ResizeMode="NoResize"
-        SizeToContent="Height"
-        Visibility="{Binding IsWindowVisible, Converter={StaticResource Boolean2VisibilityConverter}, Mode=TwoWay}"
-        Background="{DynamicResource RegionBrush}">
+﻿<Page x:Class="NordChecker.Views.ExportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="clr-namespace:NordChecker.Views"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:vm="clr-namespace:NordChecker.ViewModels"
+      xmlns:m="clr-namespace:NordChecker.Models"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance Type=vm:ExportWindowViewModel}"
+      d:Width="600"
+      d:Background="{DynamicResource RegionBrush}">
     <Grid>
         <hc:UniformSpacingPanel Margin="10" Orientation="Vertical" Spacing="20">
             <Grid>
@@ -63,7 +58,7 @@
                     <Run FontFamily="Consolas">{json}</Run>.
                 </TextBlock>
             </hc:UniformSpacingPanel>
-            
+
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                 <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium" Margin="0,0,0,5"/>
                 <RichTextBox Height="100" IsReadOnly="True" Padding="0">
@@ -79,10 +74,10 @@
                         <ColumnDefinition Width="4"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="btnProceed" Content="Экспортировать" Click="btnProceed_Click" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
-                    <Button x:Name="btnCancel" Content="Отмена" Click="btnCancel_Click" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="btnProceed" Content="Экспортировать" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="btnCancel" Content="Отмена" Grid.Column="2" HorizontalAlignment="Stretch"/>
                 </Grid>
             </hc:UniformSpacingPanel>
         </hc:UniformSpacingPanel>
     </Grid>
-</Window>
+</Page>

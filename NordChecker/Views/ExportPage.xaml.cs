@@ -1,6 +1,5 @@
 ﻿using NordChecker.Models;
 using NordChecker.ViewModels;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,30 +12,20 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace NordChecker.Views
 {
     /// <summary>
-    /// Interaction logic for ExportWindow.xaml
+    /// Interaction logic for ExportPage.xaml
     /// </summary>
-    public partial class ExportWindow : Window
+    public partial class ExportPage : Page
     {
-        public ExportWindow(ExportSettings settings)
+        public ExportPage(ExportSettings settings)
         {
             InitializeComponent();
             DataContext = new ExportWindowViewModel(settings);
-        }
-
-        private void btnProceed_Click(object sender, RoutedEventArgs e)
-        {
-            (DataContext as ExportWindowViewModel).IsOperationConfirmed = true;
-            Close();
-        }
-
-        private void btnCancel_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
     }
 }

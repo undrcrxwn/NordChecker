@@ -41,12 +41,13 @@ namespace NordChecker
         public App()
         {
             ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<AppSettings>();
             services.AddSingleton<ExportSettings>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<ExportWindowViewModel>();
-            services.AddSingleton<ExportWindow>();
+            services.AddSingleton<ExportPage>();
             provider = services.BuildServiceProvider();
         }
 

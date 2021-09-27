@@ -3,6 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:NordChecker"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:vm="clr-namespace:NordChecker.ViewModels"
+             xmlns:events="clr-namespace:Serilog.Events;assembly=Serilog"
+             xmlns:themes="clr-namespace:HandyControl.Themes;assembly=HandyControl"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -22,6 +26,25 @@
                         </ResourceDictionary>
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>
+                <ResourceDictionary>
+                    <vm:NumberConverter x:Key="NumberConverter"/>
+                    <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>
+                    <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+                    <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+                    <vm:Boolean2ModeIconStringConverter x:Key="Boolean2ModeIconStringConverter"/>
+                    <vm:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
+
+                    <ObjectDataProvider x:Key="LogEventLevelEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                        <ObjectDataProvider.MethodParameters>
+                            <x:Type TypeName="events:LogEventLevel"/>
+                        </ObjectDataProvider.MethodParameters>
+                    </ObjectDataProvider>
+                    <ObjectDataProvider x:Key="ApplicationThemeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                        <ObjectDataProvider.MethodParameters>
+                            <x:Type TypeName="themes:ApplicationTheme"/>
+                        </ObjectDataProvider.MethodParameters>
+                    </ObjectDataProvider>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- DATA GRID CELL -->
