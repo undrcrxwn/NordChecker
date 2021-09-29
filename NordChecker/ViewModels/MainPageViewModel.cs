@@ -62,8 +62,6 @@ namespace NordChecker.ViewModels
         public AppSettings AppSettings { get; set; }
         public ExportSettings ExportSettings { get; set; }
 
-        private ThreadMasterToken masterToken;
-
         private ObservableCollection<Account> _Accounts = new ObservableCollection<Account>();
         public ObservableCollection<Account> Accounts
         {
@@ -138,9 +136,9 @@ namespace NordChecker.ViewModels
             progressWatch.Restart();
 
             PipelineState = PipelineState.Working;
-            masterToken = new ThreadMasterToken();
             new Thread(() =>
             {
+                MasterTokenSource tokenSource = new MasterTokenSource();
                 distributor = new ThreadDistributor<Account>(
                     AppSettings.ThreadCount,
                     Accounts,
@@ -148,6 +146,7 @@ namespace NordChecker.ViewModels
                     {
                         if (account.State == AccountState.Unchecked)
                         {
+                            account.MasterToken = tokenSource.MakeToken();
                             account.State = AccountState.Reserved;
                             lock (ComboStats)
                             {
@@ -159,7 +158,7 @@ namespace NordChecker.ViewModels
                         return false;
                     },
                     checker.ProcessAccount,
-                    masterToken);
+                    tokenSource);
 
                 distributor.OnTaskCompleted += (sender, account) =>
                 {
@@ -192,7 +191,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Paused;
-            masterToken.Pause();
+            tokenSource.Pause();
         }
 
         #endregion
@@ -209,7 +208,7 @@ namespace NordChecker.ViewModels
             progressWatch.Start();
 
             PipelineState = PipelineState.Working;
-            masterToken.Continue();
+            tokenSource.Continue();
         }
 
         #endregion
@@ -226,7 +225,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Idle;
-            masterToken.Cancel();
+            tokenSource.Cancel();
         }
 
         #endregion

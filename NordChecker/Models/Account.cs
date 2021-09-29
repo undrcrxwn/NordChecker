@@ -19,6 +19,7 @@ namespace NordChecker.Models
     public class Account : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public MasterToken MasterToken;
 
         private AccountState _State = AccountState.Unchecked;
         public AccountState State

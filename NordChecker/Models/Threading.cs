@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
-    class ThreadMasterToken
+    public class MasterToken
     {
         public bool IsCancellationRequested { get; private set; }
         public bool IsPauseRequested { get; private set; }
@@ -43,15 +43,31 @@ namespace NordChecker.Models
         }
     }
 
-    class ThreadDistributor<TPayload>
+    public class MasterTokenSource
+    {
+        public List<MasterToken> Tokens = new List<MasterToken>();
+
+        public MasterToken MakeToken()
+        {
+            var token = new MasterToken();
+            Tokens.Add(token);
+            return token;
+        }
+
+        public void Cancel() => Tokens.ForEach(x => x.Cancel());
+        public void Pause() => Tokens.ForEach(x => x.Pause());
+        public void Continue() => Tokens.ForEach(x => x.Continue());
+    }
+
+    public class ThreadDistributor<TPayload>
     {
         private ObservableCollection<TPayload> payloads;
         private Func<TPayload, bool> predicate;
-        private Action<TPayload, ThreadMasterToken> handler;
-        private ThreadMasterToken token;
+        private Action<TPayload, MasterToken> handler;
         private int superfluousDistributonsCount;
         private object abortionLocker = new object();
         private object payloadsLocker = new object();
+        public MasterTokenSource TokenSource = new MasterTokenSource();
         public event EventHandler<TPayload> OnTaskCompleted;
 
         private int _ThreadCount;
@@ -83,13 +99,11 @@ namespace NordChecker.Models
             int threadCount,
             ObservableCollection<TPayload> payloads,
             Func<TPayload, bool> predicate,
-            Action<TPayload, ThreadMasterToken> handler,
-            ThreadMasterToken token)
+            Action<TPayload, MasterToken> handler)
         {
             this.payloads = payloads;
             this.predicate = predicate;
             this.handler = handler;
-            this.token = token;
             OnTaskCompleted += (sender, e) => Distribute();
             ThreadCount = threadCount;
         }
@@ -109,7 +123,6 @@ namespace NordChecker.Models
                 }
 
                 Log.Debug("New distribution");
-                token.ThrowOrWaitIfRequested();
 
                 TPayload payload;
                 try
@@ -126,7 +139,7 @@ namespace NordChecker.Models
 
                 try
                 {
-                    handler(payload, token);
+                    handler(payload, TokenSource.MakeToken());
                 }
                 catch { }
                 OnTaskCompleted?.Invoke(this, payload);

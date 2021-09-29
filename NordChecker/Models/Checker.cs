@@ -14,12 +14,12 @@ namespace NordChecker.Models
     class CheckerBreakpointContext
     {
         public Account account;
-        public ThreadMasterToken token;
+        public MasterToken token;
         public Stopwatch watch;
 
         public CheckerBreakpointContext(
             Account account,
-            ThreadMasterToken token,
+            MasterToken token,
             Stopwatch watch)
         {
             this.account = account;
@@ -56,7 +56,7 @@ namespace NordChecker.Models
             context.watch.Start();
         }
 
-        public void ProcessAccount(Account account, ThreadMasterToken token)
+        public void ProcessAccount(Account account, MasterToken token)
         {
             Stopwatch watch = Stopwatch.StartNew();
             var context = new CheckerBreakpointContext(account, token, watch);
