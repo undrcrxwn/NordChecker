@@ -47,29 +47,29 @@
                     <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
                         <Canvas x:Name="progressCanvasComboChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].EndAngle}"
-                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Premium].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Premium].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Premium].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Premium].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].EndAngle}"
-                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Free].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Free].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Free].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Free].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].EndAngle}"
-                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Invalid].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Invalid].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Invalid].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Invalid].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].EndAngle}"
-                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Reserved].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Reserved].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Reserved].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Reserved].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].EndAngle}"
-                        Visibility = "{Binding Path=ComboBase.Arcs[(m:AccountState)Unchecked].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].Visibility}"/>
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasComboChart}">
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding ComboBase.LoadedCount, Converter={StaticResource NumberConverter}}"
+                                    <TextBlock Text="{Binding ComboBase.Accounts.Count, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"/>
@@ -99,7 +99,7 @@
                                             <hc:SimpleText Text="Премиум" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -108,7 +108,7 @@
                                             <hc:SimpleText Text="Бесплатных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -117,7 +117,7 @@
                                             <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -126,7 +126,7 @@
                                             <hc:SimpleText Text="В обработке" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -135,7 +135,7 @@
                                             <hc:SimpleText Text="В очереди" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>

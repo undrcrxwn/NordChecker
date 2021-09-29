@@ -52,7 +52,7 @@ namespace NordChecker.Models
         private int superfluousDistributonsCount;
         private object abortionLocker = new object();
         private object payloadsLocker = new object();
-        public event Action OnTaskCompleted;
+        public event EventHandler<TPayload> OnTaskCompleted;
 
         private int _ThreadCount;
         public int ThreadCount
@@ -90,7 +90,7 @@ namespace NordChecker.Models
             this.predicate = predicate;
             this.handler = handler;
             this.token = token;
-            OnTaskCompleted += Distribute;
+            OnTaskCompleted += (sender, e) => Distribute();
             ThreadCount = threadCount;
         }
 
@@ -129,7 +129,7 @@ namespace NordChecker.Models
                     handler(payload, token);
                 }
                 catch { }
-                OnTaskCompleted?.Invoke();
+                OnTaskCompleted?.Invoke(this, payload);
             },
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning,

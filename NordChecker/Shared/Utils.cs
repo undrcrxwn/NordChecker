@@ -33,7 +33,7 @@ namespace NordChecker.Shared
         public static void HideConsole() =>
             ShowWindow(GetConsoleWindow(), SW_HIDE);
 
-        public static string ToFormattedDurationString(this TimeSpan @this)
+        public static string ToShortDurationString(this TimeSpan @this)
         {
             string result = "";
             if (@this.Days > 0)     result += @this.ToString(@"d\д\ ");

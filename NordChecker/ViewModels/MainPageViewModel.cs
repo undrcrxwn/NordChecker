@@ -71,6 +71,22 @@ namespace NordChecker.ViewModels
                 .Set(ref _ComboBase, value, PropertyChanged);
         }
 
+        private ObservableDictionary<AccountState, int> _ComboStats;
+        public ObservableDictionary<AccountState, int> ComboStats
+        {
+            get => _ComboStats;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ComboStats, value, PropertyChanged);
+        }
+
+        private ObservableDictionary<AccountState, ArcViewModel> _ComboArcs;
+        public ObservableDictionary<AccountState, ArcViewModel> ComboArcs
+        {
+            get => _ComboArcs;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ComboArcs, value, PropertyChanged);
+        }
+
         private ProxyDispenserViewModel _ProxyDispenser = new ProxyDispenserViewModel();
         public ProxyDispenserViewModel ProxyDispenser
         {
@@ -94,7 +110,6 @@ namespace NordChecker.ViewModels
                 @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
                 @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
                 @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
-                ComboBase.Refresh();
             }
         }
 
@@ -128,11 +143,16 @@ namespace NordChecker.ViewModels
                 distributor = new ThreadDistributor<Account>(
                     AppSettings.ThreadCount,
                     ComboBase.Accounts,
-                    (acc) =>
+                    account =>
                     {
-                        if (acc.State == AccountState.Unchecked)
+                        if (account.State == AccountState.Unchecked)
                         {
-                            acc.State = AccountState.Reserved;
+                            account.State = AccountState.Reserved;
+                            lock (ComboStats)
+                            {
+                                ComboStats[AccountState.Unchecked]--;
+                                ComboStats[AccountState.Reserved]++;
+                            }
                             return true;
                         }
                         return false;
@@ -140,15 +160,20 @@ namespace NordChecker.ViewModels
                     checker.ProcessAccount,
                     masterToken);
 
-                distributor.OnTaskCompleted += () =>
+                distributor.OnTaskCompleted += (sender, account) =>
                 {
-                    if (ComboBase.Accounts.Where(x =>
+                    lock (ComboStats)
+                    {
+                        ComboStats[AccountState.Reserved]--;
+                        ComboStats[account.State]++;
+                    }
+
+                    int uncompletedCount = ComboBase.Accounts.Where(x =>
                         x.State == AccountState.Unchecked ||
                         x.State == AccountState.Reserved)
-                        .Count() == 0)
-                    {
-                        if (PauseCommand.CanExecute(null)) PauseCommand.Execute(null);
-                    }
+                        .Count();
+                    if (uncompletedCount == 0)
+                        PauseCommand.Execute(null);
                 };
             })
             { IsBackground = true }.Start();
@@ -207,7 +232,7 @@ namespace NordChecker.ViewModels
                 dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
                 if (dialog.ShowDialog() != true) return;
 
-                Task.Factory.StartNew(() =>
+                Task.Factory.StartNew((Action)(() =>
                 {
                     Log.Information("Reading combos from {file}", dialog.FileName);
                     Stopwatch watch = new Stopwatch();
@@ -251,13 +276,14 @@ namespace NordChecker.ViewModels
                     Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
                         cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
 
-                    Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        foreach (Account account in cache)
-                            ComboBase.Accounts.Add(account);
-                        ComboBase.LoadedCount += cache.Count;
-                    });
-                });
+                    DispatcherExtensions.BeginInvoke(Application.Current.Dispatcher, () =>
+                     {
+                         foreach (Account account in cache)
+                             ComboBase.Accounts.Add((Account)account);
+                         lock (ComboStats)
+                             ComboStats[AccountState.Unchecked] += cache.Count;
+                     });
+                }));
             });
         }
 
@@ -272,6 +298,8 @@ namespace NordChecker.ViewModels
         private void OnClearCombosCommandExecuted(object parameter)
         {
             Log.Information("OnClearCombosCommandExecuted");
+            ComboStats.Clear();
+
             //masterToken.Cancel();
             ComboBase.LoadedCount = 0;
             ComboBase.MismatchedCount = 0;
@@ -471,11 +499,78 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        public void RefreshComboStats()
+        {
+            int loaded = Math.Max(1, ComboBase.Accounts.Count);
+            Dictionary<AccountState, float> shares =
+                ComboStats.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
+
+            float margin = 6;
+            float pivot = margin / 2;
+            float maxPossibleAngle = 360 - (shares.Values.Count(v => v > 0) * margin);
+            foreach (var (state, share) in shares)
+            {
+                if (share == 0)
+                {
+                    ComboArcs[state].StartAngle = 0;
+                    ComboArcs[state].EndAngle = 1;
+                    ComboArcs[state].Visibility = Visibility.Hidden;
+                }
+                else if (share == 1)
+                {
+                    ComboArcs[state].StartAngle = 0;
+                    ComboArcs[state].EndAngle = 360;
+                    ComboArcs[state].Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    ComboArcs[state].StartAngle = pivot;
+                    pivot += share * maxPossibleAngle;
+                    ComboArcs[state].EndAngle = pivot;
+                    pivot += margin;
+                    ComboArcs[state].Visibility = Visibility.Visible;
+                }
+            }
+
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
+            Application.Current.Dispatcher.InvokeAsync((Action)(() =>
+            {
+                Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
+                if (this.ComboStats[AccountState.Unchecked] + this.ComboStats[AccountState.Reserved] > 0)
+                {
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
+                        = 1 - shares[AccountState.Unchecked] - shares[AccountState.Reserved];
+                }
+                else
+                {
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
+                }
+            }));
+        }
+
         public MainPageViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
             this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings;
+
+            _ComboStats = new ObservableDictionary<AccountState, int>();
+            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
+                _ComboStats.Add(key, 0);
+
+            ComboStats.CollectionChanged += (sender, e) =>
+                (this as INotifyPropertyChangedAdvanced)
+                .OnPropertyChanged(PropertyChanged, nameof(ComboStats));
+
+            _ComboArcs = new ObservableDictionary<AccountState, ArcViewModel>();
+            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
+                _ComboArcs.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
+
+            ComboArcs.CollectionChanged += (sender, e) =>
+                (this as INotifyPropertyChangedAdvanced)
+                .OnPropertyChanged(PropertyChanged, nameof(ComboArcs));
 
             #region Commands
 
@@ -501,14 +596,14 @@ namespace NordChecker.ViewModels
                     distributor.ThreadCount = AppSettings.ThreadCount;
             };
 
-            ComboBase.Accounts.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
+            ComboBase.Accounts.CollectionChanged += (sender, e) =>
                 IsGreetingVisible = ComboBase.Accounts.Count == 0;
 
             Task.Run(() =>
             {
                 while (true)
                 {
-                    Application.Current.Dispatcher.Invoke(ComboBase.Refresh);
+                    Application.Current.Dispatcher.Invoke(RefreshComboStats);
                     ProxyDispenser.Refresh();
 
                     float percentageChecked = ComboBase.Accounts
@@ -520,12 +615,12 @@ namespace NordChecker.ViewModels
                     if (PipelineState != PipelineState.Idle)
                     {
                         TimeSpan elapsed = progressWatch.Elapsed;
-                        Description += $" ({elapsed.ToFormattedDurationString()} затрачено";
+                        Description += $" ({elapsed.ToShortDurationString()} затрачено";
 
                         if (percentageChecked > 0 && percentageChecked < 100)
                         {
                             TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
-                            Description += $", {left.ToFormattedDurationString()} осталось";
+                            Description += $", {left.ToShortDurationString()} осталось";
                         }
                         Description += ")";
                     }
