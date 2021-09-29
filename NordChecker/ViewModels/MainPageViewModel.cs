@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,13 +23,32 @@ using System.Windows.Threading;
 
 namespace NordChecker.ViewModels
 {
-    public class MainPageViewModel : INotifyPropertyChangedAdvanced
+    public class MainPageViewModel : IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
         private INavigationService navigationService;
 
+        private ThreadDistributor<Account> distributor;
+        private Checker checker = new Checker(7000);
+        private Stopwatch progressWatch = new Stopwatch();
+
         #region Properties
+
+        private string _Title;
+        public string Title
+        {
+            get => _Title;
+            private set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Title, value, PropertyChanged);
+        }
+
+        private string _Description;
+        public string Description
+        {
+            get => _Description;
+            private set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Description, value, PropertyChanged);
+        }
 
         private Account _SelectedAccount;
         public Account SelectedAccount
@@ -88,9 +108,6 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        private ThreadDistributor<Account> distributor;
-        private Checker checker = new Checker(7000);
-
         #region Commands
 
         #region StartCommand
@@ -102,6 +119,7 @@ namespace NordChecker.ViewModels
         private void OnStartCommandExecuted(object parameter)
         {
             Log.Information("OnStartCommandExecuted");
+            progressWatch.Restart();
 
             PipelineState = PipelineState.Working;
             masterToken = new ThreadMasterToken();
@@ -121,6 +139,17 @@ namespace NordChecker.ViewModels
                     },
                     checker.ProcessAccount,
                     masterToken);
+
+                distributor.OnTaskCompleted += () =>
+                {
+                    if (ComboBase.Accounts.Where(x =>
+                        x.State == AccountState.Unchecked ||
+                        x.State == AccountState.Reserved)
+                        .Count() == 0)
+                    {
+                        if (PauseCommand.CanExecute(null)) PauseCommand.Execute(null);
+                    }
+                };
             })
             { IsBackground = true }.Start();
         }
@@ -135,7 +164,8 @@ namespace NordChecker.ViewModels
 
         private void OnPauseCommandExecuted(object parameter)
         {
-            Log.Information("OnStopCommandExecuted");
+            Log.Information("OnPauseCommandExecuted");
+            progressWatch.Stop();
 
             PipelineState = PipelineState.Paused;
             masterToken.Pause();
@@ -152,6 +182,8 @@ namespace NordChecker.ViewModels
         private void OnContinueCommandExecuted(object parameter)
         {
             Log.Information("OnContinueCommandExecuted");
+            progressWatch.Start();
+
             PipelineState = PipelineState.Working;
             masterToken.Continue();
         }
@@ -343,7 +375,8 @@ namespace NordChecker.ViewModels
         private void OnExportCommandExecuted(object parameter)
         {
             Log.Information("OnExportCommandExecuted");
-            navigationService.Navigate(new ExportPage(ExportSettings.Clone() as ExportSettings));
+            navigationService.Navigate(new ExportPage(
+                new ExportPageViewModel(navigationService, ExportSettings.Clone() as ExportSettings)));
         }
 
         #endregion
@@ -471,15 +504,35 @@ namespace NordChecker.ViewModels
             ComboBase.Accounts.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) =>
                 IsGreetingVisible = ComboBase.Accounts.Count == 0;
 
-            DispatcherTimer updateTimer = new DispatcherTimer();
-            updateTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-            updateTimer.Tick += (sender, e) =>
+            Task.Run(() =>
             {
-                ComboBase.Refresh();
-                ProxyDispenser.Refresh();
-            };
+                while (true)
+                {
+                    Application.Current.Dispatcher.Invoke(ComboBase.Refresh);
+                    ProxyDispenser.Refresh();
 
-            updateTimer.Start();
+                    float percentageChecked = ComboBase.Accounts
+                        .Count(x => x.State != AccountState.Unchecked && x.State != AccountState.Reserved)
+                        / Math.Max(ComboBase.Accounts.Count, 1.0f)
+                        * 100;
+                    Description = $"{percentageChecked:0}%";
+
+                    if (PipelineState != PipelineState.Idle)
+                    {
+                        TimeSpan elapsed = progressWatch.Elapsed;
+                        Description += $" ({elapsed.ToFormattedDurationString()} затрачено";
+
+                        if (percentageChecked > 0 && percentageChecked < 100)
+                        {
+                            TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
+                            Description += $", {left.ToFormattedDurationString()} осталось";
+                        }
+                        Description += ")";
+                    }
+
+                    Task.Delay(1000).Wait();
+                }
+            });
         }
     }
 }

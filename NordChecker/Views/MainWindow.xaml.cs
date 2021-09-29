@@ -50,9 +50,10 @@ namespace NordChecker.Views
 
         public MainWindow() { }
 
-        public MainWindow(AppSettings settings)
+        public MainWindow(MainWindowViewModel viewModel, AppSettings settings)
         {
             InitializeComponent();
+            DataContext = viewModel;
             HideBoundingBox(this);
         }
     }

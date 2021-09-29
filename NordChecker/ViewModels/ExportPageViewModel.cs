@@ -1,9 +1,11 @@
 ﻿using Leaf.xNet;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
+using NordChecker.Views;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -11,17 +13,35 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 namespace NordChecker.ViewModels
 {
-    public class ExportPageViewModel : INotifyPropertyChangedAdvanced
+    public class ExportPageViewModel : IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private INavigationService navigationService;
 
         #region Properties
+
+        private string _Title;
+        public string Title
+        {
+            get => _Title;
+            private set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Title, value, PropertyChanged);
+        }
+
+        private string _Description;
+        public string Description
+        {
+            get => _Description;
+            private set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Description, value, PropertyChanged);
+        }
 
         private ExportSettings _Settings;
         public ExportSettings Settings
@@ -31,15 +51,15 @@ namespace NordChecker.ViewModels
                 .Set(ref _Settings, value, PropertyChanged);
         }
 
-        public AccountFormatter Formatter { get; set; }
-
-        private bool _IsWindowVisible = true;
-        public bool IsWindowVisible
+        private string _OutputDirectoryPath;
+        public string OutputDirectoryPath
         {
-            get => _IsWindowVisible;
+            get => _OutputDirectoryPath;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsWindowVisible, value, PropertyChanged);
+                .Set(ref _OutputDirectoryPath, value, PropertyChanged);
         }
+
+        public AccountFormatter Formatter { get; set; }
 
         private string _OutputPreview;
         public string OutputPreview
@@ -67,6 +87,8 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        #region ChoosePathCommand
+
         public ICommand ChoosePathCommand { get; }
 
         private bool CanExecuteChoosePathCommand(object parameter) => true;
@@ -78,14 +100,28 @@ namespace NordChecker.ViewModels
             Task.Run(() =>
             {
                 var dialog = new CommonOpenFileDialog() { IsFolderPicker = true };
-                IsWindowVisible = false;
                 CommonFileDialogResult result = Application.Current.Dispatcher.Invoke(dialog.ShowDialog);
-                IsWindowVisible = true;
                 if (result != CommonFileDialogResult.Ok) return;
 
-                Settings.RootPath = dialog.FileName;
+                OutputDirectoryPath = dialog.FileName;
             });
         }
+
+        #endregion
+
+        #region ChoosePathCommand
+
+        public ICommand NavigateHomeCommand { get; }
+
+        private bool CanExecuteNavigateHomeCommand(object parameter) => true;
+
+        private void OnNavigateHomeCommandExecuted(object parameter)
+        {
+            Log.Information("OnNavigateHomeCommandExecuted");
+            navigationService.Navigate<MainPage>();
+        }
+
+        #endregion
 
         private static readonly Account sampleAccount;
         static ExportPageViewModel()
@@ -105,18 +141,37 @@ namespace NordChecker.ViewModels
         }
 
         private void UpdateCanProceed()
-            => CanProceed = Directory.Exists(Settings.RootPath)
+            => CanProceed = Directory.Exists(OutputDirectoryPath)
             && !string.IsNullOrEmpty(Settings.FormatScheme)
             && Settings.Filters.Values.Any(x => x.IsActivated);
 
-        public ExportPageViewModel(ExportSettings settings)
+        private void UpdateSettingsRootPath()
         {
+            if (string.IsNullOrEmpty(OutputDirectoryPath))
+                Settings.RootPath = null;
+            else
+            {
+                Settings.RootPath = OutputDirectoryPath +
+                $"\\NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
+                $" at {DateTime.Now.ToString("HH-mm-ss")}";
+            }
+        }
+
+        public ExportPageViewModel(INavigationService navigationService, ExportSettings settings)
+        {
+            this.navigationService = navigationService;
             Settings = settings;
             Settings.PropertyChanged += (sender, e) =>
             {
                 UpdateCanProceed();
                 if (e.PropertyName == nameof(Settings.FormatScheme))
                     UpdateSampleOutput();
+            };
+
+            PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(OutputDirectoryPath))
+                    UpdateSettingsRootPath();
             };
 
             Formatter = new AccountFormatter();
@@ -131,6 +186,17 @@ namespace NordChecker.ViewModels
             UpdateCanProceed();
 
             ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
+            NavigateHomeCommand = new LambdaCommand(OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
+
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    UpdateSettingsRootPath();
+                    Thread.Sleep(1000);
+                }
+            })
+            { IsBackground = true }.Start();
         }
     }
 }

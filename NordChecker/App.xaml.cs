@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -36,19 +37,33 @@ namespace NordChecker
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
-        private ServiceProvider provider;
+        public static IServiceProvider ServiceProvider { get; set; }
+
+        private INavigationService navigationService;
 
         public App()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("ru-RU")
+            {
+                NumberFormat = new NumberFormatInfo()
+                {
+                    NumberDecimalSeparator = "."
+                }
+            };
+
             ServiceCollection services = new ServiceCollection();
             services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<AppSettings>();
-            services.AddSingleton<ExportSettings>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
-            services.AddSingleton<ExportPageViewModel>();
-            services.AddSingleton<ExportPage>();
-            provider = services.BuildServiceProvider();
+            services.AddSingleton<AppSettings>();
+            services.AddSingleton<ExportSettings>();
+            services.AddSingleton<MainPageViewModel>();
+            services.AddSingleton<MainPage>();
+            services.AddTransient<ExportPageViewModel>();
+            services.AddTransient<ExportPage>();
+            ServiceProvider = services.BuildServiceProvider();
+
+            navigationService = ServiceProvider.GetService<INavigationService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -69,10 +84,10 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            AppSettings = provider.GetService<AppSettings>();
+            AppSettings = ServiceProvider.GetService<AppSettings>();
             AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
             AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
-
+            
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
             Log.Information("{n} {v} is running in {c} configuration",
@@ -96,9 +111,8 @@ namespace NordChecker
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            Window window = provider.GetService<MainWindow>();
-            window.DataContext = provider.GetService<MainWindowViewModel>();
-            window.Show();
+            ServiceProvider.GetService<MainWindow>().Show();
+            navigationService.Navigate<MainPage>();
         }
     }
 }

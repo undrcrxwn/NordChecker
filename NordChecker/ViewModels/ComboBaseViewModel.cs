@@ -103,19 +103,21 @@ namespace NordChecker.ViewModels
             }
 
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
-            Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
-
-            if (Stats[AccountState.Unchecked] + Stats[AccountState.Reserved] > 0)
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
-                    = 1 - shares[AccountState.Unchecked] - shares[AccountState.Reserved];
-            }
-            else
-            {
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
-                Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
-            }
+                Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
+                if (Stats[AccountState.Unchecked] + Stats[AccountState.Reserved] > 0)
+                {
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
+                        = 1 - shares[AccountState.Unchecked] - shares[AccountState.Reserved];
+                }
+                else
+                {
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                    Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
+                }
+            });
         }
 
         public ComboBaseViewModel()

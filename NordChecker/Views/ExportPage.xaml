@@ -15,24 +15,30 @@
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="25"/>
+                <RowDefinition Height="15"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="25"/>
+                <RowDefinition Height="10"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
             <hc:UniformSpacingPanel Spacing="5">
-                <hc:UniformSpacingPanel Spacing="10" Opacity="0.6">
-                    <Image Source="{StaticResource HomeDrawingImage}" Height="20"/>
-                    <TextBlock Text="Главная" FontSize="16" FontWeight="Medium"/>
-                </hc:UniformSpacingPanel>
-                <Image Source="{StaticResource PathSeparatorDrawingImage}" Height="18" VerticalAlignment="Bottom" Opacity="0.5"/>
-                <TextBlock Text="Экспорт" FontSize="16" FontWeight="Medium"/>
+                <Button Command="{Binding NavigateHomeCommand}" Height="20" Style="{StaticResource NavigateHomeButtonStyle}"/>
+
+                <Rectangle Width="18" Height="18" VerticalAlignment="Bottom" Opacity="0.5">
+                    <Rectangle.Style>
+                        <Style TargetType="{x:Type Rectangle}">
+                            <Setter Property="Fill" Value="{DynamicResource PrimaryTextBrush}"/>
+                            <Setter Property="OpacityMask" Value="{StaticResource PathSeparatorImageBrush}"/>
+                        </Style>
+                    </Rectangle.Style>
+                </Rectangle>
+                
+                <hc:SimpleText Text="Экспорт" FontSize="16" FontWeight="Medium"/>
             </hc:UniformSpacingPanel>
 
             <hc:UniformSpacingPanel Grid.Row="2" Orientation="Vertical" Spacing="15">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <TextBlock Text="Конечная директория" FontSize="18" FontWeight="Medium"/>
+                    <hc:SimpleText Text="Конечная директория" FontSize="18" FontWeight="Medium"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -45,7 +51,7 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <TextBlock Text="Файловая структура" FontSize="18" FontWeight="Medium"/>
+                    <hc:SimpleText Text="Файловая структура" FontSize="18" FontWeight="Medium"/>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -68,7 +74,7 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <TextBlock Text="Форматирование" FontSize="18" FontWeight="Medium"/>
+                    <hc:SimpleText Text="Форматирование" FontSize="18" FontWeight="Medium"/>
                     <TextBox Text="{Binding Settings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas">
                         <TextBox.ToolTip>
                             <ToolTip>
@@ -95,7 +101,7 @@
                     <RowDefinition Height="5"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Пример выходных данных" FontSize="18" FontWeight="Medium"/>
+                <hc:SimpleText Text="Пример выходных данных" FontSize="18" FontWeight="Medium"/>
                 <RichTextBox Grid.Row="2" IsReadOnly="True" Padding="0">
                     <FlowDocument>
                         <Paragraph Padding="0,5,0,5">
@@ -110,7 +116,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="btnProceed" Content="Экспортировать" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
-                    <Button x:Name="btnCancel" Content="Отмена" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="btnCancel" Content="Отмена" Command="{Binding NavigateHomeCommand}" Grid.Column="2" HorizontalAlignment="Stretch"/>
                 </Grid>
             </Grid>
         </Grid>

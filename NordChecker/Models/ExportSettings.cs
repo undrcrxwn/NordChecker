@@ -72,7 +72,7 @@ namespace NordChecker.Models
                 .Set(ref _FormatScheme, value, PropertyChanged);
         }
 
-        private bool _AreRowCountsAddedToFileNames;
+        private bool _AreRowCountsAddedToFileNames = true;
         public bool AreRowCountsAddedToFileNames
         {
             get => _AreRowCountsAddedToFileNames;

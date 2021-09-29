@@ -1,4 +1,5 @@
 ﻿using NordChecker.Models;
+using NordChecker.Shared;
 using NordChecker.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,10 +23,10 @@ namespace NordChecker.Views
     /// </summary>
     public partial class ExportPage : Page
     {
-        public ExportPage(ExportSettings settings)
+        public ExportPage(ExportPageViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new ExportPageViewModel(settings);
+            DataContext = viewModel;
         }
     }
 }

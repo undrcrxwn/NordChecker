@@ -14,7 +14,7 @@
       xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=vm:MainPageViewModel}"
-      Background="{StaticResource RegionBrush}">
+      d:Background="{DynamicResource RegionBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -32,7 +32,7 @@
         <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
 
-        <TabControl Grid.Row="2" TabStripPlacement="Bottom">
+        <TabControl Grid.Row="2" TabStripPlacement="Bottom" Background="Transparent">
             <TabItem>
                 <TabItem.Header>
                     <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
@@ -72,12 +72,10 @@
                                     <TextBlock Text="{Binding ComboBase.LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
-                                   FontSize="24"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <TextBlock Text="всего"
+                                   FontSize="24"/>
+                                    <hc:SimpleText Text="всего"
                                    HorizontalAlignment="Center"
-                                   Margin="0,-6,0,0"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                   Margin="0,-6,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Canvas>
@@ -98,58 +96,58 @@
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Премиум" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Премиум" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Premium], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Бесплатных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Бесплатных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="В обработке" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="В обработке" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="В очереди" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="В очереди" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboBase.Stats[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
-                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ComboBase.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="Битых строк" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding ComboBase.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
-                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ComboBase.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding ComboBase.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                             </StackPanel>
@@ -197,15 +195,13 @@
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding ProxyDispenser.LoadedCount, Converter={StaticResource NumberConverter}}"
+                                    <hc:SimpleText Text="{Binding ProxyDispenser.LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
-                                   FontSize="24"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
-                                    <TextBlock Text="всего"
+                                   FontSize="24"/>
+                                    <hc:SimpleText Text="всего"
                                    HorizontalAlignment="Center"
-                                   Margin="0,-6,0,0"
-                                   Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                   Margin="0,-6,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Canvas>
@@ -226,67 +222,67 @@
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="HTTP(s)" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="HTTP(s)" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks4" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Socks4" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks4A" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Socks4A" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8ac926"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Socks5" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Socks5" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#ffca3a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Невалидных" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimplePanel VerticalAlignment="Top" Height="23">
-                                            <hc:SimpleText Text="Не использовано" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                            <hc:SimpleText Text="Не использовано" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
-                                        <hc:SimpleText Text="Битых строк" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.MismatchedCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="Битых строк" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding ProxyDispenser.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
-                                        <hc:SimpleText Text="Дубликатов" Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.DuplicatesCount, Converter={StaticResource NumberConverter}}" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
+                                        <hc:SimpleText Text="{Binding ProxyDispenser.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                             </StackPanel>
@@ -361,9 +357,9 @@
                     Margin="0,0,0,20"
                     Visibility="{Binding IsGreetingVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
             <emoji:TextBlock Text="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2ModeIconStringConverter}}" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
-            <TextBlock Text="NordVPN Checker" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" TextAlignment="Center"/>
-            <TextBlock Text="Лицензия действительна до 28.08.2021 13:52" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
-            <TextBlock Text="Тикет e07fc1f90ae7" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center"/>
+            <hc:SimpleText Text="NordVPN Checker" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Center"/>
+            <hc:SimpleText Text="Лицензия действительна до 28.08.2021 13:52" HorizontalAlignment="Center"/>
+            <hc:SimpleText Text="Тикет e07fc1f90ae7" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
@@ -562,7 +558,7 @@
                 </Expander>
                 <Border CornerRadius="4" Padding="4" Margin="0,0,0,6" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="По всем вопросам и предложениям" Foreground="{DynamicResource PrimaryTextBrush}" Margin="2,0,0,0"/>
+                        <hc:SimpleText Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>
                         <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
                             <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">
                                 <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="👽 t.me/undrcrxwn" Cursor="Hand"/>

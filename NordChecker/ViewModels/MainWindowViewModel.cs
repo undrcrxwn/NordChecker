@@ -45,14 +45,34 @@ namespace NordChecker.ViewModels
     public class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private INavigationService navigationService;
+
+        private string _Title;
+        public string Title
+        {
+            get => _Title;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Title, value, PropertyChanged);
+        }
+
+        private void UpdateTitle()
+        {
+            IPageViewModel currentPage = navigationService.CurrentPage;
+            Title = "NordVPN Checker";
+            if (!string.IsNullOrEmpty(currentPage.Title))
+                Title += $" — {currentPage.Title}";
+            if (!string.IsNullOrEmpty(currentPage.Description))
+                Title += $" — {currentPage.Description}";
+        }
 
         public MainWindowViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            this.navigationService = navigationService;
+            navigationService.PropertyChanged += (sender, e) =>
             {
-                navigationService.Navigate(new MainPage(new MainPageViewModel(navigationService, appSettings, exportSettings)));
-            }).Wait();
-            //navigationService.Navigate(typeof(MainPage));
+                if (e.PropertyName == nameof(navigationService.CurrentPage))
+                    UpdateTitle();
+            };
         }
     }
 }

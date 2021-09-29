@@ -13,9 +13,9 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     WindowStartupLocation="CenterScreen"
-    Title="NordVPN Checker"
     Height="630" Width="1050"
     KeyboardNavigation.TabNavigation="None"
     MinWidth="976" MinHeight="600"
     Background="{DynamicResource RegionBrush}"
-    ShowsNavigationUI="False"/>
+    ShowsNavigationUI="False"
+    Title="{Binding Title}"/>
