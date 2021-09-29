@@ -30,6 +30,7 @@ namespace NordChecker.ViewModels
         private INavigationService navigationService;
 
         private ThreadDistributor<Account> distributor;
+        private MasterTokenSource tokenSource = new MasterTokenSource();
         private Checker checker = new Checker(7000);
         private Stopwatch progressWatch = new Stopwatch();
 
@@ -133,12 +134,11 @@ namespace NordChecker.ViewModels
         private void OnStartCommandExecuted(object parameter)
         {
             Log.Information("OnStartCommandExecuted");
-            progressWatch.Restart();
-
             PipelineState = PipelineState.Working;
+
+            progressWatch.Restart();
             new Thread(() =>
             {
-                MasterTokenSource tokenSource = new MasterTokenSource();
                 distributor = new ThreadDistributor<Account>(
                     AppSettings.ThreadCount,
                     Accounts,
@@ -158,7 +158,7 @@ namespace NordChecker.ViewModels
                         return false;
                     },
                     checker.ProcessAccount,
-                    tokenSource);
+                    tokenSource.MakeToken());
 
                 distributor.OnTaskCompleted += (sender, account) =>
                 {
@@ -312,8 +312,6 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnClearCombosCommandExecuted");
 
-            ComboStats.MismatchedCount = 0;
-            ComboStats.DuplicatesCount = 0;
             Accounts.Clear();
             ComboStats.Clear();
         }
@@ -469,6 +467,7 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnRemoveAccountCommandExecuted");
             var account = SelectedAccount;
+            account.MasterToken?.Cancel();
             Accounts.Remove(account);
             Log.Information("{0} has been removed", account.Credentials);
         }
@@ -600,12 +599,27 @@ namespace NordChecker.ViewModels
             {
                 lock (ComboStats)
                 {
-                    foreach (Account account in e.NewItems ?? new List<Account>())
-                        ComboStats.ByState[account.State]++;
-                    foreach (Account account in e.OldItems ?? new List<Account>())
-                        ComboStats.ByState[account.State]--;
+                    if (e.NewItems != null)
+                    {
+                        foreach (Account account in e.NewItems)
+                            ComboStats.ByState[account.State]++;
+                    }
+
+                    if (e.OldItems != null)
+                    {
+                        foreach (Account account in e.OldItems)
+                        {
+                            ComboStats.ByState[account.State]--;
+                            if (account.State == AccountState.Reserved)
+                                account.MasterToken.Cancel();
+                        }
+                    }
+
                     if (Accounts.Count == 0)
+                    {
                         StopCommand.Execute(null);
+                        ComboStats.Clear();
+                    }
                 }
             };
 

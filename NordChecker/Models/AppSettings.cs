@@ -66,7 +66,7 @@ namespace NordChecker.Models
             }
         }
 
-        private bool _AreComboDuplicatesSkipped = true;
+        private bool _AreComboDuplicatesSkipped;
         public bool AreComboDuplicatesSkipped
         {
             get => _AreComboDuplicatesSkipped;
@@ -77,7 +77,7 @@ namespace NordChecker.Models
             }
         }
 
-        private bool _AreProxyDuplicatesSkipped = true;
+        private bool _AreProxyDuplicatesSkipped;
         public bool AreProxyDuplicatesSkipped
         {
             get => _AreProxyDuplicatesSkipped;

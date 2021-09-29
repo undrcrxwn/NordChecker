@@ -63,10 +63,11 @@ namespace NordChecker.Models
     {
         private ObservableCollection<TPayload> payloads;
         private Func<TPayload, bool> predicate;
-        private Action<TPayload, MasterToken> handler;
+        private Action<TPayload> handler;
         private int superfluousDistributonsCount;
         private object abortionLocker = new object();
         private object payloadsLocker = new object();
+        public MasterToken Token;
         public MasterTokenSource TokenSource = new MasterTokenSource();
         public event EventHandler<TPayload> OnTaskCompleted;
 
@@ -99,11 +100,13 @@ namespace NordChecker.Models
             int threadCount,
             ObservableCollection<TPayload> payloads,
             Func<TPayload, bool> predicate,
-            Action<TPayload, MasterToken> handler)
+            Action<TPayload> handler,
+            MasterToken token)
         {
             this.payloads = payloads;
             this.predicate = predicate;
             this.handler = handler;
+            Token = token;
             OnTaskCompleted += (sender, e) => Distribute();
             ThreadCount = threadCount;
         }
@@ -123,7 +126,7 @@ namespace NordChecker.Models
                 }
 
                 Log.Debug("New distribution");
-
+                Token.ThrowOrWaitIfRequested();
                 TPayload payload;
                 try
                 {
@@ -137,11 +140,9 @@ namespace NordChecker.Models
                     return;
                 }
 
-                try
-                {
-                    handler(payload, TokenSource.MakeToken());
-                }
-                catch { }
+                Token.ThrowOrWaitIfRequested();
+                try   { handler(payload); }
+                catch { return; }
                 OnTaskCompleted?.Invoke(this, payload);
             },
                 CancellationToken.None,

@@ -56,10 +56,10 @@ namespace NordChecker.Models
             context.watch.Start();
         }
 
-        public void ProcessAccount(Account account, MasterToken token)
+        public void ProcessAccount(Account account)
         {
             Stopwatch watch = Stopwatch.StartNew();
-            var context = new CheckerBreakpointContext(account, token, watch);
+            var context = new CheckerBreakpointContext(account, account.MasterToken, watch);
 
             for (int i = 0; i < 4; i++)
             {
@@ -68,8 +68,7 @@ namespace NordChecker.Models
             }
 
             //account.State = AccountState.Premium;
-            int rand = new Random().Next(11);
-            account.State = rand switch
+            account.State = new Random().Next(11) switch
             {
                 <= 1 => AccountState.Premium,
                 <= 3 => AccountState.Free,

@@ -53,10 +53,10 @@ namespace NordChecker
 
             ServiceCollection services = new ServiceCollection();
             services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<MainWindowViewModel>();
-            services.AddSingleton<MainWindow>();
             services.AddSingleton<AppSettings>();
             services.AddSingleton<ExportSettings>();
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<MainWindow>();
             services.AddSingleton<MainPageViewModel>();
             services.AddSingleton<MainPage>();
             services.AddTransient<ExportPageViewModel>();
@@ -90,21 +90,22 @@ namespace NordChecker
             
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
-            Log.Information("{n} {v} is running in {c} configuration",
+            Log.Information("{0} {1} is running in {2} configuration",
                 assembly.GetName().Name,
                 assembly.GetName().Version,
                 configuration.ToLower());
         }
 
-        private void LogUnhandledException(Exception exception, string type)
+        private static void LogUnhandledException(Exception exception, string type)
         {
-            Log.Fatal(exception, "Unhandled {event}", type);
+            if (exception is OperationCanceledException) return;
+            Log.Fatal(exception, "Unhandled {0}", type);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            Log.Information("Exiting with exit code {@code}\n", e.ApplicationExitCode);
+            Log.Information("Exiting with exit code {0}\n", e.ApplicationExitCode);
             Log.CloseAndFlush();
             Utils.FreeConsole();
         }

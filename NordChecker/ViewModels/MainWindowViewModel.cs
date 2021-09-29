@@ -47,7 +47,7 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private INavigationService navigationService;
 
-        private string _Title;
+        private string _Title = "Загрузка...";
         public string Title
         {
             get => _Title;
