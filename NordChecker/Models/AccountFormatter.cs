@@ -12,10 +12,9 @@ namespace NordChecker.Models
         public string FormatScheme;
         public Dictionary<string, Func<Account, object>> Placeholders;
 
-        public AccountFormatter(string scheme = "")
+        public AccountFormatter()
         {
             Placeholders = new Dictionary<string, Func<Account, object>>();
-            FormatScheme = scheme;
         }
 
         public void AddPlaceholder(string key, Func<Account, object> handler)

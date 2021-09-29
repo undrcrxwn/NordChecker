@@ -148,7 +148,7 @@ namespace NordChecker.ViewModels
                         {
                             account.MasterToken = tokenSource.MakeToken();
                             account.State = AccountState.Reserved;
-                            lock (ComboStats)
+                            lock (ComboStats.ByState)
                             {
                                 ComboStats.ByState[AccountState.Unchecked]--;
                                 ComboStats.ByState[AccountState.Reserved]++;
@@ -162,7 +162,7 @@ namespace NordChecker.ViewModels
 
                 distributor.OnTaskCompleted += (sender, account) =>
                 {
-                    lock (ComboStats)
+                    lock (ComboStats.ByState)
                     {
                         ComboStats.ByState[AccountState.Reserved]--;
                         ComboStats.ByState[account.State]++;
@@ -291,11 +291,14 @@ namespace NordChecker.ViewModels
                     Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
                         cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
 
-                    DispatcherExtensions.BeginInvoke(Application.Current.Dispatcher, () =>
-                     {
-                         foreach (Account account in cache)
-                             Accounts.Add(account);
-                     });
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        foreach (Account account in cache)
+                            Accounts.Add(account);
+                        lock (ComboStats.ByState)
+                            ComboStats.ByState[AccountState.Unchecked] += cache.Count;
+                    });
                 });
             });
         }
@@ -468,6 +471,8 @@ namespace NordChecker.ViewModels
             Log.Information("OnRemoveAccountCommandExecuted");
             var account = SelectedAccount;
             account.MasterToken?.Cancel();
+            lock (ComboStats.ByState)
+                ComboStats.ByState[account.State]--;
             Accounts.Remove(account);
             Log.Information("{0} has been removed", account.Credentials);
         }
@@ -575,6 +580,39 @@ namespace NordChecker.ViewModels
             }));
         }
 
+        private void AccountsCollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            IsGreetingVisible = Accounts.Count == 0;
+            if (Accounts.Count == 0)
+            {
+                StopCommand.Execute(null);
+                ComboStats.Clear();
+            }
+        }
+
+        private void UpdatePageDescription()
+        {
+            int checkedCount = Accounts.Count
+                - ComboStats.ByState[AccountState.Unchecked]
+                - ComboStats.ByState[AccountState.Reserved];
+            float percentageChecked = checkedCount
+                / Math.Max(Accounts.Count, 1.0f) * 100;
+            Description = $"{percentageChecked:0}%";
+
+            if (PipelineState != PipelineState.Idle)
+            {
+                TimeSpan elapsed = progressWatch.Elapsed;
+                Description += $" ({elapsed.ToShortDurationString()} затрачено";
+
+                if (percentageChecked > 0 && percentageChecked < 100)
+                {
+                    TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
+                    Description += $", {left.ToShortDurationString()} осталось";
+                }
+                Description += ")";
+            }
+        }
+
         public MainPageViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
             this.navigationService = navigationService;
@@ -595,33 +633,7 @@ namespace NordChecker.ViewModels
 
             ComboStats.PropertyChanged += (sender, e) => RefreshComboArcs();
 
-            Accounts.CollectionChanged += (sender, e) =>
-            {
-                lock (ComboStats)
-                {
-                    if (e.NewItems != null)
-                    {
-                        foreach (Account account in e.NewItems)
-                            ComboStats.ByState[account.State]++;
-                    }
-
-                    if (e.OldItems != null)
-                    {
-                        foreach (Account account in e.OldItems)
-                        {
-                            ComboStats.ByState[account.State]--;
-                            if (account.State == AccountState.Reserved)
-                                account.MasterToken.Cancel();
-                        }
-                    }
-
-                    if (Accounts.Count == 0)
-                    {
-                        StopCommand.Execute(null);
-                        ComboStats.Clear();
-                    }
-                }
-            };
+            Accounts.CollectionChanged += AccountsCollectionChangedHandler;
 
             #region Commands
 
@@ -649,35 +661,18 @@ namespace NordChecker.ViewModels
                     distributor.ThreadCount = AppSettings.ThreadCount;
             };
 
-            Accounts.CollectionChanged += (sender, e) =>
-                IsGreetingVisible = Accounts.Count == 0;
+            PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(PipelineState))
+                    UpdatePageDescription();
+            };
 
             Task.Run(() =>
             {
                 while (true)
                 {
                     ProxyDispenser.Refresh();
-
-                    int checkedCount = Accounts.Count
-                        - ComboStats.ByState[AccountState.Unchecked]
-                        - ComboStats.ByState[AccountState.Reserved];
-                    float percentageChecked = checkedCount
-                        / Math.Max(Accounts.Count, 1.0f) * 100;
-                    Description = $"{percentageChecked:0}%";
-
-                    if (PipelineState != PipelineState.Idle)
-                    {
-                        TimeSpan elapsed = progressWatch.Elapsed;
-                        Description += $" ({elapsed.ToShortDurationString()} затрачено";
-
-                        if (percentageChecked > 0 && percentageChecked < 100)
-                        {
-                            TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
-                            Description += $", {left.ToShortDurationString()} осталось";
-                        }
-                        Description += ")";
-                    }
-
+                    UpdatePageDescription();
                     Task.Delay(1000).Wait();
                 }
             });
