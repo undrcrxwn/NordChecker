@@ -39,7 +39,7 @@ namespace NordChecker.Views
                 (object sender, NotifyCollectionChangedEventArgs e) =>
                 UpdateFiltering();
 
-            var source = new CollectionViewSource() { Source = viewModel.ComboBase.Accounts };
+            var source = new CollectionViewSource() { Source = viewModel.Accounts };
             ICollectionView cv = source.View;
             dgAccounts.ItemsSource = cv;
 

@@ -152,8 +152,8 @@ namespace NordChecker.ViewModels
             else
             {
                 Settings.RootPath = OutputDirectoryPath +
-                $"\\NVPNC {DateTime.Now.ToString("yyyy-MM-dd")}" +
-                $" at {DateTime.Now.ToString("HH-mm-ss")}";
+                $"\\NVPNC {DateTime.Now:yyyy-MM-dd)}" +
+                $" at {DateTime.Now:HH-mm-ss}";
             }
         }
 

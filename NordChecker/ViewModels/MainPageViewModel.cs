@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Events;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -63,16 +64,16 @@ namespace NordChecker.ViewModels
 
         private ThreadMasterToken masterToken;
 
-        private ComboBaseViewModel _ComboBase = new ComboBaseViewModel();
-        public ComboBaseViewModel ComboBase
+        private ObservableCollection<Account> _Accounts = new ObservableCollection<Account>();
+        public ObservableCollection<Account> Accounts
         {
-            get => _ComboBase;
+            get => _Accounts;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ComboBase, value, PropertyChanged);
+                .Set(ref _Accounts, value, PropertyChanged);
         }
 
-        private ObservableDictionary<AccountState, int> _ComboStats;
-        public ObservableDictionary<AccountState, int> ComboStats
+        private ComboStats _ComboStats = new ComboStats();
+        public ComboStats ComboStats
         {
             get => _ComboStats;
             set => (this as INotifyPropertyChangedAdvanced)
@@ -142,7 +143,7 @@ namespace NordChecker.ViewModels
             {
                 distributor = new ThreadDistributor<Account>(
                     AppSettings.ThreadCount,
-                    ComboBase.Accounts,
+                    Accounts,
                     account =>
                     {
                         if (account.State == AccountState.Unchecked)
@@ -150,8 +151,8 @@ namespace NordChecker.ViewModels
                             account.State = AccountState.Reserved;
                             lock (ComboStats)
                             {
-                                ComboStats[AccountState.Unchecked]--;
-                                ComboStats[AccountState.Reserved]++;
+                                ComboStats.ByState[AccountState.Unchecked]--;
+                                ComboStats.ByState[AccountState.Reserved]++;
                             }
                             return true;
                         }
@@ -164,14 +165,12 @@ namespace NordChecker.ViewModels
                 {
                     lock (ComboStats)
                     {
-                        ComboStats[AccountState.Reserved]--;
-                        ComboStats[account.State]++;
+                        ComboStats.ByState[AccountState.Reserved]--;
+                        ComboStats.ByState[account.State]++;
                     }
 
-                    int uncompletedCount = ComboBase.Accounts.Where(x =>
-                        x.State == AccountState.Unchecked ||
-                        x.State == AccountState.Reserved)
-                        .Count();
+                    int uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
+                        + ComboStats.ByState[AccountState.Reserved];
                     if (uncompletedCount == 0)
                         PauseCommand.Execute(null);
                 };
@@ -215,6 +214,23 @@ namespace NordChecker.ViewModels
 
         #endregion
 
+        #region StopCommand
+
+        public ICommand StopCommand { get; }
+
+        private bool CanExecuteStopCommand(object parameter) => PipelineState != PipelineState.Idle;
+
+        private void OnStopCommandExecuted(object parameter)
+        {
+            Log.Information("OnStopCommandExecuted");
+            progressWatch.Stop();
+
+            PipelineState = PipelineState.Idle;
+            masterToken.Cancel();
+        }
+
+        #endregion
+
         #region LoadCombosCommand
 
         public ICommand LoadCombosCommand { get; }
@@ -232,7 +248,7 @@ namespace NordChecker.ViewModels
                 dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
                 if (dialog.ShowDialog() != true) return;
 
-                Task.Factory.StartNew((Action)(() =>
+                Task.Factory.StartNew(() =>
                 {
                     Log.Information("Reading combos from {file}", dialog.FileName);
                     Stopwatch watch = new Stopwatch();
@@ -251,17 +267,17 @@ namespace NordChecker.ViewModels
                             }
                             catch
                             {
-                                ComboBase.MismatchedCount++;
+                                ComboStats.MismatchedCount++;
                                 Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
                                 continue;
                             }
 
                             if (AppSettings.AreComboDuplicatesSkipped)
                             {
-                                if (ComboBase.Accounts.Any(a => a.Credentials == account.Credentials) ||
+                                if (Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
                                 {
-                                    ComboBase.DuplicatesCount++;
+                                    ComboStats.DuplicatesCount++;
                                     Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
                                     continue;
                                 }
@@ -279,11 +295,9 @@ namespace NordChecker.ViewModels
                     DispatcherExtensions.BeginInvoke(Application.Current.Dispatcher, () =>
                      {
                          foreach (Account account in cache)
-                             ComboBase.Accounts.Add((Account)account);
-                         lock (ComboStats)
-                             ComboStats[AccountState.Unchecked] += cache.Count;
+                             Accounts.Add(account);
                      });
-                }));
+                });
             });
         }
 
@@ -298,14 +312,28 @@ namespace NordChecker.ViewModels
         private void OnClearCombosCommandExecuted(object parameter)
         {
             Log.Information("OnClearCombosCommandExecuted");
-            ComboStats.Clear();
 
-            //masterToken.Cancel();
-            ComboBase.LoadedCount = 0;
-            ComboBase.MismatchedCount = 0;
-            ComboBase.DuplicatesCount = 0;
-            ComboBase.Accounts.Clear();
-            PipelineState = PipelineState.Idle;
+            ComboStats.MismatchedCount = 0;
+            ComboStats.DuplicatesCount = 0;
+            Accounts.Clear();
+            ComboStats.Clear();
+        }
+
+        #endregion
+
+        #region StopAndClearCombosCommand
+
+        public ICommand StopAndClearCombosCommand { get; }
+
+        private bool CanExecuteStopAndClearCombosCommand(object parameter)
+            => StopCommand.CanExecute(null) && ClearCombosCommand.CanExecute(null);
+
+        private void OnStopAndClearCombosCommandExecuted(object parameter)
+        {
+            Log.Information("OnStopAndClearCombosCommandExecuted");
+
+            StopCommand.Execute(null);
+            ClearCombosCommand.Execute(null);
         }
 
         #endregion
@@ -398,7 +426,7 @@ namespace NordChecker.ViewModels
 
         private bool CanExecuteExportCommand(object parameter)
             => PipelineState != PipelineState.Working
-            && ComboBase.Accounts.Count > 0;
+            && Accounts.Count > 0;
 
         private void OnExportCommandExecuted(object parameter)
         {
@@ -422,11 +450,11 @@ namespace NordChecker.ViewModels
             try
             {
                 Clipboard.SetText($"{mail}:{password}");
-                Log.Information("Clipboard text has been set to {credentials}", $"{mail}:{password}");
+                Log.Information("Clipboard text has been set to {0}", $"{mail}:{password}");
             }
             catch (Exception e)
             {
-                Log.Error(e, "Failed to write account credentials {credentials} to clipboard", (mail, password));
+                Log.Error(e, "Failed to write account credentials {0} to clipboard", (mail, password));
             }
         }
 
@@ -442,9 +470,8 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnRemoveAccountCommandExecuted");
             var account = SelectedAccount;
-            ComboBase.Accounts.Remove(account);
-            ComboBase.LoadedCount--;
-            Log.Information("{credentials} has been removed from combo-list", account.Credentials);
+            Accounts.Remove(account);
+            Log.Information("{0} has been removed", account.Credentials);
         }
 
         #endregion
@@ -499,11 +526,11 @@ namespace NordChecker.ViewModels
 
         #endregion
 
-        public void RefreshComboStats()
+        public void RefreshComboArcs()
         {
-            int loaded = Math.Max(1, ComboBase.Accounts.Count);
+            int loaded = Math.Max(1, Accounts.Count);
             Dictionary<AccountState, float> shares =
-                ComboStats.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
+                ComboStats.ByState.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
 
             float margin = 6;
             float pivot = margin / 2;
@@ -536,7 +563,7 @@ namespace NordChecker.ViewModels
             Application.Current.Dispatcher.InvokeAsync((Action)(() =>
             {
                 Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
-                if (this.ComboStats[AccountState.Unchecked] + this.ComboStats[AccountState.Reserved] > 0)
+                if (ComboStats.ByState[AccountState.Unchecked] + ComboStats.ByState[AccountState.Reserved] > 0)
                 {
                     Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
                     Application.Current.MainWindow.TaskbarItemInfo.ProgressValue
@@ -556,11 +583,7 @@ namespace NordChecker.ViewModels
             AppSettings = appSettings;
             ExportSettings = exportSettings;
 
-            _ComboStats = new ObservableDictionary<AccountState, int>();
-            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
-                _ComboStats.Add(key, 0);
-
-            ComboStats.CollectionChanged += (sender, e) =>
+            ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ComboStats));
 
@@ -572,14 +595,31 @@ namespace NordChecker.ViewModels
                 (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ComboArcs));
 
+            ComboStats.PropertyChanged += (sender, e) => RefreshComboArcs();
+
+            Accounts.CollectionChanged += (sender, e) =>
+            {
+                lock (ComboStats)
+                {
+                    foreach (Account account in e.NewItems ?? new List<Account>())
+                        ComboStats.ByState[account.State]++;
+                    foreach (Account account in e.OldItems ?? new List<Account>())
+                        ComboStats.ByState[account.State]--;
+                    if (Accounts.Count == 0)
+                        StopCommand.Execute(null);
+                }
+            };
+
             #region Commands
 
             StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);
             PauseCommand = new LambdaCommand(OnPauseCommandExecuted, CanExecutePauseCommand);
             ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
+            StopCommand = new LambdaCommand(OnStopCommandExecuted, CanExecuteStopCommand);
 
             LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteLoadCombosCommand);
             ClearCombosCommand = new LambdaCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
+            StopAndClearCombosCommand = new LambdaCommand(OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
             LoadProxiesCommand = new LambdaCommand(OnLoadProxiesCommandExecuted, CanExecuteLoadProxiesCommand);
             ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
 
@@ -596,20 +636,20 @@ namespace NordChecker.ViewModels
                     distributor.ThreadCount = AppSettings.ThreadCount;
             };
 
-            ComboBase.Accounts.CollectionChanged += (sender, e) =>
-                IsGreetingVisible = ComboBase.Accounts.Count == 0;
+            Accounts.CollectionChanged += (sender, e) =>
+                IsGreetingVisible = Accounts.Count == 0;
 
             Task.Run(() =>
             {
                 while (true)
                 {
-                    Application.Current.Dispatcher.Invoke(RefreshComboStats);
                     ProxyDispenser.Refresh();
 
-                    float percentageChecked = ComboBase.Accounts
-                        .Count(x => x.State != AccountState.Unchecked && x.State != AccountState.Reserved)
-                        / Math.Max(ComboBase.Accounts.Count, 1.0f)
-                        * 100;
+                    int checkedCount = Accounts.Count
+                        - ComboStats.ByState[AccountState.Unchecked]
+                        - ComboStats.ByState[AccountState.Reserved];
+                    float percentageChecked = checkedCount
+                        / Math.Max(Accounts.Count, 1.0f) * 100;
                     Description = $"{percentageChecked:0}%";
 
                     if (PipelineState != PipelineState.Idle)

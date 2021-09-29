@@ -10,6 +10,12 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace NordChecker.Shared
 {
+    public class Ref<T>
+    {
+        public T Value;
+        public Ref(T value) => Value = value;
+    }
+
     public static class Utils
     {
         [DllImport("kernel32.dll")]
