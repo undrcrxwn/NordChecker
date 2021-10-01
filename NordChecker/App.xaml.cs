@@ -98,7 +98,7 @@ namespace NordChecker
 
         private static void LogUnhandledException(Exception exception, string type)
         {
-            if (exception is OperationCanceledException) return;
+            if (exception.InnerException is OperationCanceledException) return;
             Log.Fatal(exception, "Unhandled {0}", type);
         }
 

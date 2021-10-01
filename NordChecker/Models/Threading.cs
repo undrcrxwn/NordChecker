@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace NordChecker.Models
 {
@@ -71,6 +72,8 @@ namespace NordChecker.Models
         public MasterTokenSource TokenSource = new MasterTokenSource();
         public event EventHandler<TPayload> OnTaskCompleted;
 
+        public int OPEN_SUBSCRIPTIONS = 0;
+
         private int _ThreadCount;
         public int ThreadCount
         {
@@ -103,29 +106,37 @@ namespace NordChecker.Models
             Action<TPayload> handler,
             MasterToken token)
         {
+            Token = token;
+            token.Pause();
             this.payloads = payloads;
             this.predicate = predicate;
             this.handler = handler;
-            Token = token;
             OnTaskCompleted += (sender, e) => Distribute();
             ThreadCount = threadCount;
         }
 
+        public ThreadDistributor(
+            int threadCount,
+            ObservableCollection<TPayload> payloads,
+            Func<TPayload, bool> predicate,
+            Action<TPayload> handler)
+        : this(threadCount, payloads, predicate, handler, new MasterToken()) { }
+
         public void Distribute()
         {
+            Log.Verbose("New distribution");
             Task.Factory.StartNew(() =>
             {
+                Token.ThrowOrWaitIfRequested();
                 lock (abortionLocker)
                 {
                     if (superfluousDistributonsCount > 0)
                     {
-                        Log.Debug("New distribution");
                         superfluousDistributonsCount--;
                         return;
                     }
                 }
 
-                Log.Debug("New distribution");
                 Token.ThrowOrWaitIfRequested();
                 TPayload payload;
                 try
@@ -135,15 +146,20 @@ namespace NordChecker.Models
                 }
                 catch
                 {
+                    Log.Verbose("New subscription");
+                    OPEN_SUBSCRIPTIONS++;
                     payloads.CollectionChanged += OnCollectionChanged;
-                    Log.Debug("New subscription");
                     return;
                 }
 
                 Token.ThrowOrWaitIfRequested();
-                try   { handler(payload); }
+                try { handler(payload); }
                 catch { return; }
                 OnTaskCompleted?.Invoke(this, payload);
+
+                Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
+                dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
+                Dispatcher.Run();
             },
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning,
@@ -154,8 +170,9 @@ namespace NordChecker.Models
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
+                Log.Verbose("Subscribtion acquired");
+                OPEN_SUBSCRIPTIONS--;
                 payloads.CollectionChanged -= OnCollectionChanged;
-                Log.Debug("Subscribtion acquired");
                 Distribute();
             }
         }

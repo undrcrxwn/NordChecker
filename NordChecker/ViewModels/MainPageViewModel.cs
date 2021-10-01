@@ -134,47 +134,10 @@ namespace NordChecker.ViewModels
         private void OnStartCommandExecuted(object parameter)
         {
             Log.Information("OnStartCommandExecuted");
-            PipelineState = PipelineState.Working;
-
             progressWatch.Restart();
-            new Thread(() =>
-            {
-                distributor = new ThreadDistributor<Account>(
-                    AppSettings.ThreadCount,
-                    Accounts,
-                    account =>
-                    {
-                        if (account.State == AccountState.Unchecked)
-                        {
-                            account.MasterToken = tokenSource.MakeToken();
-                            account.State = AccountState.Reserved;
-                            lock (ComboStats.ByState)
-                            {
-                                ComboStats.ByState[AccountState.Unchecked]--;
-                                ComboStats.ByState[AccountState.Reserved]++;
-                            }
-                            return true;
-                        }
-                        return false;
-                    },
-                    checker.ProcessAccount,
-                    tokenSource.MakeToken());
 
-                distributor.OnTaskCompleted += (sender, account) =>
-                {
-                    lock (ComboStats.ByState)
-                    {
-                        ComboStats.ByState[AccountState.Reserved]--;
-                        ComboStats.ByState[account.State]++;
-                    }
-
-                    int uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
-                        + ComboStats.ByState[AccountState.Reserved];
-                    if (uncompletedCount == 0)
-                        PauseCommand.Execute(null);
-                };
-            })
-            { IsBackground = true }.Start();
+            PipelineState = PipelineState.Working;
+            distributor.Token.Continue();
         }
 
         #endregion
@@ -191,6 +154,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Paused;
+            distributor.Token.Pause();
             tokenSource.Pause();
         }
 
@@ -208,6 +172,7 @@ namespace NordChecker.ViewModels
             progressWatch.Start();
 
             PipelineState = PipelineState.Working;
+            distributor.Token.Continue();
             tokenSource.Continue();
         }
 
@@ -225,6 +190,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Idle;
+            distributor.Token.Pause();
             tokenSource.Cancel();
         }
 
@@ -622,7 +588,7 @@ namespace NordChecker.ViewModels
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ComboStats));
-
+            
             _ComboArcs = new ObservableDictionary<AccountState, ArcViewModel>();
             foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
                 _ComboArcs.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
@@ -634,6 +600,42 @@ namespace NordChecker.ViewModels
             ComboStats.PropertyChanged += (sender, e) => RefreshComboArcs();
 
             Accounts.CollectionChanged += AccountsCollectionChangedHandler;
+
+            distributor = new ThreadDistributor<Account>(
+                AppSettings.ThreadCount,
+                Accounts,
+                account =>
+                {
+                    if (account.State == AccountState.Unchecked)
+                    {
+                        account.MasterToken = tokenSource.MakeToken();
+                        account.State = AccountState.Reserved;
+                        lock (ComboStats.ByState)
+                        {
+                            ComboStats.ByState[AccountState.Unchecked]--;
+                            ComboStats.ByState[AccountState.Reserved]++;
+                        }
+                        return true;
+                    }
+                    return false;
+                },
+                checker.ProcessAccount);
+
+            distributor.OnTaskCompleted += (sender, account) =>
+            {
+                lock (ComboStats.ByState)
+                {
+                    ComboStats.ByState[AccountState.Reserved]--;
+                    ComboStats.ByState[account.State]++;
+                }
+
+                int uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
+                    + ComboStats.ByState[AccountState.Reserved];
+                if (uncompletedCount == 0)
+                    PauseCommand.Execute(null);
+            };
+
+            Log.Warning("{0}", distributor.ThreadCount);
 
             #region Commands
 

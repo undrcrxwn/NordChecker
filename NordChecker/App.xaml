@@ -12,7 +12,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-                <hc:Theme/>
                 <hc:ThemeResources>
                     <hc:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">
@@ -22,7 +21,7 @@
                             <SolidColorBrush x:Key="RegionBrush" Color="#272727" />
                             <SolidColorBrush x:Key="DefaultBrush" Color="#2b2b2b" />
                             <SolidColorBrush x:Key="BackgroundBrush" Color="#343434" />
-                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#d6d6d6" />
+                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#e6e6e6" />
                         </ResourceDictionary>
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>
