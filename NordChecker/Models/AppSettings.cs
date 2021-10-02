@@ -161,6 +161,17 @@ namespace NordChecker.Models
             }
         }
 
+        private bool _IsTopMostWindow;
+        public bool IsTopMostWindow
+        {
+            get => _IsTopMostWindow;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsTopMostWindow, value, PropertyChanged, LogEventLevel.Information);
+            }
+        }
+
         public AppSettings()
         {
             _DataGridFilters = new ObservableDictionary<AccountState, bool>();

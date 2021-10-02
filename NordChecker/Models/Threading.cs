@@ -55,9 +55,9 @@ namespace NordChecker.Models
             return token;
         }
 
-        public void Cancel() => Tokens.ForEach(x => x.Cancel());
-        public void Pause() => Tokens.ForEach(x => x.Pause());
-        public void Continue() => Tokens.ForEach(x => x.Continue());
+        public void Cancel() => Tokens.ToList().ForEach(x => x.Cancel());
+        public void Pause() => Tokens.ToList().ForEach(x => x.Pause());
+        public void Continue() => Tokens.ToList().ForEach(x => x.Continue());
     }
 
     public class ThreadDistributor<TPayload>
@@ -68,11 +68,9 @@ namespace NordChecker.Models
         private int superfluousDistributonsCount;
         private object abortionLocker = new object();
         private object payloadsLocker = new object();
-        public MasterToken Token;
-        public MasterTokenSource TokenSource = new MasterTokenSource();
+        public MasterToken SelfToken;
+        public MasterTokenSource InternalTokenSource = new MasterTokenSource();
         public event EventHandler<TPayload> OnTaskCompleted;
-
-        public int OPEN_SUBSCRIPTIONS = 0;
 
         private int _ThreadCount;
         public int ThreadCount
@@ -106,7 +104,7 @@ namespace NordChecker.Models
             Action<TPayload> handler,
             MasterToken token)
         {
-            Token = token;
+            SelfToken = token;
             token.Pause();
             this.payloads = payloads;
             this.predicate = predicate;
@@ -127,7 +125,7 @@ namespace NordChecker.Models
             Log.Verbose("New distribution");
             Task.Factory.StartNew(() =>
             {
-                Token.ThrowOrWaitIfRequested();
+                SelfToken.ThrowOrWaitIfRequested();
                 lock (abortionLocker)
                 {
                     if (superfluousDistributonsCount > 0)
@@ -137,7 +135,7 @@ namespace NordChecker.Models
                     }
                 }
 
-                Token.ThrowOrWaitIfRequested();
+                SelfToken.ThrowOrWaitIfRequested();
                 TPayload payload;
                 try
                 {
@@ -147,12 +145,11 @@ namespace NordChecker.Models
                 catch
                 {
                     Log.Verbose("New subscription");
-                    OPEN_SUBSCRIPTIONS++;
                     payloads.CollectionChanged += OnCollectionChanged;
                     return;
                 }
 
-                Token.ThrowOrWaitIfRequested();
+                SelfToken.ThrowOrWaitIfRequested();
                 try { handler(payload); }
                 catch { return; }
                 OnTaskCompleted?.Invoke(this, payload);
@@ -171,7 +168,6 @@ namespace NordChecker.Models
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 Log.Verbose("Subscribtion acquired");
-                OPEN_SUBSCRIPTIONS--;
                 payloads.CollectionChanged -= OnCollectionChanged;
                 Distribute();
             }

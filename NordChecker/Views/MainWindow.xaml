@@ -18,4 +18,5 @@
     MinWidth="976" MinHeight="600"
     Background="{DynamicResource RegionBrush}"
     ShowsNavigationUI="False"
+    Topmost="{Binding AppSettings.IsTopMostWindow}"
     Title="{Binding Title}"/>

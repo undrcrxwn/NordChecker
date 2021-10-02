@@ -47,6 +47,8 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private INavigationService navigationService;
 
+        public AppSettings AppSettings { get; set; }
+
         private string _Title = "Загрузка...";
         public string Title
         {
@@ -73,6 +75,8 @@ namespace NordChecker.ViewModels
                 if (e.PropertyName == nameof(navigationService.CurrentPage))
                     UpdateTitle();
             };
+            
+            AppSettings = appSettings;
         }
     }
 }

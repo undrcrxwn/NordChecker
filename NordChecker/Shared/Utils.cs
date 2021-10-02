@@ -6,7 +6,8 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Win32;
+using System.Windows;
 
 namespace NordChecker.Shared
 {
@@ -14,6 +15,25 @@ namespace NordChecker.Shared
     {
         public T Value;
         public Ref(T value) => Value = value;
+    }
+
+    public static class Extensions
+    {
+        public static bool? Show(this FileDialog dialog, bool topmost = false)
+        {
+            Window window = new Window();
+            window.ResizeMode = ResizeMode.NoResize;
+            window.WindowStyle = WindowStyle.None;
+            window.Topmost = topmost;
+            window.Visibility = Visibility.Hidden;
+            window.Content = dialog;
+
+            bool? result = null;
+            window.Loaded += (sender, e) => result = dialog.ShowDialog();
+            window.ShowDialog();
+            window.Close();
+            return result;
+        }
     }
 
     public static class Utils

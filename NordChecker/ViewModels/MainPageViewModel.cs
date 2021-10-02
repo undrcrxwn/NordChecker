@@ -15,11 +15,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace NordChecker.ViewModels
@@ -137,7 +139,7 @@ namespace NordChecker.ViewModels
             progressWatch.Restart();
 
             PipelineState = PipelineState.Working;
-            distributor.Token.Continue();
+            distributor.SelfToken.Continue();
         }
 
         #endregion
@@ -154,7 +156,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Paused;
-            distributor.Token.Pause();
+            distributor.SelfToken.Pause();
             tokenSource.Pause();
         }
 
@@ -172,7 +174,7 @@ namespace NordChecker.ViewModels
             progressWatch.Start();
 
             PipelineState = PipelineState.Working;
-            distributor.Token.Continue();
+            distributor.SelfToken.Continue();
             tokenSource.Continue();
         }
 
@@ -190,7 +192,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Idle;
-            distributor.Token.Pause();
+            distributor.SelfToken.Pause();
             tokenSource.Cancel();
         }
 
@@ -208,10 +210,17 @@ namespace NordChecker.ViewModels
 
             Task.Run(() =>
             {
-                var dialog = new OpenFileDialog();
-                dialog.DefaultExt = ".txt";
-                dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
-                if (dialog.ShowDialog() != true) return;
+                OpenFileDialog dialog = null;
+                bool? dialogState = null;
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    dialog = new OpenFileDialog();
+                    dialog.DefaultExt = ".txt";
+                    dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
+                    dialogState = dialog.Show(AppSettings.IsTopMostWindow);
+                });
+                if (dialogState != true) return;
+
 
                 Task.Factory.StartNew(() =>
                 {
@@ -588,7 +597,7 @@ namespace NordChecker.ViewModels
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ComboStats));
-            
+
             _ComboArcs = new ObservableDictionary<AccountState, ArcViewModel>();
             foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
                 _ComboArcs.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
