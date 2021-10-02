@@ -13,46 +13,29 @@ using System.Windows.Navigation;
 
 namespace NordChecker.Shared
 {
-    public interface INavigationService : INotifyPropertyChangedAdvanced
-    {
-        public IPageViewModel CurrentPage { get; }
-        public void Navigate(Page page);
-        public void Navigate<TPage>() where TPage : Page;
-    }
-
-    public sealed class NavigationService : INavigationService
+    public sealed class NavigationService : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private PropertyChangedEventHandler CurrentPagePropertyChangedHandler => (sender, e) =>
-            (this as INotifyPropertyChangedAdvanced).OnPropertyChanged(PropertyChanged, nameof(CurrentPage));
+        public event EventHandler<Page> Navigated;
 
-        private IPageViewModel _CurrentPage;
-        public IPageViewModel CurrentPage
+        private Page _CurrentPage;
+        public Page CurrentPage
         {
             get => _CurrentPage;
             private set
             {
-                if (CurrentPage != null)
-                    CurrentPage.PropertyChanged -= CurrentPagePropertyChangedHandler;
-                INotifyPropertyChangedAdvanced @this = this;
-                @this.Set(ref _CurrentPage, value, PropertyChanged);
-                CurrentPage.PropertyChanged += CurrentPagePropertyChangedHandler;
+                (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _CurrentPage, value, PropertyChanged);
+                Navigated?.Invoke(this, CurrentPage);
             }
         }
 
-        public void Navigate(Page page)
-        {
-            (Application.Current.MainWindow as NavigationWindow).Navigate(page);
-            if (page.DataContext is IPageViewModel viewModel)
-                CurrentPage = viewModel;
-            else
-                CurrentPage = null;
-        }
+        public void Navigate(Page page) => CurrentPage = page;
 
         public void Navigate<TPage>() where TPage : Page
         {
-            var page = App.ServiceProvider.GetService<TPage>();
-            Navigate(page);
+            CurrentPage = App.ServiceProvider.GetService<TPage>();
+            Navigate(CurrentPage);
         }
     }
 }

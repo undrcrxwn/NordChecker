@@ -29,7 +29,6 @@ using System.Windows.Interop;
 using Leaf.xNet;
 using System.Windows.Media.Effects;
 using HandyControl.Tools.Command;
-using System.Windows.Navigation;
 using System.Windows.Threading;
 using System.Threading.Tasks;
 
@@ -45,8 +44,8 @@ namespace NordChecker.ViewModels
     public class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private INavigationService navigationService;
 
+        public NavigationService NavigationService { get; set; }
         public AppSettings AppSettings { get; set; }
 
         private string _Title = "Загрузка...";
@@ -59,7 +58,8 @@ namespace NordChecker.ViewModels
 
         private void UpdateTitle()
         {
-            IPageViewModel currentPage = navigationService.CurrentPage;
+            Log.Warning("NAVIGATED");
+            var currentPage = NavigationService.CurrentPage.DataContext as IPageViewModel;
             Title = "NordVPN Checker";
             if (!string.IsNullOrEmpty(currentPage.Title))
                 Title += $" — {currentPage.Title}";
@@ -67,14 +67,10 @@ namespace NordChecker.ViewModels
                 Title += $" — {currentPage.Description}";
         }
 
-        public MainWindowViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
+        public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
-            this.navigationService = navigationService;
-            navigationService.PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == nameof(navigationService.CurrentPage))
-                    UpdateTitle();
-            };
+            NavigationService = navigationService;
+            NavigationService.Navigated += (sender, e) => UpdateTitle();
             
             AppSettings = appSettings;
         }

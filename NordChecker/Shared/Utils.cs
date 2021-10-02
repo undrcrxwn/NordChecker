@@ -17,25 +17,6 @@ namespace NordChecker.Shared
         public Ref(T value) => Value = value;
     }
 
-    public static class Extensions
-    {
-        public static bool? Show(this FileDialog dialog, bool topmost = false)
-        {
-            Window window = new Window();
-            window.ResizeMode = ResizeMode.NoResize;
-            window.WindowStyle = WindowStyle.None;
-            window.Topmost = topmost;
-            window.Visibility = Visibility.Hidden;
-            window.Content = dialog;
-
-            bool? result = null;
-            window.Loaded += (sender, e) => result = dialog.ShowDialog();
-            window.ShowDialog();
-            window.Close();
-            return result;
-        }
-    }
-
     public static class Utils
     {
         [DllImport("kernel32.dll")]
@@ -58,6 +39,22 @@ namespace NordChecker.Shared
 
         public static void HideConsole() =>
             ShowWindow(GetConsoleWindow(), SW_HIDE);
+
+        public static bool? Show(this FileDialog dialog, bool topmost = false)
+        {
+            Window window = new Window();
+            window.ResizeMode = ResizeMode.NoResize;
+            window.WindowStyle = WindowStyle.None;
+            window.Topmost = topmost;
+            window.Visibility = Visibility.Hidden;
+            window.Content = dialog;
+
+            bool? result = null;
+            window.Loaded += (sender, e) => result = dialog.ShowDialog();
+            window.ShowDialog();
+            window.Close();
+            return result;
+        }
 
         public static string ToShortDurationString(this TimeSpan @this)
         {

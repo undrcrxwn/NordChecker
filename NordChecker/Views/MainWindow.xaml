@@ -1,4 +1,4 @@
-﻿<NavigationWindow
+﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -17,6 +17,7 @@
     KeyboardNavigation.TabNavigation="None"
     MinWidth="976" MinHeight="600"
     Background="{DynamicResource RegionBrush}"
-    ShowsNavigationUI="False"
     Topmost="{Binding AppSettings.IsTopMostWindow}"
-    Title="{Binding Title}"/>
+    Title="{Binding Title}">
+    <Frame Content="{Binding NavigationService.CurrentPage}" NavigationUIVisibility="Hidden"/>
+</Window>

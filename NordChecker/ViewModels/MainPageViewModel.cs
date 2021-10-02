@@ -29,7 +29,7 @@ namespace NordChecker.ViewModels
     public class MainPageViewModel : IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private INavigationService navigationService;
+        private NavigationService navigationService;
 
         private ThreadDistributor<Account> distributor;
         private MasterTokenSource tokenSource = new MasterTokenSource();
@@ -588,7 +588,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public MainPageViewModel(INavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
+        public MainPageViewModel(NavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
         {
             this.navigationService = navigationService;
             AppSettings = appSettings;

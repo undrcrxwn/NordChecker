@@ -39,7 +39,7 @@ namespace NordChecker
         public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
         public static IServiceProvider ServiceProvider { get; set; }
 
-        private INavigationService navigationService;
+        private NavigationService navigationService;
 
         public App()
         {
@@ -52,7 +52,7 @@ namespace NordChecker
             };
 
             ServiceCollection services = new ServiceCollection();
-            services.AddSingleton<INavigationService, NavigationService>();
+            services.AddSingleton<NavigationService>();
             services.AddSingleton<AppSettings>();
             services.AddSingleton<ExportSettings>();
             services.AddSingleton<MainWindowViewModel>();
@@ -63,7 +63,7 @@ namespace NordChecker
             services.AddTransient<ExportPage>();
             ServiceProvider = services.BuildServiceProvider();
 
-            navigationService = ServiceProvider.GetService<INavigationService>();
+            navigationService = ServiceProvider.GetService<NavigationService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)

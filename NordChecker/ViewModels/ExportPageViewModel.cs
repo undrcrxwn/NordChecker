@@ -23,7 +23,7 @@ namespace NordChecker.ViewModels
     public class ExportPageViewModel : IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private INavigationService navigationService;
+        private NavigationService navigationService;
 
         #region Properties
 
@@ -157,7 +157,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public ExportPageViewModel(INavigationService navigationService, ExportSettings settings)
+        public ExportPageViewModel(NavigationService navigationService, ExportSettings settings)
         {
             this.navigationService = navigationService;
             Settings = settings;
