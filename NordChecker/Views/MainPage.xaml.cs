@@ -43,18 +43,16 @@ namespace NordChecker.Views
             ICollectionView cv = source.View;
             dgAccounts.ItemsSource = cv;
 
-            new Thread(() =>
+            Task.Run(() =>
             {
                 while (true)
                 {
                     while (viewModel.SelectedAccount != null)
                         Thread.Sleep(10);
-                    var filter = cv.Filter;
-                    Dispatcher.BeginInvoke(cv.Refresh).Wait();
+                    Application.Current.Dispatcher.BeginInvoke(cv.Refresh);
                     Thread.Sleep(500);
                 }
-            })
-            { IsBackground = true }.Start();
+            });
         }
 
         private void UpdateFiltering()

@@ -34,7 +34,8 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public AppSettings Settings { get; set; }
+        public AppSettings AppSettings { get; set; }
+        public MainWindowViewModel ViewModel { get; set; }
 
         private static void HideBoundingBox(object root)
         {
@@ -48,12 +49,45 @@ namespace NordChecker.Views
             }
         }
 
-        public MainWindow() { }
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SetForegroundWindow(IntPtr hWnd);
 
-        public MainWindow(MainWindowViewModel viewModel, AppSettings settings)
+        [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
+        public static extern IntPtr FindWindow(IntPtr ZeroOnly, string lpWindowName);
+
+        public MainWindow(MainWindowViewModel viewModel, AppSettings appSettings)
         {
+            AppSettings = appSettings;
+            ViewModel = viewModel;
+            DataContext = ViewModel;
+
+            StateChanged += (sender, e) =>
+            {
+                if (AppSettings.IsMinimizedToTray)
+                {
+                    ViewModel.WindowVisibility = WindowState != WindowState.Minimized
+                        ? Visibility.Visible : Visibility.Collapsed;
+                }
+            };
+
+            ViewModel.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(ViewModel.WindowVisibility))
+                {
+                    if (ViewModel.WindowVisibility == Visibility.Visible)
+                    {
+                        Log.Warning("ACTIVATE ATTEMPT    => {0}", Activate());
+                        Log.Warning("FOCUS ATTEMPT       => {0}", Focus());
+                        Log.Warning("FRAME FOCUS ATTEMPT => {0}", MainFrame.Focus());
+                    }
+                }
+            };
+
             InitializeComponent();
-            DataContext = viewModel;
+
+            NotifyIcon.Click += (sender, e) =>
+                ViewModel.OpenFromTrayCommand.Execute(null);
+
             HideBoundingBox(this);
         }
     }

@@ -307,9 +307,9 @@
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedAccount}">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин "  IsReadOnly="True" CanUserSort="False"/>
-                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль " IsReadOnly="True" CanUserSort="False"/>
-                <DataGridTemplateColumn Header="Статус " SortMemberPath="State" IsReadOnly="True" CanUserSort="False">
+                <DataGridTextColumn Binding="{Binding Email, UpdateSourceTrigger=PropertyChanged}"    Header="Логин"  IsReadOnly="True" CanUserSort="False"/>
+                <DataGridTextColumn Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Header="Пароль" IsReadOnly="True" CanUserSort="False"/>
+                <DataGridTemplateColumn Header="Статус" SortMemberPath="State" IsReadOnly="True" CanUserSort="False" MaxWidth="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
@@ -519,7 +519,7 @@
 
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettings.IsTopMostWindow}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Сворачивать в трей" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" ToolTip="Сворачивать окно в трей при потери фокуса" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Режим разработчика" Margin="0,0,0,-6" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Показывать логи" Margin="0,6,0,0" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Автосохранение параметров" HorizontalAlignment="Left"/>

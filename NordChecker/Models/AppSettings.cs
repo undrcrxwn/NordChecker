@@ -171,6 +171,17 @@ namespace NordChecker.Models
                 .Set(ref _IsTopMostWindow, value, PropertyChanged, LogEventLevel.Information);
             }
         }
+        
+        private bool _IsMinimizedToTray;
+        public bool IsMinimizedToTray
+        {
+            get => _IsMinimizedToTray;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsMinimizedToTray, value, PropertyChanged, LogEventLevel.Information);
+            }
+        }
 
         public AppSettings()
         {
@@ -178,8 +189,7 @@ namespace NordChecker.Models
             foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
                 _DataGridFilters.Add(key, true);
 
-            DataGridFilters.CollectionChanged +=
-            (object sender, NotifyCollectionChangedEventArgs e) =>
+            DataGridFilters.CollectionChanged += (sender, e) =>
             {
                 INotifyPropertyChangedAdvanced @this = this;
                 @this.OnPropertyChanged(

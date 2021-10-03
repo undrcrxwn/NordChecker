@@ -266,7 +266,6 @@ namespace NordChecker.ViewModels
                     Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
                         cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
 
-
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         foreach (Account account in cache)

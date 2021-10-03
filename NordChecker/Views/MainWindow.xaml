@@ -18,6 +18,19 @@
     MinWidth="976" MinHeight="600"
     Background="{DynamicResource RegionBrush}"
     Topmost="{Binding AppSettings.IsTopMostWindow}"
-    Title="{Binding Title}">
-    <Frame Content="{Binding NavigationService.CurrentPage}" NavigationUIVisibility="Hidden"/>
+    Title="{Binding Title}"
+    Visibility="{Binding WindowVisibility, Mode=TwoWay}">
+    <Grid>
+        <Frame x:Name="MainFrame" Content="{Binding NavigationService.CurrentPage}" KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"/>
+        <hc:NotifyIcon x:Name="NotifyIcon" Text="NordVPN Checker" Visibility="{Binding AppSettings.IsMinimizedToTray, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <hc:NotifyIcon.ContextContent>
+                <Border Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5">
+                    <hc:UniformSpacingPanel Width="200" VerticalAlignment="Center" Orientation="Vertical" Margin="5">
+                        <hc:SimpleText Text="NordVPN Checker" FontSize="16" FontWeight="Medium" Margin="0,0,0,7"/>
+                        <Button Command="hc:ControlCommands.ShutdownApp" HorizontalAlignment="Stretch" Style="{StaticResource ButtonDanger}" Content="Закрыть приложение"/>
+                    </hc:UniformSpacingPanel>
+                </Border>
+            </hc:NotifyIcon.ContextContent>
+        </hc:NotifyIcon>
+    </Grid>
 </Window>

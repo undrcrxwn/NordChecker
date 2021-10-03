@@ -48,6 +48,8 @@ namespace NordChecker.ViewModels
         public NavigationService NavigationService { get; set; }
         public AppSettings AppSettings { get; set; }
 
+        #region Properties
+
         private string _Title = "Загрузка...";
         public string Title
         {
@@ -56,15 +58,40 @@ namespace NordChecker.ViewModels
                 .Set(ref _Title, value, PropertyChanged);
         }
 
+        private Visibility _WindowVisibility;
+        public Visibility WindowVisibility
+        {
+            get => _WindowVisibility;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _WindowVisibility, value, PropertyChanged);
+        }
+
+        #endregion
+
+        #region Commands
+
+        #region OpenFromTrayCommand
+
+        public ICommand OpenFromTrayCommand { get; }
+
+        private bool CanExecuteOpenFromTrayCommand(object parameter) => true;
+
+        private void OnOpenFromTrayCommandExecuted(object parameter)
+        {
+            Log.Information("OnOpenFromTrayCommandExecuted");
+            WindowVisibility = Visibility.Visible;
+        }
+
+        #endregion
+
+        #endregion
+
         private void UpdateTitle()
         {
-            Log.Warning("NAVIGATED");
             var currentPage = NavigationService.CurrentPage.DataContext as IPageViewModel;
             Title = "NordVPN Checker";
             if (!string.IsNullOrEmpty(currentPage.Title))
                 Title += $" — {currentPage.Title}";
-            if (!string.IsNullOrEmpty(currentPage.Description))
-                Title += $" — {currentPage.Description}";
         }
 
         public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
@@ -73,6 +100,8 @@ namespace NordChecker.ViewModels
             NavigationService.Navigated += (sender, e) => UpdateTitle();
             
             AppSettings = appSettings;
+
+            OpenFromTrayCommand = new LambdaCommand(OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
         }
     }
 }
