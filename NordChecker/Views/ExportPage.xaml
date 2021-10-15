@@ -45,7 +45,7 @@
                             <ColumnDefinition Width="4"/>
                             <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding Settings.RootPath}" IsReadOnly="True"/>
+                        <TextBox Text="{Binding ExportSettings.RootPath}" IsReadOnly="True"/>
                         <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
                     </Grid>
                 </hc:UniformSpacingPanel>
@@ -65,17 +65,17 @@
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Content="Премиум"       IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Premium].IsActivated}"   HorizontalAlignment="Left"/>
-                        <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Free].IsActivated}"      HorizontalAlignment="Left" Grid.Row="2"/>
-                        <CheckBox Content="Невалидные"    IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Invalid].IsActivated}"   HorizontalAlignment="Left" Grid.Column="2"/>
-                        <CheckBox Content="Непроверенные" IsChecked="{Binding Path=Settings.Filters[(m:AccountState)Unchecked].IsActivated}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
-                        <CheckBox Content="Добавлять количество строк в названия файлов" IsChecked="{Binding Path=Settings.AreRowCountsAddedToFileNames}" HorizontalAlignment="Left" Grid.Row="4" Grid.ColumnSpan="3"/>
+                        <CheckBox Content="Премиум"       IsChecked="{Binding Path=ExportSettings.AccountFilters[0].IsEnabled}" HorizontalAlignment="Left"/>
+                        <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=ExportSettings.AccountFilters[1].IsEnabled}" HorizontalAlignment="Left" Grid.Row="2"/>
+                        <CheckBox Content="Невалидные"    IsChecked="{Binding Path=ExportSettings.AccountFilters[2].IsEnabled}" HorizontalAlignment="Left" Grid.Column="2"/>
+                        <CheckBox Content="Непроверенные" IsChecked="{Binding Path=ExportSettings.AccountFilters[3].IsEnabled}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
+                        <CheckBox Content="Добавлять количество строк в названия файлов" IsChecked="{Binding Path=ExportSettings.AreRowCountsAddedToFileNames}" HorizontalAlignment="Left" Grid.Row="4" Grid.ColumnSpan="3"/>
                     </Grid>
                 </hc:UniformSpacingPanel>
 
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                     <hc:SimpleText Text="Форматирование" FontSize="18" FontWeight="Medium"/>
-                    <TextBox Text="{Binding Settings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas">
+                    <TextBox Text="{Binding ExportSettings.FormatScheme, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas">
                         <TextBox.ToolTip>
                             <ToolTip>
                                 <TextBlock>
@@ -115,7 +115,7 @@
                         <ColumnDefinition Width="4"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="btnProceed" Content="Экспортировать" Style="{StaticResource ButtonPrimary}" IsEnabled="{Binding CanProceed}" HorizontalAlignment="Stretch"/>
+                    <Button x:Name="btnProceed" Content="Экспортировать" Style="{StaticResource ButtonPrimary}" Command="{Binding ExportCommand}" HorizontalAlignment="Stretch"/>
                     <Button x:Name="btnCancel" Content="Отмена" Command="{Binding NavigateHomeCommand}" Grid.Column="2" HorizontalAlignment="Stretch"/>
                 </Grid>
             </Grid>

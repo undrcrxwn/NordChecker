@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -41,6 +42,23 @@ namespace NordChecker
 
         private NavigationService navigationService;
 
+        static App()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<ObservableCollection<Account>>();
+            services.AddSingleton<NavigationService>();
+            services.AddSingleton<AppSettings>();
+            services.AddSingleton<ExportSettings>();
+            services.AddSingleton<NavigationService>();
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainPageViewModel>();
+            services.AddSingleton<MainPage>();
+            services.AddTransient<ExportPageViewModel>();
+            services.AddTransient<ExportPage>();
+            ServiceProvider = services.BuildServiceProvider();
+        }
+
         public App()
         {
             CultureInfo.CurrentCulture = new CultureInfo("ru-RU")
@@ -50,18 +68,6 @@ namespace NordChecker
                     NumberDecimalSeparator = "."
                 }
             };
-
-            ServiceCollection services = new ServiceCollection();
-            services.AddSingleton<NavigationService>();
-            services.AddSingleton<AppSettings>();
-            services.AddSingleton<ExportSettings>();
-            services.AddSingleton<MainWindowViewModel>();
-            services.AddSingleton<MainWindow>();
-            services.AddSingleton<MainPageViewModel>();
-            services.AddSingleton<MainPage>();
-            services.AddTransient<ExportPageViewModel>();
-            services.AddTransient<ExportPage>();
-            ServiceProvider = services.BuildServiceProvider();
 
             navigationService = ServiceProvider.GetService<NavigationService>();
         }

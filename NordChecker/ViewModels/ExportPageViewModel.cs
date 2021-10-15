@@ -9,7 +9,9 @@ using NordChecker.Views;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,20 +45,32 @@ namespace NordChecker.ViewModels
                 .Set(ref _Description, value, PropertyChanged);
         }
 
-        private ExportSettings _Settings;
-        public ExportSettings Settings
+        private ObservableCollection<Account> _Accounts;
+        public ObservableCollection<Account> Accounts
         {
-            get => _Settings;
+            get => _Accounts;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Settings, value, PropertyChanged);
+                .Set(ref _Accounts, value, PropertyChanged);
+        }
+
+        private ExportSettings _ExportSettings;
+        public ExportSettings ExportSettings
+        {
+            get => _ExportSettings;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ExportSettings, value, PropertyChanged);
         }
 
         private string _OutputDirectoryPath;
         public string OutputDirectoryPath
         {
             get => _OutputDirectoryPath;
-            set => (this as INotifyPropertyChangedAdvanced)
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _OutputDirectoryPath, value, PropertyChanged);
+                UpdateSettingsRootPath();
+            }
         }
 
         public AccountFormatter Formatter { get; set; }
@@ -136,43 +150,103 @@ namespace NordChecker.ViewModels
 
         private void UpdateSampleOutput()
         {
-            Formatter.FormatScheme = Settings.FormatScheme;
+            Formatter.FormatScheme = ExportSettings.FormatScheme;
             OutputPreview = Formatter.Format(sampleAccount);
         }
 
         private void UpdateCanProceed()
             => CanProceed = Directory.Exists(OutputDirectoryPath)
-            && !string.IsNullOrEmpty(Settings.FormatScheme)
-            && Settings.Filters.Values.Any(x => x.IsActivated);
+            && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
+            && ExportSettings.AccountFilters.Any(x => x.IsEnabled);
 
         private void UpdateSettingsRootPath()
         {
             if (string.IsNullOrEmpty(OutputDirectoryPath))
-                Settings.RootPath = null;
+                ExportSettings.RootPath = null;
             else
             {
-                Settings.RootPath = OutputDirectoryPath +
+                ExportSettings.RootPath = OutputDirectoryPath +
                 $"\\NVPNC {DateTime.Now:yyyy-MM-dd}" +
                 $" at {DateTime.Now:HH-mm-ss}";
             }
         }
 
-        public ExportPageViewModel(NavigationService navigationService, ExportSettings settings)
-        {
-            this.navigationService = navigationService;
-            Settings = settings;
-            Settings.PropertyChanged += (sender, e) =>
-            {
-                UpdateCanProceed();
-                if (e.PropertyName == nameof(Settings.FormatScheme))
-                    UpdateSampleOutput();
-            };
+        #region Commands
 
-            PropertyChanged += (sender, e) =>
+        #region ExportCommand
+
+        public ICommand ExportCommand { get; }
+
+        private bool CanExecuteExportCommand(object parameter) => CanProceed;
+
+        private void OnExportCommandExecuted(object parameter)
+        {
+            Log.Information("OnExportCommandExecuted");
+
+            Task.Run(() =>
             {
-                if (e.PropertyName == nameof(OutputDirectoryPath))
-                    UpdateSettingsRootPath();
-            };
+                Log.Information("Exporting combos to {0}", ExportSettings.RootPath);
+                Directory.CreateDirectory(ExportSettings.RootPath);
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
+                int counter = 0;
+                foreach (AccountFilter filter in ExportSettings.AccountFilters)
+                {
+                    if (!filter.IsEnabled) continue;
+
+                    IEnumerable<Account> selection = Accounts.Where(x => filter.Predicate(x));
+
+                    string suffix = "";
+                    if (ExportSettings.AreRowCountsAddedToFileNames)
+                        suffix = $" ({selection.Count()})";
+                    string fileName = filter.FileName.Replace("{suffix}", suffix);
+                    using (StreamWriter sw = new StreamWriter(ExportSettings.RootPath + $"/{fileName}", true))
+                    {
+                        foreach (Account account in selection)
+                        {
+                            sw.WriteLine(Formatter.Format(account));
+                            Log.Verbose("{0} has been saved to {1}", account, fileName);
+                            counter++;
+                        }
+                    }
+                }
+
+                watch.Stop();
+                Log.Information("{0} records have been exported to {1} in {2}ms",
+                    counter, ExportSettings.RootPath, watch.ElapsedMilliseconds);
+            });
+
+            ExportSettings.CopyTo(App.ServiceProvider.GetService(typeof(ExportSettings)) as ExportSettings);
+            navigationService.Navigate<MainPage>();
+        }
+
+        #endregion
+
+        #endregion
+
+        private void OnExportSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            UpdateCanProceed();
+            if (e.PropertyName == nameof(ExportSettings.FormatScheme))
+                UpdateSampleOutput();
+        }
+
+        public readonly System.Timers.Timer StateRefreshingTimer = new System.Timers.Timer(TimeSpan.FromSeconds(1).TotalMilliseconds);
+
+        public ExportPageViewModel(
+            ObservableCollection<Account> accounts,
+            NavigationService navigationService,
+            ExportSettings exportSettings)
+        {
+            Accounts = accounts;
+            this.navigationService = navigationService;
+            ExportSettings = exportSettings.Clone() as ExportSettings;
+
+            ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
+            if (ExportSettings.RootPath != null)
+                OutputDirectoryPath = string.Join('\\', ExportSettings.RootPath.Split('\\').SkipLast(1));
+
 
             Formatter = new AccountFormatter();
             Formatter.AddPlaceholder("email", acc => acc.Email);
@@ -185,18 +259,22 @@ namespace NordChecker.ViewModels
             UpdateSampleOutput();
             UpdateCanProceed();
 
+            ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
             ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
             NavigateHomeCommand = new LambdaCommand(OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
-            new Thread(() =>
+            StateRefreshingTimer.Elapsed += (sender, e) =>
             {
-                while (true)
-                {
-                    UpdateSettingsRootPath();
-                    Thread.Sleep(1000);
-                }
-            })
-            { IsBackground = true }.Start();
+                UpdateSettingsRootPath();
+                Log.Warning("local  ES RootPath set to {0}", ExportSettings.RootPath);
+            };
+            StateRefreshingTimer.Start();
+        }
+
+        ~ExportPageViewModel()
+        {
+            Log.Warning("~ExportPageViewModel");
+            ExportSettings.PropertyChanged -= OnExportSettingsPropertyChanged;
         }
     }
 }

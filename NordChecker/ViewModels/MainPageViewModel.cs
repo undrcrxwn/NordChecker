@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
@@ -46,14 +47,6 @@ namespace NordChecker.ViewModels
                 .Set(ref _Title, value, PropertyChanged);
         }
 
-        private string _Description;
-        public string Description
-        {
-            get => _Description;
-            private set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Description, value, PropertyChanged);
-        }
-
         private Account _SelectedAccount;
         public Account SelectedAccount
         {
@@ -65,7 +58,7 @@ namespace NordChecker.ViewModels
         public AppSettings AppSettings { get; set; }
         public ExportSettings ExportSettings { get; set; }
 
-        private ObservableCollection<Account> _Accounts = new ObservableCollection<Account>();
+        private ObservableCollection<Account> _Accounts;
         public ObservableCollection<Account> Accounts
         {
             get => _Accounts;
@@ -405,8 +398,16 @@ namespace NordChecker.ViewModels
         private void OnExportCommandExecuted(object parameter)
         {
             Log.Information("OnExportCommandExecuted");
-            navigationService.Navigate(new ExportPage(
-                new ExportPageViewModel(navigationService, ExportSettings.Clone() as ExportSettings)));
+            navigationService.Navigate<ExportPage>();
+            navigationService.Navigating += OnNavigationServiceNavigating;
+        }
+
+        private void OnNavigationServiceNavigating(object sender, Page e)
+        {
+            navigationService.Navigating -= OnNavigationServiceNavigating;
+            Application.Current.Dispatcher.Invoke(() =>
+                (navigationService.CurrentPage.DataContext as ExportPageViewModel)
+                .StateRefreshingTimer.Stop());
         }
 
         #endregion
@@ -571,24 +572,32 @@ namespace NordChecker.ViewModels
                 - ComboStats.ByState[AccountState.Reserved];
             float percentageChecked = checkedCount
                 / Math.Max(Accounts.Count, 1.0f) * 100;
-            Description = $"{percentageChecked:0}%";
+            StringBuilder builder = new StringBuilder();
+            builder.Append($"{percentageChecked:0}%");
 
             if (PipelineState != PipelineState.Idle)
             {
                 TimeSpan elapsed = progressWatch.Elapsed;
-                Description += $" ({elapsed.ToShortDurationString()} затрачено";
+                builder.Append($" ({elapsed.ToShortDurationString()} затрачено");
 
                 if (percentageChecked > 0 && percentageChecked < 100)
                 {
                     TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
-                    Description += $", {left.ToShortDurationString()} осталось";
+                    builder.Append($", {left.ToShortDurationString()} осталось");
                 }
-                Description += ")";
+                builder.Append(")");
             }
+
+            Title = builder.ToString();
         }
 
-        public MainPageViewModel(NavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
+        public MainPageViewModel(
+            ObservableCollection<Account> accounts,
+            NavigationService navigationService,
+            AppSettings appSettings,
+            ExportSettings exportSettings)
         {
+            Accounts = accounts;
             this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings;

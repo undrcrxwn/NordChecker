@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NordChecker.Shared
 {

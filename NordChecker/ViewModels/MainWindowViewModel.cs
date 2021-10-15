@@ -88,16 +88,41 @@ namespace NordChecker.ViewModels
 
         private void UpdateTitle()
         {
-            var currentPage = NavigationService.CurrentPage.DataContext as IPageViewModel;
+            IPageViewModel pageViewModel = null;
+            Application.Current.Dispatcher.Invoke(() =>
+                pageViewModel = NavigationService.CurrentPage.DataContext as IPageViewModel);
             Title = "NordVPN Checker";
-            if (!string.IsNullOrEmpty(currentPage.Title))
-                Title += $" — {currentPage.Title}";
+            if (!string.IsNullOrEmpty(pageViewModel.Title))
+                Title += $" — {pageViewModel.Title}";
         }
 
-        public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings, ExportSettings exportSettings)
+        private void OnPagePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IPageViewModel.Title))
+                UpdateTitle();
+        }
+
+        public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings)
         {
             NavigationService = navigationService;
-            NavigationService.Navigated += (sender, e) => UpdateTitle();
+
+            NavigationService.Navigating += (sender, e) =>
+            {
+                if (NavigationService.CurrentPage == null) return;
+                UpdateTitle();
+
+                (NavigationService.CurrentPage.DataContext as IPageViewModel)
+                .PropertyChanged -= OnPagePropertyChanged;
+            };
+            
+            NavigationService.Navigated += (sender, e) =>
+            {
+                if (NavigationService.CurrentPage == null) return;
+                UpdateTitle();
+
+                (NavigationService.CurrentPage.DataContext as IPageViewModel)
+                .PropertyChanged += OnPagePropertyChanged;
+            };
             
             AppSettings = appSettings;
 

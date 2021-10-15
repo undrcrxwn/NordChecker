@@ -16,6 +16,7 @@ namespace NordChecker.Shared
     public sealed class NavigationService : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<Page> Navigating;
         public event EventHandler<Page> Navigated;
 
         private Page _CurrentPage;
@@ -24,6 +25,7 @@ namespace NordChecker.Shared
             get => _CurrentPage;
             private set
             {
+                Navigating?.Invoke(this, CurrentPage);
                 (this as INotifyPropertyChangedAdvanced)
                     .Set(ref _CurrentPage, value, PropertyChanged);
                 Navigated?.Invoke(this, CurrentPage);
