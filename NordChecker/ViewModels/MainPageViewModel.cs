@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace NordChecker.ViewModels
@@ -57,6 +56,7 @@ namespace NordChecker.ViewModels
 
         public AppSettings AppSettings { get; set; }
         public ExportSettings ExportSettings { get; set; }
+        public ProxiesViewModel ProxiesViewModel { get; set; }
 
         private ObservableCollection<Account> _Accounts;
         public ObservableCollection<Account> Accounts
@@ -80,14 +80,6 @@ namespace NordChecker.ViewModels
             get => _ComboArcs;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _ComboArcs, value, PropertyChanged);
-        }
-
-        private ProxyDispenserViewModel _ProxyDispenser = new ProxyDispenserViewModel();
-        public ProxyDispenserViewModel ProxyDispenser
-        {
-            get => _ProxyDispenser;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ProxyDispenser, value, PropertyChanged);
         }
 
         public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
@@ -132,7 +124,7 @@ namespace NordChecker.ViewModels
             progressWatch.Restart();
 
             PipelineState = PipelineState.Working;
-            distributor.SelfToken.Continue();
+            distributor.Start();
         }
 
         #endregion
@@ -149,7 +141,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Paused;
-            distributor.SelfToken.Pause();
+            distributor.Stop();
             tokenSource.Pause();
         }
 
@@ -167,7 +159,7 @@ namespace NordChecker.ViewModels
             progressWatch.Start();
 
             PipelineState = PipelineState.Working;
-            distributor.SelfToken.Continue();
+            distributor.Start();
             tokenSource.Continue();
         }
 
@@ -185,7 +177,7 @@ namespace NordChecker.ViewModels
             progressWatch.Stop();
 
             PipelineState = PipelineState.Idle;
-            distributor.SelfToken.Pause();
+            distributor.Stop();
             tokenSource.Cancel();
         }
 
@@ -335,9 +327,9 @@ namespace NordChecker.ViewModels
                         string line;
                         using (StreamReader reader = new StreamReader(File.OpenRead(result.Path)))
                         {
-                            lock (ProxyDispenser.Proxies)
+                            lock (ProxiesViewModel.Proxies)
                             {
-                                Log.Warning("Locked {0}", nameof(ProxyDispenser.Proxies));
+                                Log.Warning("Locked {0}", nameof(ProxiesViewModel.Proxies));
                                 while ((line = reader.ReadLine()) != null)
                                 {
                                     ProxyClient client;
@@ -350,16 +342,16 @@ namespace NordChecker.ViewModels
                                     }
                                     catch (Exception e)
                                     {
-                                        ProxyDispenser.MismatchedCount++;
+                                        ProxiesViewModel.MismatchedCount++;
                                         Log.Error(e, "Line \"{line}\" has been skipped as mismatched", line);
                                         continue;
                                     }
 
                                     if (AppSettings.AreProxyDuplicatesSkipped)
                                     {
-                                        if (ProxyDispenser.Proxies.Any(p => p.Client.ToString() == client.ToString()))
+                                        if (ProxiesViewModel.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
-                                            ProxyDispenser.DuplicatesCount++;
+                                            ProxiesViewModel.DuplicatesCount++;
                                             Log.Debug("Proxy {proxy} has been skipped as duplicate", client);
                                             continue;
                                         }
@@ -370,8 +362,8 @@ namespace NordChecker.ViewModels
                                     var states = Enum.GetValues(typeof(ProxyState));
                                     proxy.State = (ProxyState)states.GetValue(new Random().Next(0, states.Length));
 
-                                    ProxyDispenser.Proxies.Add(proxy);
-                                    ProxyDispenser.LoadedCount++;
+                                    ProxiesViewModel.Proxies.Add(proxy);
+                                    ProxiesViewModel.LoadedCount++;
                                     Log.Debug("Proxy {proxy} has been added to the dispenser", client);
                                 }
                             }
@@ -379,7 +371,7 @@ namespace NordChecker.ViewModels
 
                         watch.Stop();
                         Log.Information("{total} proxies have been extracted from {file} in {elapsed}ms",
-                            ProxyDispenser.Proxies.Count, result.Path, watch.ElapsedMilliseconds);
+                            ProxiesViewModel.Proxies.Count, result.Path, watch.ElapsedMilliseconds);
                     });
                 });
             });
@@ -595,12 +587,14 @@ namespace NordChecker.ViewModels
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
             AppSettings appSettings,
-            ExportSettings exportSettings)
+            ExportSettings exportSettings,
+            ProxiesViewModel proxiesViewModel)
         {
             Accounts = accounts;
             this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings;
+            ProxiesViewModel = proxiesViewModel;
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -638,7 +632,7 @@ namespace NordChecker.ViewModels
                 },
                 checker.ProcessAccount);
 
-            distributor.OnTaskCompleted += (sender, account) =>
+            distributor.TaskCompleted += (sender, account) =>
             {
                 lock (ComboStats.ByState)
                 {
@@ -690,7 +684,7 @@ namespace NordChecker.ViewModels
             {
                 while (true)
                 {
-                    ProxyDispenser.Refresh();
+                    ProxiesViewModel.Refresh();
                     UpdatePageDescription();
                     Task.Delay(1000).Wait();
                 }

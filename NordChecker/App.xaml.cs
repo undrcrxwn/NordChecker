@@ -50,6 +50,8 @@ namespace NordChecker
             services.AddSingleton<AppSettings>();
             services.AddSingleton<ExportSettings>();
             services.AddSingleton<NavigationService>();
+            services.AddSingleton<Cyclic<Proxy>>();
+            services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainPageViewModel>();

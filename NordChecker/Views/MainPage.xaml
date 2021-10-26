@@ -195,7 +195,7 @@
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
                                 <StackPanel VerticalAlignment="Center">
-                                    <hc:SimpleText Text="{Binding ProxyDispenser.LoadedCount, Converter={StaticResource NumberConverter}}"
+                                    <hc:SimpleText Text="{Binding ProxiesViewModel.LoadedCount, Converter={StaticResource NumberConverter}}"
                                    HorizontalAlignment="Center"
                                    FontWeight="Medium"
                                    FontSize="24"/>
@@ -225,7 +225,7 @@
                                             <hc:SimpleText Text="HTTP(s)" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -234,7 +234,7 @@
                                             <hc:SimpleText Text="Socks4" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -243,7 +243,7 @@
                                             <hc:SimpleText Text="Socks4A" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8ac926"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -252,7 +252,7 @@
                                             <hc:SimpleText Text="Socks5" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#ffca3a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -261,7 +261,7 @@
                                             <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -270,19 +270,19 @@
                                             <hc:SimpleText Text="Не использовано" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxyDispenser.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
                                     <Grid>
                                         <hc:SimpleText Text="Битых строк" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding ProxiesViewModel.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
                                         <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
-                                        <hc:SimpleText Text="{Binding ProxyDispenser.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding ProxiesViewModel.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                             </StackPanel>

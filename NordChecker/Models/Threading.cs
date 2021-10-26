@@ -13,64 +13,17 @@ using System.Windows.Threading;
 
 namespace NordChecker.Models
 {
-    public class MasterToken
-    {
-        public bool IsCancellationRequested { get; private set; }
-        public bool IsPauseRequested { get; private set; }
-
-        public void Cancel() => IsCancellationRequested = true;
-        public void Pause() => IsPauseRequested = true;
-        public void Continue() => IsPauseRequested = false;
-
-        public void ThrowIfCancellationRequested()
-        {
-            if (IsCancellationRequested)
-                throw new OperationCanceledException();
-        }
-
-        public void WaitIfPauseRequested()
-        {
-            while (IsPauseRequested)
-            {
-                Thread.Sleep(50);
-                ThrowIfCancellationRequested();
-            }
-        }
-
-        public void ThrowOrWaitIfRequested()
-        {
-            ThrowIfCancellationRequested();
-            WaitIfPauseRequested();
-        }
-    }
-
-    public class MasterTokenSource
-    {
-        public List<MasterToken> Tokens = new List<MasterToken>();
-
-        public MasterToken MakeToken()
-        {
-            var token = new MasterToken();
-            Tokens.Add(token);
-            return token;
-        }
-
-        public void Cancel() => Tokens.ToList().ForEach(x => x.Cancel());
-        public void Pause() => Tokens.ToList().ForEach(x => x.Pause());
-        public void Continue() => Tokens.ToList().ForEach(x => x.Continue());
-    }
-
     public class ThreadDistributor<TPayload>
     {
+        public event EventHandler<TPayload> TaskCompleted;
+
+        private MasterToken token;
         private ObservableCollection<TPayload> payloads;
         private Func<TPayload, bool> predicate;
         private Action<TPayload> handler;
         private int superfluousDistributonsCount;
         private object abortionLocker = new object();
         private object payloadsLocker = new object();
-        public MasterToken SelfToken;
-        public MasterTokenSource InternalTokenSource = new MasterTokenSource();
-        public event EventHandler<TPayload> OnTaskCompleted;
 
         private int _ThreadCount;
         public int ThreadCount
@@ -87,11 +40,9 @@ namespace NordChecker.Models
                 Log.Information("Distributor's {property} has been set to {value} with {delta} delta",
                     nameof(ThreadCount), value, delta);
 
-                // if delta is positive
                 for (var i = 0; i < delta; i++)
                     Distribute();
 
-                // if delta is negative
                 if (delta < 0)
                     superfluousDistributonsCount -= delta;
             }
@@ -102,30 +53,29 @@ namespace NordChecker.Models
             ObservableCollection<TPayload> payloads,
             Func<TPayload, bool> predicate,
             Action<TPayload> handler,
-            MasterToken token)
+            MasterToken token = null)
         {
-            SelfToken = token;
-            token.Pause();
+            this.token = token ?? new MasterToken();
+            this.token.Pause();
+
+            ThreadCount = threadCount;
             this.payloads = payloads;
             this.predicate = predicate;
             this.handler = handler;
-            OnTaskCompleted += (sender, e) => Distribute();
-            ThreadCount = threadCount;
+
+            TaskCompleted += (sender, e) => Distribute();
         }
 
-        public ThreadDistributor(
-            int threadCount,
-            ObservableCollection<TPayload> payloads,
-            Func<TPayload, bool> predicate,
-            Action<TPayload> handler)
-        : this(threadCount, payloads, predicate, handler, new MasterToken()) { }
+        public void Start() => token.Continue();
+
+        public void Stop() => token.Pause();
 
         public void Distribute()
         {
             Log.Verbose("New distribution");
             Task.Factory.StartNew(() =>
             {
-                SelfToken.ThrowOrWaitIfRequested();
+                token.ThrowOrWaitIfRequested();
                 lock (abortionLocker)
                 {
                     if (superfluousDistributonsCount > 0)
@@ -135,7 +85,7 @@ namespace NordChecker.Models
                     }
                 }
 
-                SelfToken.ThrowOrWaitIfRequested();
+                token.ThrowOrWaitIfRequested();
                 TPayload payload;
                 try
                 {
@@ -149,10 +99,10 @@ namespace NordChecker.Models
                     return;
                 }
 
-                SelfToken.ThrowOrWaitIfRequested();
+                token.ThrowOrWaitIfRequested();
                 try { handler(payload); }
                 catch { return; }
-                OnTaskCompleted?.Invoke(this, payload);
+                TaskCompleted?.Invoke(this, payload);
 
                 Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
                 dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
@@ -167,8 +117,8 @@ namespace NordChecker.Models
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Log.Verbose("Subscribtion acquired");
                 payloads.CollectionChanged -= OnCollectionChanged;
+                Log.Verbose("Subscribtion acquired");
                 Distribute();
             }
         }

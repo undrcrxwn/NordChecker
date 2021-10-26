@@ -12,9 +12,10 @@ using System.Windows;
 
 namespace NordChecker.ViewModels
 {
-    public class ProxyDispenserViewModel : ProxyDispenser, INotifyPropertyChangedAdvanced
+    public class ProxiesViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public Cyclic<Proxy> Proxies;
 
         private Dictionary<ProxyType, int> _StatsByType;
         public Dictionary<ProxyType, int> StatsByType
@@ -167,8 +168,10 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public ProxyDispenserViewModel()
+        public ProxiesViewModel(Cyclic<Proxy> proxies)
         {
+            Proxies = proxies;
+
             _StatsByType = new Dictionary<ProxyType, int>();
             foreach (ProxyType key in Enum.GetValues(typeof(ProxyType)))
                 _StatsByType.Add(key, 0);
