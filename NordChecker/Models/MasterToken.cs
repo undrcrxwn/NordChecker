@@ -7,7 +7,18 @@ using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
-    public class MasterToken
+    public interface ICancelable
+    {
+        public abstract void Cancel();
+    }
+
+    public interface IPausable
+    {
+        public abstract void Pause();
+        public abstract void Continue();
+    }
+
+    public class MasterToken : ICancelable, IPausable
     {
         public bool IsCancellationRequested { get; private set; }
         public bool IsPauseRequested { get; private set; }

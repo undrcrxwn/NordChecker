@@ -50,11 +50,14 @@ namespace NordChecker.Models
                 context.OnBreakpointStarted();
                 if (IsCancelationNeededFor(context))
                     context.Token.Cancel();
+                if (IsPauseNeededFor(context))
+                    context.Token.Pause();
                 context.Token.ThrowOrWaitIfRequested();
                 context.OnBreakpointFinished();
             }
         }
 
-        protected bool IsCancelationNeededFor(TContext context);
+        protected bool IsCancelationNeededFor(TContext context) => false;
+        protected bool IsPauseNeededFor(TContext context) => false;
     }
 }
