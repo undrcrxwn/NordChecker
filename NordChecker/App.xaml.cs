@@ -45,12 +45,16 @@ namespace NordChecker
         static App()
         {
             ServiceCollection services = new ServiceCollection();
+
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
+
             services.AddSingleton<AppSettings>();
             services.AddSingleton<ExportSettings>();
-            services.AddSingleton<NavigationService>();
+
             services.AddSingleton<Cyclic<Proxy>>();
+            services.AddSingleton<IChecker, MockChecker>(x => new MockChecker(7000));
+
             services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
@@ -58,6 +62,7 @@ namespace NordChecker
             services.AddSingleton<MainPage>();
             services.AddTransient<ExportPageViewModel>();
             services.AddTransient<ExportPage>();
+
             ServiceProvider = services.BuildServiceProvider();
         }
 

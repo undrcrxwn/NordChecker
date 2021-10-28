@@ -169,29 +169,29 @@
                     <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
                         <Canvas x:Name="progressCanvasProxyChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)HTTP].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8ac926" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks4A].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#ffca3a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByType[(xnet:ProxyType)Socks5].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Invalid].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].EndAngle}"
-                        Visibility = "{Binding Path=ProxyDispenser.ArcsByState[(m:ProxyState)Unchecked].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].Visibility}"/>
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
                                 <StackPanel VerticalAlignment="Center">

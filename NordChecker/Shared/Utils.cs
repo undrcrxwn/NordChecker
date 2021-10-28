@@ -67,5 +67,8 @@ namespace NordChecker.Shared
                 result += @this.ToString(@"s\с");
             return result;
         }
+
+        public static string ToBase64(this string @this)
+            => Convert.ToBase64String(Encoding.UTF8.GetBytes(@this));
     }
 }

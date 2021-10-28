@@ -33,7 +33,7 @@ namespace NordChecker.ViewModels
 
         private ThreadDistributor<Account> distributor;
         private MasterTokenSource tokenSource = new MasterTokenSource();
-        private Checker checker = new Checker(7000);
+        private IChecker checker;
         private Stopwatch progressWatch = new Stopwatch();
 
         #region Properties
@@ -584,12 +584,14 @@ namespace NordChecker.ViewModels
         }
 
         public MainPageViewModel(
+            IChecker checker,
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
             AppSettings appSettings,
             ExportSettings exportSettings,
             ProxiesViewModel proxiesViewModel)
         {
+            this.checker = checker;
             Accounts = accounts;
             this.navigationService = navigationService;
             AppSettings = appSettings;

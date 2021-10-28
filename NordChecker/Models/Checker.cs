@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using NordChecker.Shared;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,103 +12,35 @@ using System.Windows;
 
 namespace NordChecker.Models
 {
-    class CheckerBreakpointContext
+    internal class Checker : IChecker, IBreakable<TimeoutBreakpointContext<Account>>
     {
-        public Account account;
-        public MasterToken token;
-        public Stopwatch watch;
+        public int Timeout { get; set; }
 
-        public CheckerBreakpointContext(
-            Account account,
-            MasterToken token,
-            Stopwatch watch)
+        public Checker(int timeout) => Timeout = timeout;
+
+        public async void ProcessAccount(Account account)
         {
-            this.account = account;
-            this.token = token;
-            this.watch = watch;
-        }
-    }
-
-    internal class Checker
-    {
-        private int timeout;
-
-        public Checker(int timeout)
-        {
-            this.timeout = timeout;
-        }
-
-        public void HandleBreakpointIfNeeded(CheckerBreakpointContext context)
-        {
-            context.watch.Stop();
-
-            try
-            {
-                if (context.watch.ElapsedMilliseconds > timeout)
-                    throw new OperationCanceledException();
-                context.token.ThrowOrWaitIfRequested();
-            }
-            catch
-            {
-                context.account.State = AccountState.Invalid;
-                throw;
-            }
-
-            context.watch.Start();
-        }
-
-        public void ProcessAccount(Account account)
-        {
-            Stopwatch watch = Stopwatch.StartNew();
-            var context = new CheckerBreakpointContext(account, account.MasterToken, watch);
-
-            for (int i = 0; i < 4; i++)
-            {
-                Thread.Sleep(500);
-                HandleBreakpointIfNeeded(context);
-            }
-
-            //account.State = AccountState.Premium;
-            account.State = new Random().Next(11) switch
-            {
-                <= 1 => AccountState.Premium,
-                <= 3 => AccountState.Free,
-                _ => AccountState.Invalid
-            };
-            return;
-
-            /*
-            //account.State = AccountState.Free;
-            account.State = new Random().Next(10) == 0 ? AccountState.Premium
-                : new Random().Next(2) == 0 ? AccountState.Invalid
-                : AccountState.Free;
-            return;
-
+            var context = new TimeoutBreakpointContext<Account>(
+                account,
+                account.MasterToken,
+                Stopwatch.StartNew());
+            IBreakable<TimeoutBreakpointContext<Account>> breakpointHandler = this;
+            
             var content = new FormUrlEncodedContent(new Dictionary<string, string>{
                 { "username", account.Email },
                 { "password", account.Password }
             });
 
-            if (isAborted)
-            {
-                account.State = AccountState.Invalid;
-                return;
-            }
+            breakpointHandler.HandleBreakpointIfNeeded(context);
 
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-            *///client.DefaultRequestHeaders.Add("Accept", "*/*");
-            /*
-            string response;
-            client.PostAsync("https://api.nordvpn.com/v1/users/tokens", content)
-                .ContinueWith(async t => response = await t.Result.Content.ReadAsStringAsync())
-                .Wait();
+            //client.DefaultRequestHeaders.Add("Accept", "*/*");
 
-            if (isAborted)
-            {
-                account.State = AccountState.Invalid;
-                return;
-            }
+            var responseMessage = await client.PostAsync("https://api.nordvpn.com/v1/users/tokens", content);
+            string response = await responseMessage.Content.ReadAsStringAsync();
+
+            breakpointHandler.HandleBreakpointIfNeeded(context);
 
             try
             {
@@ -123,23 +56,14 @@ namespace NordChecker.Models
                 return;
             }
 
-            if (isAborted)
-            {
-                account.State = AccountState.Invalid;
-                return;
-            }
+            breakpointHandler.HandleBreakpointIfNeeded(context);
 
-            string authString = Utils.Base64Encode("token:" + account.Token);
-            client.DefaultRequestHeaders.Add("Authorization", "Basic " + authString);
-            client.GetAsync("https://api.nordvpn.com/v1/users/services")
-                .ContinueWith(async t => response = await t.Result.Content.ReadAsStringAsync())
-                .Wait();
+            string authString = ("token:" + account.Token).ToBase64();
+            client.DefaultRequestHeaders.Add("Authorization", $"Basic {authString}");
+            responseMessage = await client.GetAsync("https://api.nordvpn.com/v1/users/services");
+            response = await responseMessage.Content.ReadAsStringAsync();
 
-            if (isAborted)
-            {
-                account.State = AccountState.Invalid;
-                return;
-            }
+            breakpointHandler.HandleBreakpointIfNeeded(context);
 
             try
             {
@@ -154,14 +78,12 @@ namespace NordChecker.Models
                 account.State = AccountState.Invalid;
                 return;
             }
-
-            Console.WriteLine(response);
 
             account.State = AccountState.Premium;
-            return;*/
+            return;
         }
 
-        private static string Base64Encode(string input) =>
-            Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
+        bool IBreakable<TimeoutBreakpointContext<Account>>.IsCancelationNeededFor(TimeoutBreakpointContext<Account> context)
+            => context.Watch.ElapsedMilliseconds > Timeout;
     }
 }
