@@ -561,7 +561,7 @@
                         <hc:SimpleText Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>
                         <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
                             <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">
-                                <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="👽 t.me/undrcrxwn" Cursor="Hand"/>
+                                <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="💜 t.me/undrcrxwn" Cursor="Hand"/>
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>

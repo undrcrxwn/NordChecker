@@ -11,23 +11,21 @@ using System.Windows;
 
 namespace NordChecker.Models
 {
-    internal class MockChecker : IChecker, IBreakable<TimeoutBreakpointContext<Account>>
+    internal class MockChecker : IChecker
     {
-        public int Timeout { get; set; }
+        public TimeSpan Timeout { get; set; }
 
-        public MockChecker(int timeout) => Timeout = timeout;
+        public MockChecker(TimeSpan timeout) => Timeout = timeout;
 
         public void ProcessAccount(Account account)
         {
-            var context = new TimeoutBreakpointContext<Account>(
-                account,
-                account.MasterToken,
-                Stopwatch.StartNew());
-
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), Timeout);
+            IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
+            
             for (int i = 0; i < 4; i++)
             {
                 Thread.Sleep(500);
-                (this as IBreakable<TimeoutBreakpointContext<Account>>).HandleBreakpointIfNeeded(context);
+                breakpointHandler.HandleBreakpointIfNeeded();
             }
 
             account.State = new Random().Next(11) switch
@@ -38,8 +36,5 @@ namespace NordChecker.Models
             };
             return;
         }
-
-        bool IBreakable<TimeoutBreakpointContext<Account>>.IsCancelationNeededFor(TimeoutBreakpointContext<Account> context)
-            => context.Watch.ElapsedMilliseconds > Timeout;
     }
 }

@@ -53,7 +53,8 @@ namespace NordChecker
             services.AddSingleton<ExportSettings>();
 
             services.AddSingleton<Cyclic<Proxy>>();
-            services.AddSingleton<IChecker, MockChecker>(x => new MockChecker(7000));
+            services.AddSingleton<IChecker, MockChecker>(
+                x => new MockChecker(TimeSpan.FromSeconds(7)));
 
             services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();

@@ -12,26 +12,23 @@ using System.Windows;
 
 namespace NordChecker.Models
 {
-    internal class Checker : IChecker, IBreakable<TimeoutBreakpointContext<Account>>
+    internal class Checker : IChecker
     {
-        public int Timeout { get; set; }
+        public TimeSpan Timeout { get; set; }
 
-        public Checker(int timeout) => Timeout = timeout;
+        public Checker(TimeSpan timeout) => Timeout = timeout;
 
         public async void ProcessAccount(Account account)
         {
-            var context = new TimeoutBreakpointContext<Account>(
-                account,
-                account.MasterToken,
-                Stopwatch.StartNew());
-            IBreakable<TimeoutBreakpointContext<Account>> breakpointHandler = this;
-            
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), Timeout);
+            IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
+
             var content = new FormUrlEncodedContent(new Dictionary<string, string>{
                 { "username", account.Email },
                 { "password", account.Password }
             });
 
-            breakpointHandler.HandleBreakpointIfNeeded(context);
+            breakpointHandler.HandleBreakpointIfNeeded();
 
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
@@ -40,7 +37,7 @@ namespace NordChecker.Models
             var responseMessage = await client.PostAsync("https://api.nordvpn.com/v1/users/tokens", content);
             string response = await responseMessage.Content.ReadAsStringAsync();
 
-            breakpointHandler.HandleBreakpointIfNeeded(context);
+            breakpointHandler.HandleBreakpointIfNeeded();
 
             try
             {
@@ -56,14 +53,14 @@ namespace NordChecker.Models
                 return;
             }
 
-            breakpointHandler.HandleBreakpointIfNeeded(context);
+            breakpointHandler.HandleBreakpointIfNeeded();
 
             string authString = ("token:" + account.Token).ToBase64();
             client.DefaultRequestHeaders.Add("Authorization", $"Basic {authString}");
             responseMessage = await client.GetAsync("https://api.nordvpn.com/v1/users/services");
             response = await responseMessage.Content.ReadAsStringAsync();
 
-            breakpointHandler.HandleBreakpointIfNeeded(context);
+            breakpointHandler.HandleBreakpointIfNeeded();
 
             try
             {
@@ -82,8 +79,5 @@ namespace NordChecker.Models
             account.State = AccountState.Premium;
             return;
         }
-
-        bool IBreakable<TimeoutBreakpointContext<Account>>.IsCancelationNeededFor(TimeoutBreakpointContext<Account> context)
-            => context.Watch.ElapsedMilliseconds > Timeout;
     }
 }
