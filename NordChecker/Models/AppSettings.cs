@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Newtonsoft.Json.Converters;
 
 namespace NordChecker.Models
 {
@@ -114,7 +115,7 @@ namespace NordChecker.Models
             }
         }
 
-        private TimeSpan _Timeout = TimeSpan.MaxValue;
+        private TimeSpan _Timeout = TimeSpan.FromSeconds(5);
         public TimeSpan Timeout
         {
             get => _Timeout;

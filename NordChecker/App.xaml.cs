@@ -2,6 +2,7 @@
 using HandyControl.Themes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.ViewModels;
@@ -25,6 +26,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Newtonsoft.Json.Converters;
 
 namespace NordChecker
 {
@@ -83,6 +85,13 @@ namespace NordChecker
         {
             base.OnStartup(e);
 
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Converters = { new StringEnumConverter() }
+            };
+
             Utils.AllocConsole();
             FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
@@ -100,6 +109,10 @@ namespace NordChecker
             AppSettings = ServiceProvider.GetService<AppSettings>();
             AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
             AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
+
+            ContinuousDataStorage storage = new ContinuousDataStorage();
+            //storage.StartContinuousSync(AppSettings, TimeSpan.FromSeconds(10));
+            storage.Save(AppSettings);
             
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
