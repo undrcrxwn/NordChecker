@@ -13,16 +13,19 @@ namespace NordChecker.Models
 {
     internal class MockChecker : IChecker
     {
-        public TimeSpan Timeout { get; set; }
+        private AppSettings appSettings;
 
-        public MockChecker(TimeSpan timeout) => Timeout = timeout;
+        public MockChecker(AppSettings appSettings) => this.appSettings = appSettings;
 
         public void ProcessAccount(Account account)
         {
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), Timeout);
+            Action<MasterToken> OnAccountProcessingCanceled = x => account.State = AccountState.Invalid;
+            account.MasterToken.Canceled += OnAccountProcessingCanceled;
+
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), appSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(500);
                 breakpointHandler.HandleBreakpointIfNeeded();
@@ -34,6 +37,8 @@ namespace NordChecker.Models
                 <= 3 => AccountState.Free,
                 _ => AccountState.Invalid
             };
+
+            account.MasterToken.Canceled -= OnAccountProcessingCanceled;
             return;
         }
     }

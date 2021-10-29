@@ -114,14 +114,14 @@ namespace NordChecker.Models
             }
         }
 
-        private int _TimeoutInSeconds = 7;
-        public int TimeoutInSeconds
+        private TimeSpan _Timeout = TimeSpan.MaxValue;
+        public TimeSpan Timeout
         {
-            get => _TimeoutInSeconds;
+            get => _Timeout;
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _TimeoutInSeconds, value, PropertyChanged, LogEventLevel.Information);
+                .Set(ref _Timeout, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 

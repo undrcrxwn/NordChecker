@@ -60,6 +60,7 @@
                     <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
                     <vm:Boolean2ModeIconStringConverter x:Key="Boolean2ModeIconStringConverter"/>
                     <vm:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
+                    <vm:TimeSpan2TotalSecondsConverter x:Key="TimeSpan2TotalSecondsConverter"/>
 
                     <ObjectDataProvider x:Key="LogEventLevelEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                         <ObjectDataProvider.MethodParameters>

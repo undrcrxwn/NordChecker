@@ -9,7 +9,6 @@ namespace NordChecker.Models
 {
     public interface IChecker
     {
-        public TimeSpan Timeout { get; set; }
         public void ProcessAccount(Account account);
     }
 }

@@ -14,13 +14,16 @@ namespace NordChecker.Models
 {
     internal class Checker : IChecker
     {
-        public TimeSpan Timeout { get; set; }
+        private AppSettings appSettings;
 
-        public Checker(TimeSpan timeout) => Timeout = timeout;
+        public Checker(AppSettings appSettings) => this.appSettings = appSettings;
 
         public async void ProcessAccount(Account account)
         {
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), Timeout);
+            Action<MasterToken> OnAccountProcessingCanceled = x => account.State = AccountState.Invalid;
+            account.MasterToken.Canceled += OnAccountProcessingCanceled;
+
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), appSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
 
             var content = new FormUrlEncodedContent(new Dictionary<string, string>{
@@ -77,6 +80,8 @@ namespace NordChecker.Models
             }
 
             account.State = AccountState.Premium;
+
+            account.MasterToken.Canceled -= OnAccountProcessingCanceled;
             return;
         }
     }

@@ -31,9 +31,9 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
 
+        public IChecker Checker;
         private ThreadDistributor<Account> distributor;
         private MasterTokenSource tokenSource = new MasterTokenSource();
-        private IChecker checker;
         private Stopwatch progressWatch = new Stopwatch();
 
         #region Properties
@@ -591,7 +591,7 @@ namespace NordChecker.ViewModels
             ExportSettings exportSettings,
             ProxiesViewModel proxiesViewModel)
         {
-            this.checker = checker;
+            Checker = checker;
             Accounts = accounts;
             this.navigationService = navigationService;
             AppSettings = appSettings;

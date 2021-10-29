@@ -65,11 +65,13 @@ namespace NordChecker.Models
 
         public override void HandleBreakpointIfNeeded()
         {
+            Log.Error("TIMEOUT CHECK {0} / {1}", context.Watch.Elapsed.TotalSeconds, context.Timeout.TotalSeconds);
             base.HandleBreakpointIfNeeded();
             if (context.Watch.Elapsed > context.Timeout)
             {
-                Log.Error("CANCEL");
+                Log.Error("TIMEOUT REACHED");
                 context.Token.Cancel();
+                context.Token.ThrowIfCancellationRequested();
             }
         }
     }
