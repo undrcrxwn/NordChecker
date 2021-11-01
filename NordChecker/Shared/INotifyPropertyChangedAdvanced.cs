@@ -15,9 +15,7 @@ namespace NordChecker.Shared
     public interface INotifyPropertyChangedAdvanced : INotifyPropertyChanged
     {
         public virtual void OnPropertyChanged(PropertyChangedEventHandler handler, [CallerMemberName] string propertyName = null)
-        {
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+            => handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public virtual bool Set<T>(
             ref T field, T value,
@@ -29,15 +27,14 @@ namespace NordChecker.Shared
                 return false;
             field = value;
 
-            MethodBase methodInfo = new StackTrace().GetFrame(1).GetMethod();
-            string className = methodInfo.ReflectedType.Name;
+            string className = new StackTrace().GetFrame(1).GetMethod().ReflectedType.Name;
+            LogPropertyChanged(propertyName, value, className, logEventLevel);
 
-            LogPropertyChanged(logEventLevel, propertyName, value, className);
             OnPropertyChanged(handler, propertyName);
             return true;
         }
 
-        public void LogPropertyChanged<T>(LogEventLevel logEventLevel, string propertyName, T value, string className = null) =>
+        public void LogPropertyChanged<T>(string propertyName, T value, string className, LogEventLevel logEventLevel) =>
             Log.Write(logEventLevel, "{0} property of {1} has been set to {2}", propertyName, className, value);
     }
 }
