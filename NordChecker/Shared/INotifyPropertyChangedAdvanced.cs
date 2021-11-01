@@ -3,7 +3,9 @@ using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,17 +19,25 @@ namespace NordChecker.Shared
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public virtual bool Set<T>(ref T field, T value, PropertyChangedEventHandler handler, LogEventLevel logEventLevel = LogEventLevel.Verbose, [CallerMemberName] string propertyName = null)
+        public virtual bool Set<T>(
+            ref T field, T value,
+            PropertyChangedEventHandler handler,
+            LogEventLevel logEventLevel = LogEventLevel.Verbose,
+            [CallerMemberName] string propertyName = null)
         {
             if (field != null && value != null && field.Equals(value))
                 return false;
             field = value;
-            LogPropertyChanged(logEventLevel, propertyName, value);
+
+            MethodBase methodInfo = new StackTrace().GetFrame(1).GetMethod();
+            string className = methodInfo.ReflectedType.Name;
+
+            LogPropertyChanged(logEventLevel, propertyName, value, className);
             OnPropertyChanged(handler, propertyName);
             return true;
         }
 
-        public void LogPropertyChanged<T>(LogEventLevel logEventLevel, string propertyName, T value) =>
-            Log.Write(logEventLevel, "{caller} has been set to {state}", propertyName, value);
+        public void LogPropertyChanged<T>(LogEventLevel logEventLevel, string propertyName, T value, string className = null) =>
+            Log.Write(logEventLevel, "{0} property of {1} has been set to {2}", propertyName, className, value);
     }
 }

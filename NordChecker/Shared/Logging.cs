@@ -43,7 +43,7 @@ namespace NordChecker.Shared
               "ThreadId", Thread.CurrentThread.ManagedThreadId.ToString("D4")));
         }
     }
-
+    
     public static class LoggerExtensions
     {        
         public static ILogger Merge(this ILogger target, ILogger logger)
@@ -58,7 +58,7 @@ namespace NordChecker.Shared
 
     public class LoggerBuilder
     {
-        private static AnsiConsoleTheme consoleTheme { get; } = new AnsiConsoleTheme(
+        private static AnsiConsoleTheme consoleTheme { get; } = new(
             new Dictionary<ConsoleThemeStyle, string>
             {
                 [ConsoleThemeStyle.Text] = "\x1b[38;5;0007m",

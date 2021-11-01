@@ -199,18 +199,6 @@ namespace NordChecker.Models
             _DataGridFilters = new ObservableDictionary<AccountState, bool>();
             foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
                 _DataGridFilters.Add(key, true);
-
-            DataGridFilters.CollectionChanged += (sender, e) =>
-            {
-                INotifyPropertyChangedAdvanced @this = this;
-                @this.OnPropertyChanged(
-                    PropertyChanged,
-                    nameof(DataGridFilters));
-                @this.LogPropertyChanged(
-                    LogEventLevel.Information,
-                    nameof(DataGridFilters),
-                    DataGridFilters);
-            };
         }
     }
 }
