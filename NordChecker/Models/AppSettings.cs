@@ -14,7 +14,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Newtonsoft.Json.Converters;
 
 namespace NordChecker.Models
@@ -30,27 +32,29 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsDeveloperModeEnabled, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _IsDeveloperModeEnabled, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
-        private bool _IsConsoleLoggingEnabled;
+        private bool _IsConsoleLoggingEnabled = true;
         public bool IsConsoleLoggingEnabled
         {
             get => _IsConsoleLoggingEnabled;
             set
             {
+                if (value == _IsConsoleLoggingEnabled) return;
+
                 if (value)
                 {
                     Utils.ShowConsole();
                     Log.Logger = Log.Logger.Merge(App.ConsoleLogger);
                     (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
+                        .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
                 }
                 else
                 {
                     (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
+                        .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
                     Utils.HideConsole();
                     Log.Logger = App.FileLogger;
                 }
@@ -64,7 +68,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _DataGridFilters, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _DataGridFilters, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -75,7 +79,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreComboDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _AreComboDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -86,7 +90,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreProxyDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _AreProxyDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -97,7 +101,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _LastChosenProxyType, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _LastChosenProxyType, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -111,7 +115,7 @@ namespace NordChecker.Models
                     throw new ArgumentOutOfRangeException();
 
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ThreadCount, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _ThreadCount, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -122,7 +126,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Timeout, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _Timeout, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -133,7 +137,7 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _LogEventLevel, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _LogEventLevel, value, PropertyChanged, LogEventLevel.Information);
                 App.LogLevelSwitch.MinimumLevel = value;
             }
         }
@@ -145,21 +149,18 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
-                ThemeManager.Current.ApplicationTheme = value;
+                    .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
-        private SolidColorBrush _AccentColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#326cf3");
+        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#7D61D1") as SolidColorBrush;
         public SolidColorBrush AccentColor
         {
             get => _AccentColor;
             set
             {
-                if (_AccentColor.Color == value.Color) return;
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AccentColor, value, PropertyChanged, LogEventLevel.Information);
-                ThemeManager.Current.AccentColor = value;
+                    .Set(ref _AccentColor, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -170,10 +171,10 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsTopMostWindow, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _IsTopMostWindow, value, PropertyChanged, LogEventLevel.Information);
             }
         }
-        
+
         private bool _IsMinimizedToTray;
         public bool IsMinimizedToTray
         {
@@ -181,8 +182,16 @@ namespace NordChecker.Models
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsMinimizedToTray, value, PropertyChanged, LogEventLevel.Information);
+                    .Set(ref _IsMinimizedToTray, value, PropertyChanged, LogEventLevel.Information);
             }
+        }
+
+        private TimeSpan _ContinuousSyncInterval = TimeSpan.FromSeconds(15);
+        public TimeSpan ContinuousSyncInterval
+        {
+            get => _ContinuousSyncInterval;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ContinuousSyncInterval, value, PropertyChanged, LogEventLevel.Information);
         }
 
         public AppSettings()

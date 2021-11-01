@@ -8,38 +8,38 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Collections;
+using System.Reflection;
+using HandyControl.Tools;
 
 namespace NordChecker.Models
 {
-    public class AccountFilter : INotifyPropertyChangedAdvanced, ICloneable
+
+    public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        [JsonIgnore]
+        public Predicate<TPayload> Predicate;
 
         private string _FileName;
         public string FileName
         {
             get => _FileName;
-            set
-            {
-                (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _FileName, value, PropertyChanged, LogEventLevel.Information);
-            }
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _FileName, value, PropertyChanged);
         }
-
-        public Predicate<Account> Predicate;
-
+        
         private bool _IsEnabled;
         public bool IsEnabled
         {
             get => _IsEnabled;
-            set
-            {
-                (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsEnabled, value, PropertyChanged, LogEventLevel.Information);
-            }
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsEnabled, value, PropertyChanged);
         }
-
-        public AccountFilter(string fileName, Predicate<Account> predicate, bool isEnabled = true)
+        
+        public OutputFilter(string fileName, Predicate<TPayload> predicate, bool isEnabled = true)
         {
             FileName = fileName;
             Predicate = predicate;
@@ -48,22 +48,78 @@ namespace NordChecker.Models
 
         public object Clone()
         {
-            var copy = MemberwiseClone() as AccountFilter;
+            var copy = MemberwiseClone() as OutputFilter<TPayload>;
             copy.PropertyChanged = null;
             return copy;
         }
     }
 
+    [JsonObject]
+    public class AccountFilters : INotifyPropertyChangedAdvanced, IEnumerable<OutputFilter<Account>>
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        
+        private OutputFilter<Account> _Premium = new(
+            "Premium{suffix}.txt",
+            x => x.State == AccountState.Premium);
+        public OutputFilter<Account> Premium
+        {
+            get => _Premium;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Premium, value, PropertyChanged);
+        }
+        
+        private OutputFilter<Account> _Free = new(
+            "Free{suffix}.txt",
+            x => x.State == AccountState.Free);
+        public OutputFilter<Account> Free
+        {
+            get => _Free;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Free, value, PropertyChanged);
+        }
+        
+        private OutputFilter<Account> _Invalid = new(
+            "Invalid{suffix}.txt",
+            x => x.State == AccountState.Invalid);
+        public OutputFilter<Account> Invalid
+        {
+            get => _Invalid;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Invalid, value, PropertyChanged);
+        }
+        
+        private OutputFilter<Account> _UncheckedAndReserved = new(
+            "Unchecked{suffix}.txt",
+            x => x.State == AccountState.Unchecked || x.State == AccountState.Reserved);
+        public OutputFilter<Account> UncheckedAndReserved
+        {
+            get => _UncheckedAndReserved;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _UncheckedAndReserved, value, PropertyChanged);
+        }
+        
+        public IEnumerator<OutputFilter<Account>> GetEnumerator()
+        {
+            return typeof(AccountFilters).GetProperties()
+                .Where(x => x.PropertyType == typeof(OutputFilter<Account>))
+                .Select(x => x.GetValue(this, null))
+                .GetEnumerator() as IEnumerator<OutputFilter<Account>>;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    
     public class ExportSettings : INotifyPropertyChangedAdvanced, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<AccountFilter> _AccountFilters;
-        public ObservableCollection<AccountFilter> AccountFilters
+        private AccountFilters _Filters = new();
+        public AccountFilters Filters
         {
-            get => _AccountFilters;
+            get => _Filters;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AccountFilters, value, PropertyChanged);
+                .Set(ref _Filters, value, PropertyChanged);
         }
 
         private string _RootPath;
@@ -89,54 +145,20 @@ namespace NordChecker.Models
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AreRowCountsAddedToFileNames, value, PropertyChanged);
         }
-
-        public ExportSettings()
-        {
-            AccountFilters = new ObservableCollection<AccountFilter>()
-            {
-                new AccountFilter("Premium{suffix}.txt", x => x.State == AccountState.Premium),
-                new AccountFilter("Free{suffix}.txt", x => x.State == AccountState.Free),
-                new AccountFilter("Invalid{suffix}.txt", x => x.State == AccountState.Premium),
-                new AccountFilter("Unchecked{suffix}.txt", x => x.State == AccountState.Unchecked || x.State == AccountState.Reserved)
-            };
-            SubscribeToFiltersChanged();
-        }
-
-        ~ExportSettings() => UnsubscribeFromFiltersChanged();
-
+        
         public object Clone()
         {
-            ExportSettings copy = new ExportSettings();
+            var copy = new ExportSettings();
             CopyTo(copy);
             return copy;
         }
 
         public void CopyTo(ExportSettings target)
         {
-            target.UnsubscribeFromFiltersChanged();
-            target.AccountFilters = new ObservableCollection<AccountFilter>(AccountFilters.Select(x => x.Clone() as AccountFilter));
-            target.SubscribeToFiltersChanged();
+            target.Filters = Filters;
             target.RootPath = RootPath;
             target.FormatScheme = FormatScheme;
             target.AreRowCountsAddedToFileNames = AreRowCountsAddedToFileNames;
-        }
-
-        private void OnFilterPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            (this as INotifyPropertyChangedAdvanced)
-            .OnPropertyChanged(PropertyChanged, nameof(AccountFilters));
-        }
-
-        private void SubscribeToFiltersChanged()
-        {
-            foreach (AccountFilter filter in AccountFilters)
-                filter.PropertyChanged += OnFilterPropertyChanged;
-        }
-
-        private void UnsubscribeFromFiltersChanged()
-        {
-            foreach (AccountFilter filter in AccountFilters)
-                filter.PropertyChanged -= OnFilterPropertyChanged;
         }
     }
 }

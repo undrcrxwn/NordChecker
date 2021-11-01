@@ -157,7 +157,7 @@ namespace NordChecker.ViewModels
         private void UpdateCanProceed()
             => CanProceed = Directory.Exists(OutputDirectoryPath)
             && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
-            && ExportSettings.AccountFilters.Any(x => x.IsEnabled);
+            && ExportSettings.Filters.Any(x => x.IsEnabled);
 
         private void UpdateSettingsRootPath()
         {
@@ -191,7 +191,7 @@ namespace NordChecker.ViewModels
                 watch.Start();
 
                 int counter = 0;
-                foreach (AccountFilter filter in ExportSettings.AccountFilters)
+                foreach (var filter in ExportSettings.Filters)
                 {
                     if (!filter.IsEnabled) continue;
 

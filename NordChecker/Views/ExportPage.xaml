@@ -65,10 +65,10 @@
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Content="Премиум"       IsChecked="{Binding Path=ExportSettings.AccountFilters[0].IsEnabled}" HorizontalAlignment="Left"/>
-                        <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=ExportSettings.AccountFilters[1].IsEnabled}" HorizontalAlignment="Left" Grid.Row="2"/>
-                        <CheckBox Content="Невалидные"    IsChecked="{Binding Path=ExportSettings.AccountFilters[2].IsEnabled}" HorizontalAlignment="Left" Grid.Column="2"/>
-                        <CheckBox Content="Непроверенные" IsChecked="{Binding Path=ExportSettings.AccountFilters[3].IsEnabled}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
+                        <CheckBox Content="Премиум"       IsChecked="{Binding Path=ExportSettings.Filters.Premium.IsEnabled}"          HorizontalAlignment="Left"/>
+                        <CheckBox Content="Бесплатные"    IsChecked="{Binding Path=ExportSettings.Filters.Free.IsEnabled}"             HorizontalAlignment="Left" Grid.Row="2"/>
+                        <CheckBox Content="Невалидные"    IsChecked="{Binding Path=ExportSettings.Filters.Invalid.IsEnabled}"          HorizontalAlignment="Left" Grid.Column="2"/>
+                        <CheckBox Content="Непроверенные" IsChecked="{Binding Path=ExportSettings.Filters.UncheckedAndReserved.IsEnabled}" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="2"/>
                         <CheckBox Content="Добавлять количество строк в названия файлов" IsChecked="{Binding Path=ExportSettings.AreRowCountsAddedToFileNames}" HorizontalAlignment="Left" Grid.Row="4" Grid.ColumnSpan="3"/>
                     </Grid>
                 </hc:UniformSpacingPanel>

@@ -91,9 +91,14 @@ namespace NordChecker.ViewModels
             IPageViewModel pageViewModel = null;
             Application.Current.Dispatcher.Invoke(() =>
                 pageViewModel = NavigationService.CurrentPage.DataContext as IPageViewModel);
-            Title = "NordVPN Checker";
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("NordVPN Checker");
+            
             if (!string.IsNullOrEmpty(pageViewModel.Title))
-                Title += $" — {pageViewModel.Title}";
+                builder.Append($" — {pageViewModel.Title}");
+
+            Title = builder.ToString();
         }
 
         private void OnPagePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -105,6 +110,7 @@ namespace NordChecker.ViewModels
         public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings)
         {
             NavigationService = navigationService;
+            AppSettings = appSettings;
 
             NavigationService.Navigating += (sender, e) =>
             {
@@ -124,8 +130,15 @@ namespace NordChecker.ViewModels
                 .PropertyChanged += OnPagePropertyChanged;
             };
             
-            AppSettings = appSettings;
-
+            AppSettings.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(AppSettings.AccentColor))
+                {
+                    ThemeManager.Current.ApplicationTheme = AppSettings.Theme;
+                    ThemeManager.Current.AccentColor = AppSettings.AccentColor;
+                }
+            };
+            
             OpenFromTrayCommand = new LambdaCommand(OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
         }
     }

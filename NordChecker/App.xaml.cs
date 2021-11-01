@@ -35,24 +35,49 @@ namespace NordChecker
     /// </summary>
     public partial class App : Application
     {
-        public AppSettings AppSettings { get; set; }
-        public ExportSettings ExportSettings { get; set; }
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
-        public static LoggingLevelSwitch LogLevelSwitch = new LoggingLevelSwitch();
+        public static LoggingLevelSwitch LogLevelSwitch = new();
         public static IServiceProvider ServiceProvider { get; set; }
 
         private NavigationService navigationService;
+        private static ContinuousDataStorage dataStorage = new();
+
+        private static AppSettings _AppSettings;
+        private static ExportSettings _ExportSettings;
 
         static App()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("ru-RU")
+            {
+                NumberFormat = new NumberFormatInfo()
+                {
+                    NumberDecimalSeparator = "."
+                }
+            };
+            
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                Converters = { new StringEnumConverter(), new SolidColorBrushConverter() }
+            };
+
+            Utils.AllocConsole();
+            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
+            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
+            Log.Logger = FileLogger.Merge(ConsoleLogger);
+
+            _AppSettings = dataStorage.LoadOrDefault(new AppSettings());
+            _ExportSettings = dataStorage.LoadOrDefault(new ExportSettings());
+            
             ServiceCollection services = new ServiceCollection();
 
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
-
-            services.AddSingleton<AppSettings>();
-            services.AddSingleton<ExportSettings>();
+            
+            services.AddSingleton(_AppSettings);
+            services.AddSingleton(_ExportSettings);
 
             services.AddSingleton<Cyclic<Proxy>>();
             services.AddSingleton<IChecker, MockChecker>();
@@ -70,33 +95,13 @@ namespace NordChecker
 
         public App()
         {
-            CultureInfo.CurrentCulture = new CultureInfo("ru-RU")
-            {
-                NumberFormat = new NumberFormatInfo()
-                {
-                    NumberDecimalSeparator = "."
-                }
-            };
-
             navigationService = ServiceProvider.GetService<NavigationService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Converters = { new StringEnumConverter() }
-            };
-
-            Utils.AllocConsole();
-            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
-            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
-            Log.Logger = FileLogger;
-
+            
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
 
@@ -105,14 +110,12 @@ namespace NordChecker
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+            
+            _AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
+            _AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
 
-            AppSettings = ServiceProvider.GetService<AppSettings>();
-            AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
-            AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
-
-            ContinuousDataStorage storage = new ContinuousDataStorage();
-            //storage.StartContinuousSync(AppSettings, TimeSpan.FromSeconds(10));
-            storage.Save(AppSettings);
+            dataStorage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
+            dataStorage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
             
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
