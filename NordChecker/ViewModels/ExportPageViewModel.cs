@@ -73,7 +73,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public AccountFormatter Formatter { get; set; }
+        public AccountFormatter Formatter { get; set; } = new(string.Empty);
 
         private string _OutputPreview;
         public string OutputPreview
@@ -246,16 +246,7 @@ namespace NordChecker.ViewModels
             ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
             if (ExportSettings.RootPath != null)
                 OutputDirectoryPath = string.Join('\\', ExportSettings.RootPath.Split('\\').SkipLast(1));
-
-
-            Formatter = new AccountFormatter();
-            Formatter.AddPlaceholder("email", acc => acc.Email);
-            Formatter.AddPlaceholder("password", acc => acc.Password);
-            Formatter.AddPlaceholder("proxy", acc => acc.Proxy);
-            Formatter.AddPlaceholder("expiration", acc => acc.ExpiresAt);
-            Formatter.AddPlaceholder("services", acc => "<todo:services>");
-            Formatter.AddPlaceholder("json", acc => "<todo:json>");
-
+            
             UpdateSampleOutput();
             UpdateCanProceed();
 

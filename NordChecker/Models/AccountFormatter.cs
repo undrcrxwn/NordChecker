@@ -1,41 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
-    public class AccountFormatter : IDataFormatter<Account, string>
+    public class AccountFormatter : IPayloadFormatter<Account, string>
     {
         public string FormatScheme;
-        public Dictionary<string, Func<Account, object>> Placeholders;
-
-        public AccountFormatter()
+        public List<Placeholder> Placeholders = new()
         {
-            Placeholders = new Dictionary<string, Func<Account, object>>();
-        }
+            new(new() { "email",       "mail"  }, x => x.Email),
+            new(new() { "password",    "pass"  }, x => x.Password),
+            new(new() { "proxy",       "ip"    }, x => x.Proxy.ToString()),
+            new(new() { "expiration",  "exp"   }, x => x.ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss")),
+            new(new() { "token"                }, x => x.Token),
+            new(new() { "renew_token", "renew" }, x => x.RenewToken)
+        };
 
-        public void AddPlaceholder(string key, Func<Account, object> handler)
-            => Placeholders.Add(key, handler);
-
-        public string Format(Account obj)
+        public AccountFormatter(string formatScheme) => FormatScheme = formatScheme;
+        
+        public string Format(Account account)
         {
-            string output = FormatScheme;
-            foreach (var (key, handler) in Placeholders)
+            StringBuilder builder = new(FormatScheme);
+            foreach (var (keys, handler) in Placeholders)
             {
-                object value = handler(obj);
-
-                string formatted = "";
-                if (value is DateTime timestamp)
-                    formatted = timestamp.ToString("yyyy-MM-dd HH:mm:ss");
-                else if (value != null)
-                    formatted = value.ToString();
-
-                output = output.Replace("{" + key + "}", formatted);
+                string value = handler(account);
+                foreach (var key in keys)
+                    builder.Replace("{" + key + "}", value);
             }
-            return output;
+            return builder.ToString();
         }
     }
 }

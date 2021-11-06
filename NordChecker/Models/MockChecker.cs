@@ -19,8 +19,8 @@ namespace NordChecker.Models
 
         public void ProcessAccount(Account account)
         {
-            Action<MasterToken> OnAccountProcessingCanceled = x => account.State = AccountState.Invalid;
-            account.MasterToken.Canceled += OnAccountProcessingCanceled;
+            Action<MasterToken> accountProcessingCancellationHandler = x => account.State = AccountState.Invalid;
+            account.MasterToken.Canceled += accountProcessingCancellationHandler;
 
             var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), appSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
@@ -38,7 +38,7 @@ namespace NordChecker.Models
                 _ => AccountState.Invalid
             };
 
-            account.MasterToken.Canceled -= OnAccountProcessingCanceled;
+            account.MasterToken.Canceled -= accountProcessingCancellationHandler;
             return;
         }
     }

@@ -107,6 +107,12 @@ namespace NordChecker.ViewModels
                 UpdateTitle();
         }
 
+        private void UpdateAppearence()
+        {
+            ThemeManager.Current.ApplicationTheme = AppSettings.Theme;
+            ThemeManager.Current.AccentColor = AppSettings.AccentColor;
+        }
+
         public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings)
         {
             NavigationService = navigationService;
@@ -129,16 +135,14 @@ namespace NordChecker.ViewModels
                 (NavigationService.CurrentPage.DataContext as IPageViewModel)
                 .PropertyChanged += OnPagePropertyChanged;
             };
-            
+
+            UpdateAppearence();
             AppSettings.PropertyChanged += (sender, e) =>
             {
                 if (e.PropertyName == nameof(AppSettings.AccentColor))
-                {
-                    ThemeManager.Current.ApplicationTheme = AppSettings.Theme;
-                    ThemeManager.Current.AccentColor = AppSettings.AccentColor;
-                }
+                    UpdateAppearence();
             };
-            
+
             OpenFromTrayCommand = new LambdaCommand(OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
         }
     }

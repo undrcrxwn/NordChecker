@@ -1,10 +1,5 @@
-﻿using Serilog;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
@@ -13,65 +8,38 @@ namespace NordChecker.Models
         public void HandleBreakpointIfNeeded();
     }
 
-    public interface IBreakpointContext
-    {
-        public MasterToken Token { get; init; }
-        public void OnBreakpointStarted() { }
-        public void OnBreakpointFinished() { }
-    }
+    public record BreakpointContext(MasterToken MasterToken);
 
     public class BreakpointHandler : IBreakpointHandler
     {
-        private IBreakpointContext context;
+        private readonly BreakpointContext _Context;
 
-        public BreakpointHandler(IBreakpointContext context)
-            => this.context = context;
+        public BreakpointHandler(BreakpointContext context) => _Context = context;
 
         public virtual void HandleBreakpointIfNeeded()
-        {
-            if (context.Token.IsCancellationRequested ||
-                context.Token.IsPauseRequested)
-            {
-                context.OnBreakpointStarted();
-                context.Token.ThrowOrWaitIfRequested();
-                context.OnBreakpointFinished();
-            }
-        }
+            => _Context.MasterToken.ThrowOrWaitIfRequested();
     }
-
-    public class TimeoutBreakpointContext : IBreakpointContext
-    {
-        public MasterToken Token { get; init; }
-        public Stopwatch Watch { get; init; }
-        public TimeSpan Timeout { get; init; }
-
-        public TimeoutBreakpointContext(
-            MasterToken token,
-            Stopwatch watch,
-            TimeSpan timeout)
-        {
-            Token = token;
-            Watch = watch;
-            Timeout = timeout;
-        }
-    }
-
+    
+    public record TimeoutBreakpointContext(
+        MasterToken MasterToken,
+        Stopwatch Watch,
+        TimeSpan Timeout)
+        : BreakpointContext(MasterToken);
+    
     public class TimeoutBreakpointHandler : BreakpointHandler
     {
-        private TimeoutBreakpointContext context;
+        private readonly TimeoutBreakpointContext _Context;
 
         public TimeoutBreakpointHandler(TimeoutBreakpointContext context)
-            : base(context) => this.context = context;
+            : base(context) => _Context = context;
 
         public override void HandleBreakpointIfNeeded()
         {
-            Log.Error("TIMEOUT CHECK {0} / {1}", context.Watch.Elapsed.TotalSeconds, context.Timeout.TotalSeconds);
             base.HandleBreakpointIfNeeded();
-            if (context.Watch.Elapsed > context.Timeout)
+            if (_Context.Watch.Elapsed > _Context.Timeout)
             {
-                Log.Error("TIMEOUT REACHED");
-                context.Token.Cancel();
-                context.Token.ThrowIfCancellationRequested();
+                _Context.MasterToken.Cancel();
+                _Context.MasterToken.ThrowIfCancellationRequested();
             }
         }
     }

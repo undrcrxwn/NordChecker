@@ -41,7 +41,7 @@ namespace NordChecker
         public static IServiceProvider ServiceProvider { get; set; }
 
         private NavigationService navigationService;
-        private static ContinuousDataStorage dataStorage = new();
+        private static ContinuousDataStorage dataStorage = new($"{Directory.GetCurrentDirectory()}\\data");
 
         private static AppSettings _AppSettings;
         private static ExportSettings _ExportSettings;
@@ -67,7 +67,7 @@ namespace NordChecker
             FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
-
+            
             _AppSettings = dataStorage.LoadOrDefault(new AppSettings());
             _ExportSettings = dataStorage.LoadOrDefault(new ExportSettings());
             

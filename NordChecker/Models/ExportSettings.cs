@@ -1,22 +1,16 @@
-﻿using NordChecker.Shared;
-using Serilog;
+﻿using Newtonsoft.Json;
+using NordChecker.Shared;
 using Serilog.Events;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Collections;
-using System.Reflection;
-using HandyControl.Tools;
 
 namespace NordChecker.Models
 {
 
-    public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced, ICloneable
+    public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -45,13 +39,6 @@ namespace NordChecker.Models
             Predicate = predicate;
             IsEnabled = isEnabled;
         }
-
-        public object Clone()
-        {
-            var copy = MemberwiseClone() as OutputFilter<TPayload>;
-            copy.PropertyChanged = null;
-            return copy;
-        }
     }
 
     [JsonObject]
@@ -60,8 +47,7 @@ namespace NordChecker.Models
         public event PropertyChangedEventHandler PropertyChanged;
         
         private OutputFilter<Account> _Premium = new(
-            "Premium{suffix}.txt",
-            x => x.State == AccountState.Premium);
+            "Premium{suffix}.txt", x => x.State == AccountState.Premium);
         public OutputFilter<Account> Premium
         {
             get => _Premium;
@@ -70,8 +56,7 @@ namespace NordChecker.Models
         }
         
         private OutputFilter<Account> _Free = new(
-            "Free{suffix}.txt",
-            x => x.State == AccountState.Free);
+            "Free{suffix}.txt", x => x.State == AccountState.Free);
         public OutputFilter<Account> Free
         {
             get => _Free;
@@ -80,8 +65,7 @@ namespace NordChecker.Models
         }
         
         private OutputFilter<Account> _Invalid = new(
-            "Invalid{suffix}.txt",
-            x => x.State == AccountState.Invalid);
+            "Invalid{suffix}.txt", x => x.State == AccountState.Invalid);
         public OutputFilter<Account> Invalid
         {
             get => _Invalid;
@@ -90,8 +74,7 @@ namespace NordChecker.Models
         }
         
         private OutputFilter<Account> _UncheckedAndReserved = new(
-            "Unchecked{suffix}.txt",
-            x => x.State == AccountState.Unchecked || x.State == AccountState.Reserved);
+            "Unchecked{suffix}.txt", x => x.State == AccountState.Unchecked || x.State == AccountState.Reserved);
         public OutputFilter<Account> UncheckedAndReserved
         {
             get => _UncheckedAndReserved;
@@ -101,10 +84,10 @@ namespace NordChecker.Models
         
         public IEnumerator<OutputFilter<Account>> GetEnumerator()
         {
-            return typeof(AccountFilters).GetProperties()
-                .Where(x => x.PropertyType == typeof(OutputFilter<Account>))
-                .Select(x => x.GetValue(this, null))
-                .GetEnumerator() as IEnumerator<OutputFilter<Account>>;
+            var properties = typeof(AccountFilters).GetProperties()
+                .Where(x => x.PropertyType == typeof(OutputFilter<Account>));
+            var filters = properties.Select(x => x.GetValue(this, null));
+            return filters.GetEnumerator() as IEnumerator<OutputFilter<Account>>;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

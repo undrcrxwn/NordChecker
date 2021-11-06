@@ -1,19 +1,16 @@
 ﻿using NordChecker.Shared;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace NordChecker.Models
 {
     public enum AccountState
     {
-        Premium,
-        Free,
-        Invalid,
+        Unchecked,
         Reserved,
-        Unchecked
+        Invalid,
+        Free,
+        Premium
     }
 
     public class Account : INotifyPropertyChangedAdvanced
@@ -42,7 +39,7 @@ namespace NordChecker.Models
             get => (Email, Password);
             set => (Email, Password) = value;
         }
-
+        
         public Account(string email, string password)
         {
             Email = email;

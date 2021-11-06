@@ -499,7 +499,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Потоки" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.ThreadCount}" Minimum="1" Maximum="5000" Grid.Column="2" Increment="50"/>
+                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.ThreadCount}" Minimum="1" Maximum="2000" Grid.Column="2" Increment="50"/>
                                     <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="2"/>
                                     <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.Timeout, Converter={StaticResource TimeSpan2TotalSecondsConverter}}" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
                                 </Grid>

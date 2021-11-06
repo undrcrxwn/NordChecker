@@ -1,10 +1,9 @@
-﻿using NordChecker.Shared;
+﻿using HandyControl.Tools.Extension;
+using NordChecker.Shared;
 using System;
-using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
@@ -16,10 +15,18 @@ namespace NordChecker.Models
         public ObservableDictionary<AccountState, int> ByState
         {
             get => _ByState;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ByState, value, PropertyChanged);
-        }
+            set
+            {
+                if (_ByState is not null)
+                    _ByState.CollectionChanged -= OnByStateCollectionChanged;
 
+                (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _ByState, value, PropertyChanged);
+
+                _ByState.CollectionChanged += OnByStateCollectionChanged;
+            }
+        }
+        
         private int _DuplicatesCount;
         public int DuplicatesCount
         {
@@ -38,20 +45,22 @@ namespace NordChecker.Models
 
         public ComboStats()
         {
-            ByState = new ObservableDictionary<AccountState, int>();
-            Clear();
-
-            ByState.CollectionChanged += (sender, e) =>
-                (this as INotifyPropertyChangedAdvanced)
-                .OnPropertyChanged(PropertyChanged, nameof(ByState));
+            var dictionary = Enum.GetValues<AccountState>().Reverse()
+                .ToDictionary(key => key, value => 0);
+            ByState = new(dictionary);
         }
 
         public void Clear()
         {
-            foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
-                ByState[key] = 0;
+            ByState.ForEach(x => ByState[x.Key] = 0);
             DuplicatesCount = 0;
             MismatchedCount = 0;
+        }
+
+        private void OnByStateCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            (this as INotifyPropertyChangedAdvanced)
+                .OnPropertyChanged(PropertyChanged, nameof(ByState));
         }
     }
 }

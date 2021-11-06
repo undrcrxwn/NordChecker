@@ -21,10 +21,6 @@
     Title="{Binding Title}"
     Visibility="{Binding WindowVisibility, Mode=TwoWay}">
     <Grid>
-        <Frame x:Name="MainFrame"
-            Content="{Binding NavigationService.CurrentPage}"
-            KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
-            hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
         <hc:NotifyIcon x:Name="NotifyIcon" Text="NordVPN Checker" Visibility="{Binding AppSettings.IsMinimizedToTray, Converter={StaticResource Boolean2VisibilityConverter}}">
             <hc:NotifyIcon.ContextContent>
                 <Border Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5">
@@ -35,5 +31,9 @@
                 </Border>
             </hc:NotifyIcon.ContextContent>
         </hc:NotifyIcon>
+        <Frame x:Name="MainFrame"
+               Content="{Binding NavigationService.CurrentPage}"
+               KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
+               hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
     </Grid>
 </Window>

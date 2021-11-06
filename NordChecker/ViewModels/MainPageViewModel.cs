@@ -507,30 +507,30 @@ namespace NordChecker.ViewModels
             float maxPossibleAngle = 360 - (shares.Values.Count(v => v > 0) * margin);
             foreach (var (state, share) in shares)
             {
-                if (share == 0)
+                switch (share)
                 {
-                    ComboArcs[state].StartAngle = 0;
-                    ComboArcs[state].EndAngle = 1;
-                    ComboArcs[state].Visibility = Visibility.Hidden;
-                }
-                else if (share == 1)
-                {
-                    ComboArcs[state].StartAngle = 0;
-                    ComboArcs[state].EndAngle = 360;
-                    ComboArcs[state].Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    ComboArcs[state].StartAngle = pivot;
-                    pivot += share * maxPossibleAngle;
-                    ComboArcs[state].EndAngle = pivot;
-                    pivot += margin;
-                    ComboArcs[state].Visibility = Visibility.Visible;
+                    case 0:
+                        ComboArcs[state].StartAngle = 0;
+                        ComboArcs[state].EndAngle = 1;
+                        ComboArcs[state].Visibility = Visibility.Hidden;
+                        break;
+                    case 1:
+                        ComboArcs[state].StartAngle = 0;
+                        ComboArcs[state].EndAngle = 360;
+                        ComboArcs[state].Visibility = Visibility.Visible;
+                        break;
+                    default:
+                        ComboArcs[state].StartAngle = pivot;
+                        pivot += share * maxPossibleAngle;
+                        ComboArcs[state].EndAngle = pivot;
+                        pivot += margin;
+                        ComboArcs[state].Visibility = Visibility.Visible;
+                        break;
                 }
             }
 
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
-            Application.Current.Dispatcher.InvokeAsync((Action)(() =>
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Application.Current.MainWindow.TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
                 if (ComboStats.ByState[AccountState.Unchecked] + ComboStats.ByState[AccountState.Reserved] > 0)
@@ -544,7 +544,7 @@ namespace NordChecker.ViewModels
                     Application.Current.MainWindow.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
                     Application.Current.MainWindow.TaskbarItemInfo.ProgressValue = 0;
                 }
-            }));
+            });
         }
 
         private void AccountsCollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)

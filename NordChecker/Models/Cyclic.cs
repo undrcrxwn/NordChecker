@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
     public class Cyclic<T> : ICollection<T>
     {
+        private IEnumerator<T> _CyclicEnumerator;
+        private readonly object _Locker = new();
+
         private ICollection<T> _Items;
         public ICollection<T> Items
         {
@@ -16,33 +15,30 @@ namespace NordChecker.Models
             set
             {
                 _Items = value;
-                cyclicEnumerator = GetEnumerator();
+                _CyclicEnumerator = GetEnumerator();
             }
         }
-
-        private IEnumerator<T> cyclicEnumerator;
-        private object locker = new object();
-
+        
         public Cyclic(ICollection<T> items = null)
         {
             Items = items ?? new List<T>();
-            cyclicEnumerator = GetEnumerator();
+            _CyclicEnumerator = GetEnumerator();
         }
 
         public T GetNext()
         {
-            lock (locker)
+            lock (_Locker)
             {
-                cyclicEnumerator.MoveNext();
-                return cyclicEnumerator.Current;
+                _CyclicEnumerator.MoveNext();
+                return _CyclicEnumerator.Current;
             }
         }
 
-        public void Reset() => cyclicEnumerator = GetEnumerator();
+        public void Reset() => _CyclicEnumerator = GetEnumerator();
 
         public IEnumerator<T> GetEnumerator()
         {
-            IEnumerator<T> nativeEnumerator = Items.GetEnumerator();
+            var nativeEnumerator = Items.GetEnumerator();
             while (true)
             {
                 if (!nativeEnumerator.MoveNext())
