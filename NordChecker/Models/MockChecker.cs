@@ -17,14 +17,11 @@ namespace NordChecker.Models
 
         public MockChecker(AppSettings appSettings) => this.appSettings = appSettings;
 
-        public void ProcessAccount(Account account)
+        void IChecker.Check(Account account)
         {
-            Action<MasterToken> accountProcessingCancellationHandler = x => account.State = AccountState.Invalid;
-            account.MasterToken.Canceled += accountProcessingCancellationHandler;
-
             var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), appSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
-            
+
             for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(500);
@@ -37,9 +34,9 @@ namespace NordChecker.Models
                 <= 3 => AccountState.Free,
                 _ => AccountState.Invalid
             };
-
-            account.MasterToken.Canceled -= accountProcessingCancellationHandler;
-            return;
         }
+
+        void IChecker.HandleFailure(Account account, Exception exception)
+            => account.State = AccountState.Invalid;
     }
 }

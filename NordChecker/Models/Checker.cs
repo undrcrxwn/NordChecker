@@ -76,5 +76,15 @@ namespace NordChecker.Models
             account.State = AccountState.Premium;
             account.MasterToken.Canceled -= accountProcessingCancellationHandler;
         }
+
+        void IChecker.Check(Account account)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IChecker.HandleFailure(Account account, Exception exception)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
