@@ -297,7 +297,7 @@
                   CellStyle="{StaticResource DefaultCellStyle}"
                   RowStyle="{StaticResource DefaultRowStyle}"
                   Grid.Column="1" Grid.Row="1"
-                  Grid.ColumnSpan="2" Grid.RowSpan="2"
+                  Grid.ColumnSpan="2"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   VerticalScrollBarVisibility="Auto"
@@ -522,7 +522,7 @@
                                 <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Режим разработчика" Margin="0,0,0,-6" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Показывать логи" Margin="0,6,0,0" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Автосохранение параметров" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettings.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
                             <Button Content="Восстановить начальные параметры" Width="230"/>
                         </hc:UniformSpacingPanel>

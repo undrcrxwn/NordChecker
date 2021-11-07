@@ -114,7 +114,7 @@ namespace NordChecker.Models
                 .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#7D61D1") as SolidColorBrush;
+        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#6377D0") as SolidColorBrush;
         public SolidColorBrush AccentColor
         {
             get => _AccentColor;
@@ -136,6 +136,14 @@ namespace NordChecker.Models
             get => _IsMinimizedToTray;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _IsMinimizedToTray, value, PropertyChanged, LogEventLevel.Information);
+        }
+
+        private bool _IsAutoSaveEnabled = true;
+        public bool IsAutoSaveEnabled
+        {
+            get => _IsAutoSaveEnabled;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _IsAutoSaveEnabled, value, PropertyChanged, LogEventLevel.Information);
         }
 
         private TimeSpan _ContinuousSyncInterval = TimeSpan.FromSeconds(15);

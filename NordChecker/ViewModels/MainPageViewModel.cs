@@ -237,13 +237,13 @@ namespace NordChecker.ViewModels
                                     cache.Any(a => a.Credentials == account.Credentials))
                                 {
                                     ComboStats.DuplicatesCount++;
-                                    Log.Debug("Account {credentials} has been skipped as duplicate", account.Credentials);
+                                    Log.Debug("Account {credentials} has been skipped as duplicate", account);
                                     continue;
                                 }
                             }
 
                             cache.Add(account);
-                            Log.Debug("Account {credentials} has been added to the cache", account.Credentials);
+                            Log.Debug("Account {credentials} has been added to the cache", account);
                         }
                     }
 
@@ -441,7 +441,7 @@ namespace NordChecker.ViewModels
             lock (ComboStats.ByState)
                 ComboStats.ByState[account.State]--;
             Accounts.Remove(account);
-            Log.Information("{0} has been removed", account.Credentials);
+            Log.Information("{0} has been removed", account);
         }
 
         #endregion
@@ -682,13 +682,13 @@ namespace NordChecker.ViewModels
                     UpdatePageDescription();
             };
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (true)
                 {
                     ProxiesViewModel.Refresh();
                     UpdatePageDescription();
-                    Task.Delay(1000).Wait();
+                    await Task.Delay(1000);
                 }
             });
         }

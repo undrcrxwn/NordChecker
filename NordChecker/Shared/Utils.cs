@@ -12,12 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace NordChecker.Shared
 {
-    public class Ref<T>
-    {
-        public T Value;
-        public Ref(T value) => Value = value;
-    }
-
     public static class Utils
     {
         [DllImport("kernel32.dll")]
@@ -56,13 +50,38 @@ namespace NordChecker.Shared
             window.Close();
             return result;
         }
+    }
+
+    public class Ref<T>
+    {
+        public T Value;
+        public Ref(T value) => Value = value;
+    }
+
+    public static class Extensions
+    {
+        /// <summary>
+        /// Replaces value of the reference type object with a <i>copy</i> of another instance's value.
+        /// </summary>
+        public static void ReplaceWith<T>(this T @this, T instance)
+            where T : class
+        {
+            if (@this is null) throw new ArgumentNullException(nameof(@this));
+            if (instance is null) throw new ArgumentNullException(nameof(instance));
+
+            var size = Marshal.SizeOf(typeof(T));
+            var pointer = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(instance, pointer, false);
+            Marshal.PtrToStructure(pointer, @this);
+            Marshal.FreeHGlobal(pointer);
+        }
 
         public static string ToShortDurationString(this TimeSpan @this)
         {
             string result = "";
-            if (@this.Days > 0)     result += @this.ToString(@"d\д\ ");
-            if (@this.Hours > 0)    result += @this.ToString(@"h\ч\ ");
-            if (@this.Minutes > 0)  result += @this.ToString(@"m\м\ ");
+            if (@this.Days    > 0) result += @this.ToString(@"d\д\ ");
+            if (@this.Hours   > 0) result += @this.ToString(@"h\ч\ ");
+            if (@this.Minutes > 0) result += @this.ToString(@"m\м\ ");
             if (@this.Seconds > 0 || (int)@this.TotalSeconds == 0)
                 result += @this.ToString(@"s\с");
             return result;

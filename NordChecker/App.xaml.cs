@@ -93,30 +93,29 @@ namespace NordChecker
             ServiceProvider = services.BuildServiceProvider();
         }
 
-        public App()
-        {
-            navigationService = ServiceProvider.GetService<NavigationService>();
-        }
+        public App() => navigationService = ServiceProvider.GetService<NavigationService>();
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-                LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+                LogAndThrowUnhandledException(e.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
 
             DispatcherUnhandledException += (sender, e) =>
-                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+                LogAndThrowUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
-                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+                LogAndThrowUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
             
-            _AppSettings.IsConsoleLoggingEnabled = Environment.GetCommandLineArgs().Contains("-logs");
-            _AppSettings.IsDeveloperModeEnabled = Environment.GetCommandLineArgs().Contains("-dev");
+            _AppSettings.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(_AppSettings.IsAutoSaveEnabled) ||
+                    e.PropertyName == nameof(_AppSettings.ContinuousSyncInterval))
+                    RefreshSettingsAutoSave();
+            };
+            RefreshSettingsAutoSave();
 
-            dataStorage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
-            dataStorage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
-            
             var assembly = Assembly.GetEntryAssembly();
             var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
             Log.Information("{0} {1} is running in {2} configuration",
@@ -125,16 +124,41 @@ namespace NordChecker
                 configuration.ToLower());
         }
 
-        private static void LogUnhandledException(Exception exception, string type)
+        private static void LogAndThrowUnhandledException(Exception exception, string type)
         {
             if (exception.InnerException is OperationCanceledException) return;
             Log.Fatal(exception, "Unhandled {0}", type);
+            throw exception;
+        }
+
+        private void RefreshSettingsAutoSave()
+        {
+            try
+            {
+                dataStorage.StopContinuousSync<AppSettings>();
+                dataStorage.StopContinuousSync<ExportSettings>();
+            }
+            catch {}
+
+            if (_AppSettings.IsAutoSaveEnabled)
+            {
+                dataStorage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
+                dataStorage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            Log.Information("Exiting with exit code {0}", e.ApplicationExitCode);
+
             base.OnExit(e);
-            Log.Information("Exiting with exit code {0}\n", e.ApplicationExitCode);
+
+            if (_AppSettings.IsAutoSaveEnabled)
+            {
+                dataStorage.Save(_AppSettings);
+                dataStorage.Save(_ExportSettings);
+            }
+
             Log.CloseAndFlush();
             Utils.FreeConsole();
         }

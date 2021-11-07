@@ -33,11 +33,11 @@ namespace NordChecker.ViewModels
             return (AccountState)value switch
             {
                 AccountState.Unchecked => "🕒 В очереди",
-                AccountState.Reserved => "🕖 В обработке",
-                AccountState.Invalid => "❌ Невалидный",
-                AccountState.Free => "✔️ Бесплатный",
-                AccountState.Premium => "⭐ Премиум",
-                _ => throw new ArgumentException()
+                AccountState.Reserved  => "🕖 В обработке",
+                AccountState.Invalid   => "❌ Невалидный",
+                AccountState.Free      => "✔️ Бесплатный",
+                AccountState.Premium   => "⭐ Премиум",
+                _ => throw new InvalidOperationException()
             };
         }
 
@@ -83,7 +83,7 @@ namespace NordChecker.ViewModels
             {
                 ApplicationTheme.Light => "Светлая",
                 ApplicationTheme.Dark => "Тёмная",
-                _ => throw new ArgumentException()
+                _ => value.ToString()
             };
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

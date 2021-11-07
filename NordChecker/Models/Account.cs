@@ -33,13 +33,9 @@ namespace NordChecker.Models
         public int UserId { get; set; }
         public DateTime ExpiresAt { get; set; }
         public Proxy Proxy { get; set; }
-
-        public (string, string) Credentials
-        {
-            get => (Email, Password);
-            set => (Email, Password) = value;
-        }
         
+        public (string, string) Credentials => (Email, Password);
+
         public Account(string email, string password)
         {
             Email = email;

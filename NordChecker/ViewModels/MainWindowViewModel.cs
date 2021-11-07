@@ -139,7 +139,8 @@ namespace NordChecker.ViewModels
             UpdateAppearence();
             AppSettings.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(AppSettings.AccentColor))
+                if (e.PropertyName == nameof(AppSettings.AccentColor) ||
+                    e.PropertyName == nameof(AppSettings.Theme))
                     UpdateAppearence();
             };
 

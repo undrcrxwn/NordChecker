@@ -217,7 +217,7 @@ namespace NordChecker.ViewModels
                     counter, ExportSettings.RootPath, watch.ElapsedMilliseconds);
             });
 
-            ExportSettings.CopyTo(App.ServiceProvider.GetService(typeof(ExportSettings)) as ExportSettings);
+            App.ServiceProvider.GetService<ExportSettings>().ReplaceWith(ExportSettings);
             navigationService.Navigate<MainPage>();
         }
 
@@ -241,7 +241,7 @@ namespace NordChecker.ViewModels
         {
             Accounts = accounts;
             this.navigationService = navigationService;
-            ExportSettings = exportSettings.Clone() as ExportSettings;
+            ExportSettings = exportSettings.Clone();
 
             ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
             if (ExportSettings.RootPath != null)

@@ -14,17 +14,17 @@ namespace NordChecker.Models
         {
             try
             {
-                Log.Verbose("Account processing for {0} has started", account.Credentials);
+                Log.Verbose("Account processing for {0} has started", account);
                 Check(account);
             }
             catch (OperationCanceledException e)
             {
-                Log.Debug("Account processing operation for {0} has been cancelled", account.Credentials);
+                Log.Debug("Account processing operation for {0} has been cancelled", account);
                 HandleFailure(account, e);
             }
             catch (Exception e)
             {
-                Log.Error(e, "Account processing operation for {0} has thrown an unexpected exception", account.Credentials);
+                Log.Error(e, "Account processing operation for {0} has thrown an unexpected exception", account);
                 HandleFailure(account, e);
                 throw;
             }

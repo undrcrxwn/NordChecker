@@ -8,12 +8,12 @@ namespace NordChecker.Models
         public string FormatScheme;
         public List<Placeholder> Placeholders = new()
         {
-            new(new() { "email",       "mail"  }, x => x.Email),
-            new(new() { "password",    "pass"  }, x => x.Password),
-            new(new() { "proxy",       "ip"    }, x => x.Proxy.ToString()),
+            new(new() { "email",       "mail"  }, x => x.Email             ?? "<unknown>"),
+            new(new() { "password",    "pass"  }, x => x.Password          ?? "<unknown>"),
+            new(new() { "proxy",       "ip"    }, x => x.Proxy?.ToString() ?? "<no-proxy>"),
             new(new() { "expiration",  "exp"   }, x => x.ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss")),
-            new(new() { "token"                }, x => x.Token),
-            new(new() { "renew_token", "renew" }, x => x.RenewToken)
+            new(new() { "token"                }, x => x.Token             ?? "<unknown>"),
+            new(new() { "renew_token", "renew" }, x => x.RenewToken        ?? "<unknown>")
         };
 
         public AccountFormatter(string formatScheme) => FormatScheme = formatScheme;

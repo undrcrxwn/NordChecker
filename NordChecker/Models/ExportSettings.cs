@@ -6,11 +6,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using HandyControl.Tools.Extension;
+using System.Runtime.InteropServices;
 
 namespace NordChecker.Models
 {
-
-    public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced
+    public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -39,10 +40,15 @@ namespace NordChecker.Models
             Predicate = predicate;
             IsEnabled = isEnabled;
         }
+
+        public OutputFilter<TPayload> Clone() =>
+            MemberwiseClone() as OutputFilter<TPayload>;
+
+        object ICloneable.Clone() => Clone();
     }
 
     [JsonObject]
-    public class AccountFilters : INotifyPropertyChangedAdvanced, IEnumerable<OutputFilter<Account>>
+    public class AccountFilters : INotifyPropertyChangedAdvanced, ICloneable, IEnumerable<OutputFilter<Account>>
     {
         public event PropertyChangedEventHandler PropertyChanged;
         
@@ -86,13 +92,26 @@ namespace NordChecker.Models
         {
             var properties = typeof(AccountFilters).GetProperties()
                 .Where(x => x.PropertyType == typeof(OutputFilter<Account>));
-            var filters = properties.Select(x => x.GetValue(this, null));
-            return filters.GetEnumerator() as IEnumerator<OutputFilter<Account>>;
+            var filters = properties.Select(x => x.GetValue(this, null) as OutputFilter<Account>);
+            return filters.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public AccountFilters Clone()
+        {
+            var copy = MemberwiseClone() as AccountFilters;
+            copy.Premium = Premium.Clone();
+            copy.Free = Free.Clone();
+            copy.Invalid = Invalid.Clone();
+            copy.UncheckedAndReserved = UncheckedAndReserved.Clone();
+            return copy;
+        }
+
+        object ICloneable.Clone() => Clone();
     }
-    
+
+    [StructLayout(LayoutKind.Sequential)]
     public class ExportSettings : INotifyPropertyChangedAdvanced, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -128,20 +147,14 @@ namespace NordChecker.Models
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AreRowCountsAddedToFileNames, value, PropertyChanged);
         }
-        
-        public object Clone()
+
+        public ExportSettings Clone()
         {
-            var copy = new ExportSettings();
-            CopyTo(copy);
+            var copy = MemberwiseClone() as ExportSettings;
+            copy.Filters = Filters.Clone();
             return copy;
         }
 
-        public void CopyTo(ExportSettings target)
-        {
-            target.Filters = Filters;
-            target.RootPath = RootPath;
-            target.FormatScheme = FormatScheme;
-            target.AreRowCountsAddedToFileNames = AreRowCountsAddedToFileNames;
-        }
+        object ICloneable.Clone() => Clone();
     }
 }
