@@ -130,7 +130,7 @@ namespace NordChecker.Models
                 .Set(ref _RootPath, value, PropertyChanged);
         }
 
-        private string _FormatScheme = "{email}:{password} | {expiration} | {services}";
+        private string _FormatScheme = "{email}:{password} | {proxy} | {expiration}";
         public string FormatScheme
         {
             get => _FormatScheme;

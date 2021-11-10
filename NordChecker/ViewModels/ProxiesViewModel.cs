@@ -104,7 +104,7 @@ namespace NordChecker.ViewModels
             var inst = this as INotifyPropertyChangedAdvanced;
             inst.OnPropertyChanged(PropertyChanged, nameof(StatsByType));
 
-            int loaded = Math.Max(1, StatsByType.Values.Sum() + StatsByState[ProxyState.Invalid] + StatsByState[ProxyState.Unchecked]);
+            int loaded = Math.Max(1, StatsByType.Values.Sum() + StatsByState[ProxyState.Invalid] + StatsByState[ProxyState.Unused]);
             Dictionary<ProxyType, float> sharesByType =
                 StatsByType.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
             Dictionary<ProxyState, float> sharesByState =

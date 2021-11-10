@@ -37,7 +37,7 @@ namespace NordChecker.Shared
 
         public static bool? Show(this FileDialog dialog, bool topmost = false)
         {
-            Window window = new Window();
+            var window = new Window();
             window.ResizeMode = ResizeMode.NoResize;
             window.WindowStyle = WindowStyle.None;
             window.Topmost = topmost;
@@ -89,5 +89,34 @@ namespace NordChecker.Shared
 
         public static string ToBase64(this string @this)
             => Convert.ToBase64String(Encoding.UTF8.GetBytes(@this));
+
+        public static string Unescape(this string @this)
+        {
+            if (string.IsNullOrEmpty(@this))
+                return @this;
+
+            var builder = new StringBuilder(@this.Length);
+            for (int ix = 0; ix < @this.Length;)
+            {
+                int jx = @this.IndexOf('\\', ix);
+                if (jx < 0 || jx == @this.Length - 1)
+                    jx = @this.Length;
+
+                builder.Append(@this, ix, jx - ix);
+                if (jx >= @this.Length) break;
+                switch (@this[jx + 1])
+                {
+                    case 'n':  builder.Append('\n'); break;
+                    case 'r':  builder.Append('\r'); break;
+                    case 't':  builder.Append('\t'); break;
+                    case '\\': builder.Append('\\'); break;
+                    default:
+                        builder.Append('\\').Append(@this[jx + 1]); break;
+                }
+                ix = jx + 2;
+            }
+
+            return builder.ToString();
+        }
     }
 }

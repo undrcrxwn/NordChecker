@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace NordChecker.Models
 {
-    internal class Parser
+    public class Parser
     {
-        public static Account? Parse(string credentials, string regexMask = @"\W*(^\w+(?:[-+.']\w+|-)*@\w+(?:[-.]\w+)*\.\w+(?:[-.]\w+)*):(\w+)\W*$")
+        public string RegexMask;
+
+        public Parser(string regexMask) =>
+            RegexMask = regexMask;
+
+        public Account Parse(string credentials)
         {
-            Match match = Regex.Match(credentials, regexMask);
+            Match match = Regex.Match(credentials, RegexMask);
             if (match.Success)
                 return new Account(match.Groups[1].Value, match.Groups[2].Value);
             throw new InvalidOperationException();

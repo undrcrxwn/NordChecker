@@ -61,14 +61,12 @@ namespace NordChecker.Models
         {
             ThrowIfCancellationRequested();
             WaitIfPauseRequested();
-            MasterTokenSource x = new();
         }
     }
 
     public class MasterTokenSource
     {
         private readonly List<MasterToken> _Tokens = new();
-        public IEnumerable<MasterToken> Tokens => _Tokens;
 
         public MasterToken MakeToken()
         {

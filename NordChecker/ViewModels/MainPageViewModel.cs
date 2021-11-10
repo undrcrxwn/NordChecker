@@ -32,6 +32,7 @@ namespace NordChecker.ViewModels
         private NavigationService navigationService;
 
         public IChecker Checker;
+        public Parser ComboParser;
         private ThreadDistributor<Account> distributor;
         private MasterTokenSource tokenSource = new MasterTokenSource();
         private Stopwatch progressWatch = new Stopwatch();
@@ -222,7 +223,7 @@ namespace NordChecker.ViewModels
                             Account account;
                             try
                             {
-                                account = Parser.Parse(line);
+                                account = ComboParser.Parse(line);
                             }
                             catch
                             {
@@ -571,7 +572,7 @@ namespace NordChecker.ViewModels
                 TimeSpan elapsed = progressWatch.Elapsed;
                 builder.Append($" ({elapsed.ToShortDurationString()} затрачено");
 
-                if (percentageChecked > 0 && percentageChecked < 100)
+                if (percentageChecked is > 0 and < 100)
                 {
                     TimeSpan left = elapsed * (100 - percentageChecked) / percentageChecked;
                     builder.Append($", {left.ToShortDurationString()} осталось");
@@ -596,6 +597,8 @@ namespace NordChecker.ViewModels
             AppSettings = appSettings;
             ExportSettings = exportSettings;
             ProxiesViewModel = proxiesViewModel;
+
+            ComboParser = new Parser(AppSettings.ComboRegexMask);
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -669,8 +672,15 @@ namespace NordChecker.ViewModels
 
             AppSettings.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(AppSettings.ThreadCount))
-                    distributor.ThreadCount = AppSettings.ThreadCount;
+                switch (e.PropertyName)
+                {
+                    case nameof(AppSettings.ComboRegexMask):
+                        ComboParser.RegexMask = AppSettings.ComboRegexMask;
+                        break;
+                    case nameof(AppSettings.ThreadCount):
+                        distributor.ThreadCount = AppSettings.ThreadCount;
+                        break;
+                }
             };
 
             PropertyChanged += (sender, e) =>

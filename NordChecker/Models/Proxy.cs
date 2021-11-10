@@ -10,15 +10,15 @@ namespace NordChecker.Models
 {
     public enum ProxyState
     {
-        Valid,
+        Unused,
         Invalid,
-        Unchecked
+        Valid
     }
 
     public class Proxy
     {
         public ProxyClient Client { get; private set; }
-        public ProxyState State = ProxyState.Unchecked;
+        public ProxyState State = ProxyState.Unused;
 
         public Proxy(ProxyClient client)
         {

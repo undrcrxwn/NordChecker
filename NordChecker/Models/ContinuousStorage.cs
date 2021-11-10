@@ -15,7 +15,7 @@ namespace NordChecker.Models
         {
             Save(target);
 
-            Timer timer = new Timer { Interval = interval.TotalMilliseconds };
+            var timer = new Timer { Interval = interval.TotalMilliseconds };
             timer.Elapsed += (sender, e) => Save(target);
             timer.Start();
 

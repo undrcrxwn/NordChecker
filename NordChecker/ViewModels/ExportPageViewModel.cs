@@ -53,6 +53,14 @@ namespace NordChecker.ViewModels
                 .Set(ref _Accounts, value, PropertyChanged);
         }
 
+        private AppSettings _AppSettings;
+        public AppSettings AppSettings
+        {
+            get => _AppSettings;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _AppSettings, value, PropertyChanged);
+        }
+
         private ExportSettings _ExportSettings;
         public ExportSettings ExportSettings
         {
@@ -73,7 +81,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public IPayloadFormatter<Account, string> Formatter { get; set; }
+        public AccountFormatter Formatter { get; set; }
 
         private string _OutputPreview;
         public string OutputPreview
@@ -132,17 +140,20 @@ namespace NordChecker.ViewModels
         private static readonly Account sampleAccount;
         static ExportPageViewModel()
         {
-            sampleAccount = new Account("mitch13banks@gmail.com", "Sardine13");
-            sampleAccount.UserId = 120161441;
-            sampleAccount.Proxy = new Proxy(Socks4ProxyClient.Parse("81.18.34.98:47680"));
-            sampleAccount.Token = "3761f993137551ac965ab71f8a4564305ddce3c8b2ecbcdac3bc30722cce4fa0";
-            sampleAccount.RenewToken = "2f7bf7b922ccdfa091f4b66e30af996e8e06682921e02831e9589243014702ef";
-            sampleAccount.ExpiresAt = DateTime.Now.AddDays(14);
+            sampleAccount = new Account("mitch13banks@gmail.com", "Sardine13")
+            {
+                UserId = 120161441,
+                Proxy = new Proxy(Socks4ProxyClient.Parse("81.18.34.98:47680")),
+                Token = "3761f993137551ac965ab71f8a4564305ddce3c8b2ecbcdac3bc30722cce4fa0",
+                RenewToken = "2f7bf7b922ccdfa091f4b66e30af996e8e06682921e02831e9589243014702ef",
+                ExpiresAt = DateTime.Now.AddDays(14)
+            };
         }
 
-        private void UpdateSampleOutput()
+        private void UpdateOutputPreview()
         {
             OutputPreview = Formatter.Format(sampleAccount);
+            Log.Warning(ExportSettings.FormatScheme);
         }
 
         private void UpdateCanProceed()
@@ -181,6 +192,8 @@ namespace NordChecker.ViewModels
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
+                Formatter.FormatScheme = ExportSettings.FormatScheme;
+
                 int counter = 0;
                 foreach (var filter in ExportSettings.Filters)
                 {
@@ -192,11 +205,11 @@ namespace NordChecker.ViewModels
                     if (ExportSettings.AreRowCountsAddedToFileNames)
                         suffix = $" ({selection.Count()})";
                     string fileName = filter.FileName.Replace("{suffix}", suffix);
-                    using (StreamWriter sw = new StreamWriter(ExportSettings.RootPath + $"/{fileName}", true))
+                    using (var writer = new StreamWriter(ExportSettings.RootPath + $"/{fileName}", true))
                     {
-                        foreach (Account account in selection)
+                        foreach (var account in selection)
                         {
-                            sw.WriteLine(Formatter.Format(account));
+                            writer.WriteLine(Formatter.Format(account));
                             Log.Verbose("{0} has been saved to {1}", account, fileName);
                             counter++;
                         }
@@ -220,7 +233,10 @@ namespace NordChecker.ViewModels
         {
             UpdateCanProceed();
             if (e.PropertyName == nameof(ExportSettings.FormatScheme))
-                UpdateSampleOutput();
+            {
+                Formatter.FormatScheme = ExportSettings.FormatScheme;
+                UpdateOutputPreview();
+            }
         }
 
         public readonly System.Timers.Timer StateRefreshingTimer = new System.Timers.Timer(TimeSpan.FromSeconds(1).TotalMilliseconds);
@@ -228,18 +244,21 @@ namespace NordChecker.ViewModels
         public ExportPageViewModel(
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
+            AppSettings appSettings,
             ExportSettings exportSettings)
         {
             Accounts = accounts;
             this.navigationService = navigationService;
+            AppSettings = appSettings;
             ExportSettings = exportSettings.Clone();
-            Formatter = new TextAccountFormatter(ExportSettings);
+
+            Formatter = new AccountFormatter(ExportSettings.FormatScheme);
 
             ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
             if (ExportSettings.RootPath is not null)
                 OutputDirectoryPath = string.Join('\\', ExportSettings.RootPath.Split('\\').SkipLast(1));
 
-            UpdateSampleOutput();
+            UpdateOutputPreview();
             UpdateCanProceed();
 
             ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);

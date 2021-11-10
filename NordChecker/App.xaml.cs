@@ -55,7 +55,7 @@ namespace NordChecker
                     NumberDecimalSeparator = "."
                 }
             };
-            
+
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
@@ -67,15 +67,15 @@ namespace NordChecker
             FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
-            
+
             _AppSettings = storage.LoadOrDefault(new AppSettings());
             _ExportSettings = storage.LoadOrDefault(new ExportSettings());
-            
+
             ServiceCollection services = new ServiceCollection();
 
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
-            
+
             services.AddSingleton(_AppSettings);
             services.AddSingleton(_ExportSettings);
 
@@ -98,7 +98,7 @@ namespace NordChecker
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            
+
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 LogAndThrowUnhandledException(e.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
 
@@ -107,7 +107,7 @@ namespace NordChecker
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogAndThrowUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
-            
+
             _AppSettings.PropertyChanged += (sender, e) =>
             {
                 if (e.PropertyName == nameof(_AppSettings.IsAutoSaveEnabled) ||
@@ -131,14 +131,14 @@ namespace NordChecker
             throw exception;
         }
 
-        private void RefreshSettingsAutoSave()
+        private static void RefreshSettingsAutoSave()
         {
             try
             {
                 storage.StopContinuousSync<AppSettings>();
                 storage.StopContinuousSync<ExportSettings>();
             }
-            catch {}
+            catch { }
 
             if (_AppSettings.IsAutoSaveEnabled)
             {

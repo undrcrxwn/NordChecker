@@ -47,25 +47,25 @@
                     <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
                         <Canvas x:Name="progressCanvasComboChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Premium].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Premium].EndAngle}"
-                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Premium].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[Premium].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[Premium].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[Premium].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Free].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Free].EndAngle}"
-                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Free].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[Free].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[Free].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[Free].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Invalid].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Invalid].EndAngle}"
-                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Invalid].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[Invalid].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[Invalid].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[Invalid].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#45808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Reserved].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Reserved].EndAngle}"
-                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Reserved].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[Reserved].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[Reserved].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[Reserved].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].StartAngle}"
-                        EndAngle   = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].EndAngle}"
-                        Visibility = "{Binding Path=ComboArcs[(m:AccountState)Unchecked].Visibility}"/>
+                        StartAngle = "{Binding Path=ComboArcs[Unchecked].StartAngle}"
+                        EndAngle   = "{Binding Path=ComboArcs[Unchecked].EndAngle}"
+                        Visibility = "{Binding Path=ComboArcs[Unchecked].Visibility}"/>
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasComboChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasComboChart}">
                                 <StackPanel VerticalAlignment="Center">
@@ -108,7 +108,7 @@
                                             <hc:SimpleText Text="Бесплатных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[(m:AccountState)Free], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[Free], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -117,7 +117,7 @@
                                             <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[(m:AccountState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -126,7 +126,7 @@
                                             <hc:SimpleText Text="В обработке" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[(m:AccountState)Reserved], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[Reserved], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -135,7 +135,7 @@
                                             <hc:SimpleText Text="В очереди" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#27808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[(m:AccountState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ComboStats.ByState[Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -169,29 +169,29 @@
                     <StackPanel Orientation="Vertical" Margin="10,0,10,0" VerticalAlignment="Top">
                         <Canvas x:Name="progressCanvasProxyChart" Panel.ZIndex="1" HorizontalAlignment="Stretch" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}">
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8900f2" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)HTTP].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[HTTP].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[HTTP].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[HTTP].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#1982c4" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#8ac926" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks4A].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4A].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4A].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[Socks4A].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#ffca3a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[(xnet:ProxyType)Socks5].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByType[Socks5].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByType[Socks5].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByType[Socks5].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#f74d7a" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Invalid].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[Invalid].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[Invalid].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[Invalid].Visibility}"/>
                             <hc:Arc StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}" Stretch="None" Stroke="#20808080" StrokeThickness="3" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
-                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].StartAngle}"
-                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].EndAngle}"
-                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[(m:ProxyState)Unchecked].Visibility}"/>
+                        StartAngle = "{Binding Path=ProxiesViewModel.ArcsByState[Unused].StartAngle}"
+                        EndAngle   = "{Binding Path=ProxiesViewModel.ArcsByState[Unused].EndAngle}"
+                        Visibility = "{Binding Path=ProxiesViewModel.ArcsByState[Unused].Visibility}"/>
                             <Grid Width="{Binding ActualWidth, ElementName=progressCanvasProxyChart}"
                       Height="{Binding ActualWidth, ElementName=progressCanvasProxyChart}">
                                 <StackPanel VerticalAlignment="Center">
@@ -225,7 +225,7 @@
                                             <hc:SimpleText Text="HTTP(s)" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8900f2"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)HTTP], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[HTTP], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -234,7 +234,7 @@
                                             <hc:SimpleText Text="Socks4" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#1982c4"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks4], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[Socks4], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -243,7 +243,7 @@
                                             <hc:SimpleText Text="Socks4A" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#8ac926"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks4A], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[Socks4A], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -252,7 +252,7 @@
                                             <hc:SimpleText Text="Socks5" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#ffca3a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[(xnet:ProxyType)Socks5], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByType[Socks5], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -261,7 +261,7 @@
                                             <hc:SimpleText Text="Невалидных" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#f74d7a"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[(m:ProxyState)Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[Invalid], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -270,7 +270,7 @@
                                             <hc:SimpleText Text="Не использовано" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                             <Ellipse HorizontalAlignment="Right" Margin="0,0,8,0" Width="8" Height="8" Fill="#52808080"/>
                                         </hc:SimplePanel>
-                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[(m:ProxyState)Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
+                                        <hc:SimpleText Text="{Binding Path=ProxiesViewModel.StatsByState[Unchecked], Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
                                 <Border>
@@ -363,11 +363,11 @@
         </StackPanel>
 
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
-            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Unchecked]}"/>
-            <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Reserved]}"/>
-            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Invalid]}"/>
-            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Free]}"/>
-            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[(m:AccountState)Premium]}"/>
+            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettings.DataGridFilters[Unchecked]}"/>
+            <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettings.DataGridFilters[Reserved]}"/>
+            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[Invalid]}"/>
+            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[Free]}"/>
+            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[Premium]}"/>
         </hc:ButtonGroup>
 
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
@@ -400,7 +400,7 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                <TextBox Text="{Binding AppSettings.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
@@ -446,7 +446,7 @@
                             </StackPanel>
                             <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
-                                <TextBox IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                <TextBox Text="{Binding AppSettings.ProxyRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>

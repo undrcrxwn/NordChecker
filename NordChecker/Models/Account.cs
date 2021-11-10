@@ -1,6 +1,7 @@
 ﻿using NordChecker.Shared;
 using System;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace NordChecker.Models
 {
@@ -34,6 +35,7 @@ namespace NordChecker.Models
         public DateTime ExpiresAt { get; set; }
         public Proxy Proxy { get; set; }
         
+        [JsonIgnore]
         public (string, string) Credentials => (Email, Password);
 
         public Account(string email, string password)

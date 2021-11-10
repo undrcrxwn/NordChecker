@@ -70,6 +70,22 @@ namespace NordChecker.Models
                 .Set(ref _AreProxyDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
         }
 
+        private string _ComboRegexMask = @"\W*(^\w+(?:[-+.']\w+|-)*@\w+(?:[-.]\w+)*\.\w+(?:[-.]\w+)*):(\w+)\W*$";
+        public string ComboRegexMask
+        {
+            get => _ComboRegexMask;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ComboRegexMask, value, PropertyChanged, LogEventLevel.Information);
+        }
+
+        private string _ProxyRegexMask;
+        public string ProxyRegexMask
+        {
+            get => _ProxyRegexMask;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ProxyRegexMask, value, PropertyChanged, LogEventLevel.Information);
+        }
+
         private ProxyType _LastChosenProxyType = ProxyType.Socks4;
         public ProxyType LastChosenProxyType
         {
@@ -114,7 +130,7 @@ namespace NordChecker.Models
                 .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#6377D0") as SolidColorBrush;
+        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#4155B9") as SolidColorBrush;
         public SolidColorBrush AccentColor
         {
             get => _AccentColor;
@@ -158,7 +174,7 @@ namespace NordChecker.Models
         {
             var dictionary = Enum.GetValues<AccountState>().Reverse()
                 .ToDictionary(key => key, value => true);
-            DataGridFilters = new(dictionary);
+            DataGridFilters = new ObservableDictionary<AccountState, bool>(dictionary);
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Text;
+using NordChecker.Shared;
 
 namespace NordChecker.Models
 {
-    public class TextAccountFormatter : IPayloadFormatter<Account, string>
+    public class AccountFormatter
     {
-        private readonly ExportSettings _ExportSettings;
+        public string FormatScheme;
 
         public List<Placeholder> Placeholders = new()
         {
@@ -14,14 +16,17 @@ namespace NordChecker.Models
             new(new() { "proxy",       "ip"    }, x => x.Proxy?.ToString() ?? "<no-proxy>"),
             new(new() { "expiration",  "exp"   }, x => x.ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss")),
             new(new() { "token"                }, x => x.Token             ?? "<unknown>"),
-            new(new() { "renew_token", "renew" }, x => x.RenewToken        ?? "<unknown>")
+            new(new() { "renew_token", "renew" }, x => x.RenewToken        ?? "<unknown>"),
+            new(new() { "state"                }, x => x.State.ToString()),
+            new(new() { "json"                 }, x => JsonConvert.SerializeObject(x))
         };
 
-        public TextAccountFormatter(ExportSettings exportSettings) => _ExportSettings = exportSettings;
+        public AccountFormatter(string formatScheme) =>
+            FormatScheme = formatScheme;
         
         public string Format(Account account)
         {
-            StringBuilder builder = new(_ExportSettings.FormatScheme);
+            StringBuilder builder = new(FormatScheme.Unescape());
             foreach (var (keys, handler) in Placeholders)
             {
                 string value = handler(account);
@@ -30,7 +35,5 @@ namespace NordChecker.Models
             }
             return builder.ToString();
         }
-
-        string IPayloadFormatter<Account, string>.Format(Account account) => Format(account);
     }
 }

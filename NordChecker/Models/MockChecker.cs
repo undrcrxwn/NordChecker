@@ -1,25 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace NordChecker.Models
 {
     internal class MockChecker : IChecker
     {
-        private AppSettings appSettings;
+        private readonly AppSettings _AppSettings;
+        private readonly Random _Random = new();
 
-        public MockChecker(AppSettings appSettings) => this.appSettings = appSettings;
+        public MockChecker(AppSettings appSettings) => _AppSettings = appSettings;
 
         void IChecker.Check(Account account)
         {
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), appSettings.Timeout);
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
 
             for (int i = 0; i < 10; i++)
@@ -28,7 +22,7 @@ namespace NordChecker.Models
                 breakpointHandler.HandleBreakpointIfNeeded();
             }
 
-            account.State = new Random().Next(11) switch
+            account.State = _Random.Next(11) switch
             {
                 <= 1 => AccountState.Premium,
                 <= 3 => AccountState.Free,
@@ -36,7 +30,7 @@ namespace NordChecker.Models
             };
         }
 
-        void IChecker.HandleFailure(Account account, Exception exception)
-            => account.State = AccountState.Invalid;
+        void IChecker.HandleFailure(Account account, Exception exception) =>
+            account.State = AccountState.Invalid;
     }
 }
