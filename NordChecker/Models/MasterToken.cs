@@ -1,24 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
-    public interface ICancelable
-    {
-        public abstract void Cancel();
-    }
-
-    public interface IPausable
-    {
-        public abstract void Pause();
-        public abstract void Continue();
-    }
-
-    public class MasterToken : ICancelable, IPausable
+    public class MasterToken
     {
         public bool IsCancellationRequested { get; private set; }
         public bool IsPauseRequested { get; private set; }
@@ -60,26 +48,42 @@ namespace NordChecker.Models
             }
         }
 
+        public async Task WaitIfPauseRequestedAsync()
+        {
+            while (IsPauseRequested)
+            {
+                await Task.Delay(50);
+                ThrowIfCancellationRequested();
+            }
+        }
+
         public void ThrowOrWaitIfRequested()
         {
             ThrowIfCancellationRequested();
             WaitIfPauseRequested();
+            MasterTokenSource x = new();
         }
     }
 
     public class MasterTokenSource
     {
-        public List<MasterToken> Tokens = new List<MasterToken>();
+        private readonly List<MasterToken> _Tokens = new();
+        public IEnumerable<MasterToken> Tokens => _Tokens;
 
         public MasterToken MakeToken()
         {
             var token = new MasterToken();
-            Tokens.Add(token);
+            _Tokens.Add(token);
             return token;
         }
 
-        public void Cancel() => Tokens.ToList().ForEach(x => x.Cancel());
-        public void Pause() => Tokens.ToList().ForEach(x => x.Pause());
-        public void Continue() => Tokens.ToList().ForEach(x => x.Continue());
+        public void Cancel() =>
+            _Tokens.ToList().ForEach(x => x.Cancel());
+
+        public void Pause() =>
+            _Tokens.ToList().ForEach(x => x.Pause());
+
+        public void Continue() =>
+            _Tokens.ToList().ForEach(x => x.Continue());
     }
 }

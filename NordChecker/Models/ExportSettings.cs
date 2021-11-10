@@ -1,12 +1,10 @@
 ﻿using Newtonsoft.Json;
 using NordChecker.Shared;
-using Serilog.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using HandyControl.Tools.Extension;
 using System.Runtime.InteropServices;
 
 namespace NordChecker.Models
@@ -129,7 +127,7 @@ namespace NordChecker.Models
         {
             get => _RootPath;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _RootPath, value, PropertyChanged, LogEventLevel.Warning);
+                .Set(ref _RootPath, value, PropertyChanged);
         }
 
         private string _FormatScheme = "{email}:{password} | {expiration} | {services}";

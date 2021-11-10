@@ -91,39 +91,5 @@ namespace NordChecker.Views
 
             HideBoundingBox(this);
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Warning(Directory.GetCurrentDirectory());
-
-            SaveAppSettings();
-            SaveExportSettings();
-        }
-
-        private void SaveAppSettings()
-        {
-            string json = JsonConvert.SerializeObject(App.ServiceProvider.GetService(typeof(AppSettings)), Formatting.Indented);
-            string directory = "config";
-            string path = $"{directory}\\AppSettings.json";
-            Log.Warning("{0}\n{1}", path, json);
-
-            Directory.CreateDirectory(directory);
-            File.Create(path).Dispose();
-            using (StreamWriter writer = new StreamWriter(path))
-                writer.WriteLine(json);
-        }
-
-        private void SaveExportSettings()
-        {
-            string json = JsonConvert.SerializeObject(App.ServiceProvider.GetService(typeof(ExportSettings)), Formatting.Indented);
-            string directory = "config";
-            string path = $"{directory}\\ExportSettings.json";
-            Log.Warning("{0}\n{1}", path, json);
-
-            Directory.CreateDirectory(directory);
-            File.Create(path).Dispose();
-            using (StreamWriter writer = new StreamWriter(path))
-                writer.WriteLine(json);
-        }
     }
 }

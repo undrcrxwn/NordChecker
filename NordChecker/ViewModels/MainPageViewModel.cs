@@ -329,7 +329,6 @@ namespace NordChecker.ViewModels
                         {
                             lock (ProxiesViewModel.Proxies)
                             {
-                                Log.Warning("Locked {0}", nameof(ProxiesViewModel.Proxies));
                                 while ((line = reader.ReadLine()) != null)
                                 {
                                     ProxyClient client;
@@ -647,9 +646,7 @@ namespace NordChecker.ViewModels
                 if (uncompletedCount == 0)
                     PauseCommand.Execute(null);
             };
-
-            Log.Warning("{0}", distributor.ThreadCount);
-
+            
             #region Commands
 
             StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);

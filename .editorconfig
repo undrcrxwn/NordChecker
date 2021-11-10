@@ -1,7 +1,0 @@
-﻿[*.cs]
-
-# CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
-dotnet_diagnostic.CS8632.severity = silent
-
-# CS0693: Параметр типа имеет то же имя, что и параметр, указанный во внешнем типе
-dotnet_diagnostic.CS0693.severity = silent

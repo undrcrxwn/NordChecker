@@ -3,9 +3,10 @@ using System.Text;
 
 namespace NordChecker.Models
 {
-    public class AccountFormatter : IPayloadFormatter<Account, string>
+    public class TextAccountFormatter : IPayloadFormatter<Account, string>
     {
-        public string FormatScheme;
+        private readonly ExportSettings _ExportSettings;
+
         public List<Placeholder> Placeholders = new()
         {
             new(new() { "email",       "mail"  }, x => x.Email             ?? "<unknown>"),
@@ -16,11 +17,11 @@ namespace NordChecker.Models
             new(new() { "renew_token", "renew" }, x => x.RenewToken        ?? "<unknown>")
         };
 
-        public AccountFormatter(string formatScheme) => FormatScheme = formatScheme;
+        public TextAccountFormatter(ExportSettings exportSettings) => _ExportSettings = exportSettings;
         
         public string Format(Account account)
         {
-            StringBuilder builder = new(FormatScheme);
+            StringBuilder builder = new(_ExportSettings.FormatScheme);
             foreach (var (keys, handler) in Placeholders)
             {
                 string value = handler(account);
@@ -29,5 +30,7 @@ namespace NordChecker.Models
             }
             return builder.ToString();
         }
+
+        string IPayloadFormatter<Account, string>.Format(Account account) => Format(account);
     }
 }

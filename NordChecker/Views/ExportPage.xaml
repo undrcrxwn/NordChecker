@@ -105,7 +105,7 @@
                 <RichTextBox Grid.Row="2" IsReadOnly="True" Padding="0">
                     <FlowDocument>
                         <Paragraph Padding="0,5,0,5">
-                            <TextBlock FontFamily="Consolas" Text="{Binding OutputPreview}" TextWrapping="Wrap"/>
+                            <TextBlock FontFamily="Consolas" Text="{Binding OutputPreview, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
                         </Paragraph>
                     </FlowDocument>
                 </RichTextBox>

@@ -1,17 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Timers;
 
 namespace NordChecker.Models
 {
-    public class DataStorage
+    public class Storage
     {
         private readonly string _Directory;
-        
-        public DataStorage(string directory) => _Directory = directory;
+
+        public Storage(string directory) => _Directory = directory;
 
         public void Save<T>(T target)
         {
@@ -38,7 +36,7 @@ namespace NordChecker.Models
 
             try
             {
-                T obj = (T) JsonConvert.DeserializeObject(json, typeof(T));
+                T obj = (T)JsonConvert.DeserializeObject(json, typeof(T));
                 Log.Information("{0} has been loaded from {1}", typeof(T).Name, path);
                 return obj;
             }
@@ -62,35 +60,5 @@ namespace NordChecker.Models
         }
 
         private string GetAbsolutePath<T>() => $"{_Directory}\\{typeof(T).Name}.json";
-    }
-
-    public class ContinuousDataStorage : DataStorage
-    {
-        private readonly Dictionary<Type, Timer> _SynchronizationTimers = new();
-
-        public ContinuousDataStorage(string directory) : base(directory) {}
-
-        public void StartContinuousSync<T>(T target, TimeSpan interval)
-        {
-            Save(target);
-
-            Timer timer = new Timer { Interval = interval.TotalMilliseconds };
-            timer.Elapsed += (sender, e) => Save(target);
-            timer.Start();
-
-            if (_SynchronizationTimers.ContainsKey(typeof(T)))
-                _SynchronizationTimers[typeof(T)].Stop();
-            _SynchronizationTimers[typeof(T)] = timer;
-
-            Log.Information("Continuous synchronization has started for {0} with {1} interval", typeof(T).Name, interval);
-        }
-
-        public void StopContinuousSync<T>()
-        {
-            _SynchronizationTimers[typeof(T)].Stop();
-            _SynchronizationTimers.Remove(typeof(T));
-
-            Log.Information("Continuous synchronization has been stopped for {0}", typeof(T).Name);
-        }
     }
 }

@@ -41,7 +41,7 @@ namespace NordChecker
         public static IServiceProvider ServiceProvider { get; set; }
 
         private NavigationService navigationService;
-        private static ContinuousDataStorage dataStorage = new($"{Directory.GetCurrentDirectory()}\\data");
+        private static ContinuousStorage storage = new($"{Directory.GetCurrentDirectory()}\\data");
 
         private static AppSettings _AppSettings;
         private static ExportSettings _ExportSettings;
@@ -68,8 +68,8 @@ namespace NordChecker
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
             
-            _AppSettings = dataStorage.LoadOrDefault(new AppSettings());
-            _ExportSettings = dataStorage.LoadOrDefault(new ExportSettings());
+            _AppSettings = storage.LoadOrDefault(new AppSettings());
+            _ExportSettings = storage.LoadOrDefault(new ExportSettings());
             
             ServiceCollection services = new ServiceCollection();
 
@@ -135,15 +135,15 @@ namespace NordChecker
         {
             try
             {
-                dataStorage.StopContinuousSync<AppSettings>();
-                dataStorage.StopContinuousSync<ExportSettings>();
+                storage.StopContinuousSync<AppSettings>();
+                storage.StopContinuousSync<ExportSettings>();
             }
             catch {}
 
             if (_AppSettings.IsAutoSaveEnabled)
             {
-                dataStorage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
-                dataStorage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
+                storage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
+                storage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
             }
         }
 
@@ -155,8 +155,8 @@ namespace NordChecker
 
             if (_AppSettings.IsAutoSaveEnabled)
             {
-                dataStorage.Save(_AppSettings);
-                dataStorage.Save(_ExportSettings);
+                storage.Save(_AppSettings);
+                storage.Save(_ExportSettings);
             }
 
             Log.CloseAndFlush();

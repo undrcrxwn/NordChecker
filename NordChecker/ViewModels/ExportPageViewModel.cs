@@ -73,7 +73,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public AccountFormatter Formatter { get; set; } = new(string.Empty);
+        public IPayloadFormatter<Account, string> Formatter { get; set; }
 
         private string _OutputPreview;
         public string OutputPreview
@@ -90,15 +90,7 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _CanProceed, value, PropertyChanged);
         }
-
-        private bool _IsOperationConfirmed = false;
-        public bool IsOperationConfirmed
-        {
-            get => _IsOperationConfirmed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsOperationConfirmed, value, PropertyChanged);
-        }
-
+        
         #endregion
 
         #region ChoosePathCommand
@@ -141,7 +133,7 @@ namespace NordChecker.ViewModels
         static ExportPageViewModel()
         {
             sampleAccount = new Account("mitch13banks@gmail.com", "Sardine13");
-            sampleAccount.UserId = 121211441;
+            sampleAccount.UserId = 120161441;
             sampleAccount.Proxy = new Proxy(Socks4ProxyClient.Parse("81.18.34.98:47680"));
             sampleAccount.Token = "3761f993137551ac965ab71f8a4564305ddce3c8b2ecbcdac3bc30722cce4fa0";
             sampleAccount.RenewToken = "2f7bf7b922ccdfa091f4b66e30af996e8e06682921e02831e9589243014702ef";
@@ -150,7 +142,6 @@ namespace NordChecker.ViewModels
 
         private void UpdateSampleOutput()
         {
-            Formatter.FormatScheme = ExportSettings.FormatScheme;
             OutputPreview = Formatter.Format(sampleAccount);
         }
 
@@ -242,11 +233,12 @@ namespace NordChecker.ViewModels
             Accounts = accounts;
             this.navigationService = navigationService;
             ExportSettings = exportSettings.Clone();
+            Formatter = new TextAccountFormatter(ExportSettings);
 
             ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
-            if (ExportSettings.RootPath != null)
+            if (ExportSettings.RootPath is not null)
                 OutputDirectoryPath = string.Join('\\', ExportSettings.RootPath.Split('\\').SkipLast(1));
-            
+
             UpdateSampleOutput();
             UpdateCanProceed();
 
@@ -254,11 +246,7 @@ namespace NordChecker.ViewModels
             ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
             NavigateHomeCommand = new LambdaCommand(OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
-            StateRefreshingTimer.Elapsed += (sender, e) =>
-            {
-                UpdateSettingsRootPath();
-                Log.Warning("local  ES RootPath set to {0}", ExportSettings.RootPath);
-            };
+            StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
         }
 
