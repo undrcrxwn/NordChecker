@@ -33,5 +33,7 @@ namespace NordChecker.Models
 
             Log.Information("Continuous synchronization has been stopped for {0}", typeof(T).Name);
         }
+
+        public bool IsSynchronized<T>() => _SynchronizationTimers.ContainsKey(typeof(T));
     }
 }

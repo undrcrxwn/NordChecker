@@ -1,8 +1,6 @@
-﻿using HandyControl.Data;
-using HandyControl.Themes;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.ViewModels;
@@ -10,23 +8,12 @@ using NordChecker.Views;
 using Serilog;
 using Serilog.Core;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Pipes;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Threading;
-using Newtonsoft.Json.Converters;
 
 namespace NordChecker
 {
@@ -40,17 +27,17 @@ namespace NordChecker
         public static LoggingLevelSwitch LogLevelSwitch = new();
         public static IServiceProvider ServiceProvider { get; set; }
 
-        private NavigationService navigationService;
-        private static ContinuousStorage storage = new($"{Directory.GetCurrentDirectory()}\\data");
+        private readonly NavigationService _NavigationService;
+        private static readonly ContinuousStorage Storage = new($"{Directory.GetCurrentDirectory()}\\data");
 
-        private static AppSettings _AppSettings;
-        private static ExportSettings _ExportSettings;
+        private static readonly AppSettings AppSettings;
+        private static readonly ExportSettings ExportSettings;
 
         static App()
         {
             CultureInfo.CurrentCulture = new CultureInfo("ru-RU")
             {
-                NumberFormat = new NumberFormatInfo()
+                NumberFormat = new NumberFormatInfo
                 {
                     NumberDecimalSeparator = "."
                 }
@@ -68,16 +55,16 @@ namespace NordChecker
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
 
-            _AppSettings = storage.LoadOrDefault(new AppSettings());
-            _ExportSettings = storage.LoadOrDefault(new ExportSettings());
+            AppSettings = Storage.LoadOrDefault(new AppSettings());
+            ExportSettings = Storage.LoadOrDefault(new ExportSettings());
 
             ServiceCollection services = new ServiceCollection();
 
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
 
-            services.AddSingleton(_AppSettings);
-            services.AddSingleton(_ExportSettings);
+            services.AddSingleton(AppSettings);
+            services.AddSingleton(ExportSettings);
 
             services.AddSingleton<Cyclic<Proxy>>();
             services.AddSingleton<IChecker, MockChecker>();
@@ -93,7 +80,7 @@ namespace NordChecker
             ServiceProvider = services.BuildServiceProvider();
         }
 
-        public App() => navigationService = ServiceProvider.GetService<NavigationService>();
+        public App() => _NavigationService = ServiceProvider.GetService<NavigationService>();
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -108,10 +95,10 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogAndThrowUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            _AppSettings.PropertyChanged += (sender, e) =>
+            AppSettings.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(_AppSettings.IsAutoSaveEnabled) ||
-                    e.PropertyName == nameof(_AppSettings.ContinuousSyncInterval))
+                if (e.PropertyName == nameof(AppSettings.IsAutoSaveEnabled) ||
+                    e.PropertyName == nameof(AppSettings.ContinuousSyncInterval))
                     RefreshSettingsAutoSave();
             };
             RefreshSettingsAutoSave();
@@ -133,17 +120,16 @@ namespace NordChecker
 
         private static void RefreshSettingsAutoSave()
         {
-            try
-            {
-                storage.StopContinuousSync<AppSettings>();
-                storage.StopContinuousSync<ExportSettings>();
-            }
-            catch { }
+            if (Storage.IsSynchronized<AppSettings>())
+                Storage.StopContinuousSync<AppSettings>();
 
-            if (_AppSettings.IsAutoSaveEnabled)
+            if (Storage.IsSynchronized<ExportSettings>())
+                Storage.StopContinuousSync<ExportSettings>();
+
+            if (AppSettings.IsAutoSaveEnabled)
             {
-                storage.StartContinuousSync(_AppSettings, _AppSettings.ContinuousSyncInterval);
-                storage.StartContinuousSync(_ExportSettings, _AppSettings.ContinuousSyncInterval);
+                Storage.StartContinuousSync(AppSettings, AppSettings.ContinuousSyncInterval);
+                Storage.StartContinuousSync(ExportSettings, AppSettings.ContinuousSyncInterval);
             }
         }
 
@@ -153,10 +139,10 @@ namespace NordChecker
 
             base.OnExit(e);
 
-            if (_AppSettings.IsAutoSaveEnabled)
+            if (AppSettings.IsAutoSaveEnabled)
             {
-                storage.Save(_AppSettings);
-                storage.Save(_ExportSettings);
+                Storage.Save(AppSettings);
+                Storage.Save(ExportSettings);
             }
 
             Log.CloseAndFlush();
@@ -166,7 +152,7 @@ namespace NordChecker
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             ServiceProvider.GetService<MainWindow>().Show();
-            navigationService.Navigate<MainPage>();
+            _NavigationService.Navigate<MainPage>();
         }
     }
 }
