@@ -1,19 +1,9 @@
 ﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Formatting;
-using Serilog.Formatting.Display;
-using Serilog.Formatting.Json;
 using Serilog.Sinks.SystemConsole.Themes;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace NordChecker.Shared
 {
@@ -58,7 +48,7 @@ namespace NordChecker.Shared
 
     public class LoggerBuilder
     {
-        private static AnsiConsoleTheme consoleTheme { get; } = new(
+        private readonly AnsiConsoleTheme _ConsoleTheme = new(
             new Dictionary<ConsoleThemeStyle, string>
             {
                 [ConsoleThemeStyle.Text] = "\x1b[38;5;0007m",
@@ -79,35 +69,39 @@ namespace NordChecker.Shared
                 [ConsoleThemeStyle.LevelFatal] = "\x1b[38;5;0196m\x1b[4m"
             });
 
-        private static readonly string consoleOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadColor} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
-        private static readonly string fileOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadIcon} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
-        private LoggerConfiguration configuration;
+        private const string ConsoleOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadColor} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
+        private const string FileOutputFormat = "{Timestamp:yyyy-MM-ddTHH:mm:ss.ffffffzzz} {ThreadIcon} {ThreadId} [{Level:u4}] {Message:lj}{NewLine}{Exception}";
+        private readonly LoggerConfiguration _Configuration;
 
         public LoggerBuilder() =>
-            configuration = new LoggerConfiguration()
+            _Configuration = new LoggerConfiguration()
                 .Enrich.With<ThreadColorEnricher>()
                 .Enrich.With<ThreadIconEnricher>()
                 .Enrich.With<ThreadIdEnricher>();
 
         public LoggerBuilder SetLevelSwitch(LoggingLevelSwitch levelSwitch)
         {
-            configuration.MinimumLevel.ControlledBy(levelSwitch);
+            _Configuration.MinimumLevel.ControlledBy(levelSwitch);
             return this;
         }
 
-        public LoggerBuilder AddConsole()
+        public LoggerBuilder UseConsole()
         {
-            configuration.WriteTo.Console(outputTemplate: consoleOutputFormat, theme: consoleTheme);
+            _Configuration.WriteTo.Console(
+                outputTemplate: ConsoleOutputFormat,
+                theme: _ConsoleTheme);
             return this;
         }
 
-        public LoggerBuilder AddFile()
+        public LoggerBuilder UseFile(string path = "logs/.log")
         {
-            configuration.WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day, outputTemplate: fileOutputFormat);
+            _Configuration.WriteTo.File(path,
+                rollingInterval: RollingInterval.Day,
+                outputTemplate: FileOutputFormat);
             return this;
         }
 
         public Logger Build () =>
-            configuration.CreateLogger();
+            _Configuration.CreateLogger();
     }
 }

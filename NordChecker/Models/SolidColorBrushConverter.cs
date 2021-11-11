@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
+using System;
 using System.Windows.Media;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Serilog;
 
 namespace NordChecker.Models
 {
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {
+        private readonly BrushConverter _BrushConverter = new();
+
         public override void WriteJson(JsonWriter writer, SolidColorBrush value, JsonSerializer serializer)
         {
             string hex = value.Dispatcher is null
@@ -18,7 +16,9 @@ namespace NordChecker.Models
             writer.WriteValue(hex);
         }
 
-        public override SolidColorBrush ReadJson(JsonReader reader, Type objectType, SolidColorBrush existingValue, bool hasExistingValue, JsonSerializer serializer)
-            => new BrushConverter().ConvertFrom(reader.Value.ToString()) as SolidColorBrush;
+        public override SolidColorBrush ReadJson(
+            JsonReader reader, Type objectType, SolidColorBrush existingValue,
+            bool hasExistingValue, JsonSerializer serializer) =>
+            _BrushConverter.ConvertFrom(reader.Value) as SolidColorBrush;
     }
 }

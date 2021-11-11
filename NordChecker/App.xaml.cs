@@ -64,8 +64,8 @@ namespace NordChecker
             };
 
             Utils.AllocConsole();
-            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddFile().Build();
-            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).AddConsole().Build();
+            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
+            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
 
             _AppSettings = storage.LoadOrDefault(new AppSettings());

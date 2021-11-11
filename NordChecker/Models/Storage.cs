@@ -15,6 +15,7 @@ namespace NordChecker.Models
         {
             string path = GetAbsolutePath<T>();
             string json = JsonConvert.SerializeObject(target);
+
             Directory.CreateDirectory(_Directory);
             File.WriteAllText(path, json);
             Log.Information("{0} has been saved to {1}", typeof(T).Name, path);
@@ -24,6 +25,7 @@ namespace NordChecker.Models
         {
             string path = GetAbsolutePath<T>();
             string json;
+
             try
             {
                 json = File.ReadAllText(path);

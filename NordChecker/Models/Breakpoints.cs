@@ -35,12 +35,16 @@ namespace NordChecker.Models
 
         public override void HandleBreakpointIfNeeded()
         {
+            _Context.Watch.Stop();
+
             base.HandleBreakpointIfNeeded();
             if (_Context.Watch.Elapsed > _Context.Timeout)
             {
                 _Context.MasterToken.Cancel();
                 _Context.MasterToken.ThrowIfCancellationRequested();
             }
+
+            _Context.Watch.Start();
         }
     }
 }

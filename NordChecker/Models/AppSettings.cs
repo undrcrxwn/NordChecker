@@ -29,6 +29,7 @@ namespace NordChecker.Models
             set
             {
                 if (_IsConsoleLoggingEnabled == value) return;
+
                 if (value)
                 {
                     Utils.ShowConsole();
@@ -162,7 +163,7 @@ namespace NordChecker.Models
                 .Set(ref _IsAutoSaveEnabled, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private TimeSpan _ContinuousSyncInterval = TimeSpan.FromSeconds(15);
+        private TimeSpan _ContinuousSyncInterval = TimeSpan.FromSeconds(30);
         public TimeSpan ContinuousSyncInterval
         {
             get => _ContinuousSyncInterval;

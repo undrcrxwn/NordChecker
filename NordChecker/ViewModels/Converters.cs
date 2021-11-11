@@ -1,11 +1,7 @@
 ﻿using HandyControl.Themes;
 using NordChecker.Models;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
@@ -16,9 +12,9 @@ namespace NordChecker.ViewModels
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var nfi = (NumberFormatInfo)culture.NumberFormat.Clone();
-            nfi.NumberGroupSeparator = " ";
-            return ((int)value).ToString("#,0", nfi);
+            var numberFormatInfo = (NumberFormatInfo)culture.NumberFormat.Clone();
+            numberFormatInfo.NumberGroupSeparator = " ";
+            return ((int)value).ToString("#,0", numberFormatInfo);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -79,12 +75,14 @@ namespace NordChecker.ViewModels
     public class ApplicationTheme2StringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => (ApplicationTheme)value switch
+        {
+            return (ApplicationTheme)value switch
             {
                 ApplicationTheme.Light => "Светлая",
                 ApplicationTheme.Dark => "Тёмная",
                 _ => value.ToString()
             };
+        }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotSupportedException();
@@ -93,10 +91,12 @@ namespace NordChecker.ViewModels
     [ValueConversion(typeof(TimeSpan), typeof(double))]
     public class TimeSpan2TotalSecondsConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter,
-            CultureInfo culture) => ((TimeSpan)value).TotalSeconds;
+        public object Convert(
+            object value, Type targetType, object parameter, CultureInfo culture) =>
+            ((TimeSpan)value).TotalSeconds;
 
-        public object ConvertBack(object value, Type targetType, object parameter,
-            CultureInfo culture) => TimeSpan.FromSeconds((double)value);
+        public object ConvertBack(
+            object value, Type targetType, object parameter, CultureInfo culture) =>
+            TimeSpan.FromSeconds((double)value);
     }
 }

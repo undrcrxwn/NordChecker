@@ -1,14 +1,8 @@
-﻿using NordChecker.Models;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Win32;
 using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NordChecker.Shared
 {
@@ -37,12 +31,14 @@ namespace NordChecker.Shared
 
         public static bool? Show(this FileDialog dialog, bool topmost = false)
         {
-            var window = new Window();
-            window.ResizeMode = ResizeMode.NoResize;
-            window.WindowStyle = WindowStyle.None;
-            window.Topmost = topmost;
-            window.Visibility = Visibility.Hidden;
-            window.Content = dialog;
+            var window = new Window
+            {
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.None,
+                Topmost = topmost,
+                Visibility = Visibility.Hidden,
+                Content = dialog
+            };
 
             bool? result = null;
             window.Loaded += (sender, e) => result = dialog.ShowDialog();
@@ -51,13 +47,7 @@ namespace NordChecker.Shared
             return result;
         }
     }
-
-    public class Ref<T>
-    {
-        public T Value;
-        public Ref(T value) => Value = value;
-    }
-
+    
     public static class Extensions
     {
         /// <summary>
@@ -79,11 +69,13 @@ namespace NordChecker.Shared
         public static string ToShortDurationString(this TimeSpan @this)
         {
             string result = "";
+
             if (@this.Days    > 0) result += @this.ToString(@"d\д\ ");
             if (@this.Hours   > 0) result += @this.ToString(@"h\ч\ ");
             if (@this.Minutes > 0) result += @this.ToString(@"m\м\ ");
             if (@this.Seconds > 0 || (int)@this.TotalSeconds == 0)
                 result += @this.ToString(@"s\с");
+
             return result;
         }
 
@@ -92,28 +84,27 @@ namespace NordChecker.Shared
 
         public static string Unescape(this string @this)
         {
-            if (string.IsNullOrEmpty(@this))
-                return @this;
+            if (string.IsNullOrEmpty(@this)) return @this;
 
             var builder = new StringBuilder(@this.Length);
-            for (int ix = 0; ix < @this.Length;)
+            for (int i = 0; i < @this.Length;)
             {
-                int jx = @this.IndexOf('\\', ix);
-                if (jx < 0 || jx == @this.Length - 1)
-                    jx = @this.Length;
+                int j = @this.IndexOf('\\', i);
+                if (j < 0 || j == @this.Length - 1)
+                    j = @this.Length;
 
-                builder.Append(@this, ix, jx - ix);
-                if (jx >= @this.Length) break;
-                switch (@this[jx + 1])
+                builder.Append(@this, i, j - i);
+                if (j >= @this.Length) break;
+                switch (@this[j + 1])
                 {
                     case 'n':  builder.Append('\n'); break;
                     case 'r':  builder.Append('\r'); break;
                     case 't':  builder.Append('\t'); break;
                     case '\\': builder.Append('\\'); break;
                     default:
-                        builder.Append('\\').Append(@this[jx + 1]); break;
+                        builder.Append('\\').Append(@this[j + 1]); break;
                 }
-                ix = jx + 2;
+                i = j + 2;
             }
 
             return builder.ToString();

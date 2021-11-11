@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using Serilog;
 
 namespace NordChecker.Models
 {
     internal class MockChecker : IChecker
     {
+        private const int ElapsedMilliseconds = 5000;
+        private const int BreakpointCount = 5;
+        
         private readonly AppSettings _AppSettings;
         private readonly Random _Random = new();
 
@@ -15,22 +19,21 @@ namespace NordChecker.Models
         {
             var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
-
-            for (int i = 0; i < 10; i++)
+            
+            for (int i = 0; i < BreakpointCount; i++)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(ElapsedMilliseconds / BreakpointCount);
                 breakpointHandler.HandleBreakpointIfNeeded();
             }
 
-            account.State = _Random.Next(11) switch
-            {
-                <= 1 => AccountState.Premium,
-                <= 3 => AccountState.Free,
-                _ => AccountState.Invalid
-            };
+            var states = Enum.GetValues<AccountState>();
+            account.State = states[_Random.Next(states.Length)];
         }
 
-        void IChecker.HandleFailure(Account account, Exception exception) =>
+        void IChecker.HandleFailure(Account account, Exception exception)
+        {
+            Log.Warning(exception, "Exception thrown while checking {0}", account.ToString());
             account.State = AccountState.Invalid;
+        }
     }
 }

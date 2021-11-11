@@ -1,10 +1,4 @@
 ﻿using Leaf.xNet;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NordChecker.Models
 {
@@ -17,14 +11,10 @@ namespace NordChecker.Models
 
     public class Proxy
     {
-        public ProxyClient Client { get; private set; }
+        public ProxyClient Client;
         public ProxyState State = ProxyState.Unused;
 
-        public Proxy(ProxyClient client)
-        {
-            Client = client;
-        }
-
+        public Proxy(ProxyClient client) => Client = client;
         public override string ToString() => Client.ToString();
     }
 }
