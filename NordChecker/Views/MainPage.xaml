@@ -380,8 +380,7 @@
                 </StackPanel.Resources>
                 <Expander Header="База" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
                             <StackPanel>
                                 <TextBlock Text="mail:pass строки NordVPN" Margin="2,0,0,4"/>
                                 <Grid>
@@ -426,10 +425,8 @@
                 </Expander>
                 <Expander Header="Прокси" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
                             <StackPanel>
-                                <TextBlock Text="HTTP(s), Socks4, Socks4A, Socks5" Margin="2,0,0,4"/>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
@@ -472,8 +469,7 @@
                 </Expander>
                 <Expander Header="Автоматизация" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4,-1,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4, 5, 4, 4">
                             <CheckBox Content="Визуальное уведомление" IsChecked="True" ToolTip="Показать на экране уведомление Windows с краткой статистикой по завершении обработки базы&#10;при условии, что окно приложения свёрнуто" HorizontalAlignment="Left"/>
                             <CheckBox Content="Звуковое уведомление" IsChecked="True" ToolTip="Проиграть звуковой сигнал по завершении обработки базы" HorizontalAlignment="Left"/>
                             <CheckBox Content="Завершение работы ПК" ToolTip="Выключить ПК по завершении обработки базы. Завершение работы ПК можно отменить через&#10;диалоговое окно, которое будет доступно в течение 15 секунд до выключения" HorizontalAlignment="Left"/>
@@ -482,9 +478,7 @@
                 </Expander>
                 <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
-
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
                             <StackPanel>
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -531,8 +525,7 @@
                 </Expander>
                 <Expander Header="Кастомизация" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4,-6,4,4">
-                            <TextBlock Height="0" Margin="0,0,1000,0"/>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -542,10 +535,10 @@
                                     <ColumnDefinition Width="4"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Тема" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="4"/>
+                                <TextBlock Text="Тема" Margin="4,0,0,0" VerticalAlignment="Center"/>
                                 <hc:ComboBox ItemsSource="{Binding Source={StaticResource ApplicationThemeEnumValues}}"
                                              SelectedValue="{Binding AppSettings.Theme}"
-                                             Grid.Row="4" Grid.Column="2">
+                                             Grid.Column="2">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Converter={StaticResource ApplicationTheme2StringConverter}}"/>
@@ -553,14 +546,14 @@
                                     </ComboBox.ItemTemplate>
                                 </hc:ComboBox>
                             </Grid>
-                            <hc:ColorPicker SelectedBrush="{Binding AppSettings.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0,-7,0,0"/>
+                            <hc:ColorPicker SelectedBrush="{Binding AppSettings.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0, -7,0,0"/>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
                 <Border CornerRadius="4" Padding="4" Margin="0,0,0,6" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <StackPanel>
                         <hc:SimpleText Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.ColumnSpan="3">
+                        <TextBlock>
                             <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">
                                 <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="💜 t.me/undrcrxwn" Cursor="Hand"/>
                             </Hyperlink>
