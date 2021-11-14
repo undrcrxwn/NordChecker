@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using NordChecker.Data;
-using NordChecker.Data.Settings;
+using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Models.Domain;
 

@@ -301,7 +301,7 @@
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   VerticalScrollBarVisibility="Auto"
-                  BorderBrush="Transparent"
+                  BorderThickness="1, 1, 1, 0"
                   Background="{DynamicResource DefaultBrush}"
                   MinRowHeight="5"
                   SelectionMode="Single"

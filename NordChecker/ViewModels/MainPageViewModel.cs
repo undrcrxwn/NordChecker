@@ -23,7 +23,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using NordChecker.Data.Settings;
+using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Models.Collections;
 using NordChecker.Models.Domain;

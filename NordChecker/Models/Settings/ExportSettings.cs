@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using NordChecker.Infrastructure;
 using NordChecker.Models.Domain;
 
-namespace NordChecker.Data.Settings
+namespace NordChecker.Models.Settings
 {
     public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced, ICloneable
     {

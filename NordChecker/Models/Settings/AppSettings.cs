@@ -11,7 +11,7 @@ using NordChecker.Infrastructure;
 using NordChecker.Models.Collections;
 using NordChecker.Models.Domain;
 
-namespace NordChecker.Data.Settings
+namespace NordChecker.Models.Settings
 {
     public class AppSettings : INotifyPropertyChangedAdvanced
     {
@@ -134,7 +134,7 @@ namespace NordChecker.Data.Settings
                 .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#5E70CF") as SolidColorBrush;
+        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#657CF8") as SolidColorBrush;
         public SolidColorBrush AccentColor
         {
             get => _AccentColor;

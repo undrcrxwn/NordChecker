@@ -27,7 +27,7 @@ using System.Diagnostics;
 using Serilog;
 using HandyControl.Themes;
 using Newtonsoft.Json;
-using NordChecker.Data.Settings;
+using NordChecker.Models.Settings;
 
 namespace NordChecker.Views
 {

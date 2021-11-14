@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using NordChecker.Data.Settings;
+using NordChecker.Models.Settings;
 using NordChecker.Threading;
 using Serilog;
 
