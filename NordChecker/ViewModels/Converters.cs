@@ -5,9 +5,47 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using NordChecker.Models.Domain;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Markup;
+using System.Windows.Controls;
 
 namespace NordChecker.ViewModels
 {
+    /// <summary>Represents a chain of <see cref="IValueConverter"/>s to be executed in succession.</summary>
+    [ContentProperty("Converters")]
+    [ContentWrapper(typeof(ValueConverterCollection))]
+    public class ConverterChain : IValueConverter
+    {
+        private readonly ValueConverterCollection _converters = new ValueConverterCollection();
+
+        /// <summary>Gets the converters to execute.</summary>
+        public ValueConverterCollection Converters
+        {
+            get { return _converters; }
+        }
+
+        #region IValueConverter Members
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Converters
+                .Aggregate(value, (current, converter) => converter.Convert(current, targetType, parameter, culture));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Converters
+                .Reverse()
+                .Aggregate(value, (current, converter) => converter.Convert(current, targetType, parameter, culture));
+        }
+
+        #endregion
+    }
+
+    /// <summary>Represents a collection of <see cref="IValueConverter"/>s.</summary>
+    public sealed class ValueConverterCollection : Collection<IValueConverter> { }
+
     [ValueConversion(typeof(int), typeof(string))]
     public class NumberConverter : IValueConverter
     {
@@ -47,6 +85,16 @@ namespace NordChecker.ViewModels
     {
         public object Convert(object value, Type targetType, object parameter,
             CultureInfo culture) => (bool)value ? Visibility.Visible : Visibility.Collapsed;
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            CultureInfo culture) => throw new NotSupportedException();
+    }
+
+    [ValueConversion(typeof(bool), typeof(DataGridHeadersVisibility))]
+    public class Boolean2DataGridHeadersVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+            CultureInfo culture) => (bool)value ? DataGridHeadersVisibility.All : DataGridHeadersVisibility.None;
 
         public object ConvertBack(object value, Type targetType, object parameter,
             CultureInfo culture) => throw new NotSupportedException();

@@ -303,6 +303,7 @@
                   VerticalScrollBarVisibility="Auto"
                   BorderThickness="1, 1, 1, 0"
                   Background="{DynamicResource DefaultBrush}"
+                  HeadersVisibility="{Binding IsGreetingVisible, Converter={StaticResource InverseBoolean2DataGridHeadersVisibilityConverter}}"
                   MinRowHeight="5"
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedAccount}">

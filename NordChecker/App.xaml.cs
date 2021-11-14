@@ -49,7 +49,7 @@ namespace NordChecker
                     NumberDecimalSeparator = "."
                 }
             };
-
+            
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,

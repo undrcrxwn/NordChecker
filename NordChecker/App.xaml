@@ -57,10 +57,16 @@
                     <vm:NumberConverter x:Key="NumberConverter"/>
                     <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>
                     <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+                    <vm:Boolean2DataGridHeadersVisibilityConverter x:Key="Boolean2DataGridHeadersVisibilityConverter"/>
                     <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
                     <vm:Boolean2ModeIconStringConverter x:Key="Boolean2ModeIconStringConverter"/>
                     <vm:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
                     <vm:TimeSpan2TotalSecondsConverter x:Key="TimeSpan2TotalSecondsConverter"/>
+
+                    <vm:ConverterChain x:Key="InverseBoolean2DataGridHeadersVisibilityConverter">
+                        <vm:InverseBooleanConverter/>
+                        <vm:Boolean2DataGridHeadersVisibilityConverter/>
+                    </vm:ConverterChain>
 
                     <ObjectDataProvider x:Key="LogEventLevelEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                         <ObjectDataProvider.MethodParameters>
