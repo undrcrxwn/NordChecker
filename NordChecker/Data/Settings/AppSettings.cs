@@ -134,7 +134,7 @@ namespace NordChecker.Data.Settings
                 .Set(ref _Theme, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#4155B9") as SolidColorBrush;
+        private SolidColorBrush _AccentColor = new BrushConverter().ConvertFrom("#5E70CF") as SolidColorBrush;
         public SolidColorBrush AccentColor
         {
             get => _AccentColor;
