@@ -4,8 +4,10 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Collections;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Domain
 {
     public class ComboStats : INotifyPropertyChangedAdvanced
     {

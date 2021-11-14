@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Collections
 {
     [DebuggerDisplay("Count={Count}")]
     public class ObservableDictionary<TKey, TValue>

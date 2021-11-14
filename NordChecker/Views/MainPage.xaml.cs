@@ -19,6 +19,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using NordChecker.Data.Settings;
+using NordChecker.Models.Domain;
 
 namespace NordChecker.Views
 {

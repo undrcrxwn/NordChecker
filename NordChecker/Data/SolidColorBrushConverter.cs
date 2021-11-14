@@ -2,7 +2,7 @@
 using System;
 using System.Windows.Media;
 
-namespace NordChecker.Models
+namespace NordChecker.Data
 {
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {

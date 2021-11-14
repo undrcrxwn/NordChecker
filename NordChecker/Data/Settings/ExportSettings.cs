@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Domain;
 
-namespace NordChecker.Models
+namespace NordChecker.Data.Settings
 {
     public class OutputFilter<TPayload> : INotifyPropertyChangedAdvanced, ICloneable
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace NordChecker.Models
+namespace NordChecker.Threading
 {
     public interface IBreakpointHandler
     {

@@ -2,8 +2,10 @@
 using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using NordChecker.Infrastructure;
+using NordChecker.Threading;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Domain
 {
     public enum AccountState
     {

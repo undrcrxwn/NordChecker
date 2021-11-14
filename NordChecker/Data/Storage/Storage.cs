@@ -3,7 +3,7 @@ using Serilog;
 using System;
 using System.IO;
 
-namespace NordChecker.Models
+namespace NordChecker.Data.Storage
 {
     public class Storage
     {

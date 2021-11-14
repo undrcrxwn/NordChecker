@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using NordChecker.Data.Settings;
+using NordChecker.Threading;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Domain.Checker
 {
     internal class Checker : IChecker
     {

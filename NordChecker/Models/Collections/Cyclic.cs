@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Collections
 {
     public class Cyclic<T> : ICollection<T>
     {

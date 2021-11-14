@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NordChecker.Models
+namespace NordChecker.Threading
 {
     public class MasterToken
     {

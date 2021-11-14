@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 
-namespace NordChecker.Models
+namespace NordChecker.Data.Storage
+
 {
     public class ContinuousStorage : Storage
     {

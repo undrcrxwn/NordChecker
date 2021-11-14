@@ -23,6 +23,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using NordChecker.Data.Settings;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Collections;
+using NordChecker.Models.Domain;
+using NordChecker.Models.Domain.Checker;
+using NordChecker.Threading;
 
 namespace NordChecker.ViewModels
 {

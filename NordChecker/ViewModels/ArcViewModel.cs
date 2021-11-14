@@ -1,6 +1,7 @@
 ﻿using NordChecker.Shared;
 using System.ComponentModel;
 using System.Windows;
+using NordChecker.Infrastructure;
 
 namespace NordChecker.ViewModels
 {

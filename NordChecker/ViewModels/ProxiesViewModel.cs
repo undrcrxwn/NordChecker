@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Collections;
+using NordChecker.Models.Domain;
 
 namespace NordChecker.ViewModels
 {
@@ -94,8 +97,11 @@ namespace NordChecker.ViewModels
             lock (Proxies)
             {
                 foreach (ProxyType proxyType in Enum.GetValues(typeof(ProxyType)))
-                    StatsByType[proxyType] = Proxies.Count(p => p.State == ProxyState.Valid
-                    && p.Client.Type == proxyType);
+                {
+                    StatsByType[proxyType] = Proxies.Count(p =>
+                        p.State == ProxyState.Valid &&
+                        p.Client.Type == proxyType);
+                }
 
                 foreach (ProxyState proxyState in Enum.GetValues(typeof(ProxyState)))
                     StatsByState[proxyState] = Proxies.Count(p => p.State == proxyState);

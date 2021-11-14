@@ -31,6 +31,8 @@ using System.Windows.Media.Effects;
 using HandyControl.Tools.Command;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using NordChecker.Data.Settings;
+using NordChecker.Infrastructure;
 
 namespace NordChecker.ViewModels
 {

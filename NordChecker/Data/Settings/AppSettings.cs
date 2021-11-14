@@ -7,8 +7,11 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Collections;
+using NordChecker.Models.Domain;
 
-namespace NordChecker.Models
+namespace NordChecker.Data.Settings
 {
     public class AppSettings : INotifyPropertyChangedAdvanced
     {

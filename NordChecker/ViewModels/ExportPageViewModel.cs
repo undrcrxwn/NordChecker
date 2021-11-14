@@ -19,6 +19,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using NordChecker.Data;
+using NordChecker.Data.Settings;
+using NordChecker.Infrastructure;
+using NordChecker.Models.Domain;
 
 namespace NordChecker.ViewModels
 {

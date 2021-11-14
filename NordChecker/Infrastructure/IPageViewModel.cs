@@ -1,4 +1,4 @@
-﻿namespace NordChecker.Shared
+﻿namespace NordChecker.Infrastructure
 {
     public interface IPageViewModel : INotifyPropertyChangedAdvanced
     {

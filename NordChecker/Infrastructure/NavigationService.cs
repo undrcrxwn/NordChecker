@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Controls;
 
-namespace NordChecker.Shared
+namespace NordChecker.Infrastructure
 {
     public sealed class NavigationService : INotifyPropertyChangedAdvanced
     {

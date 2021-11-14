@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace NordChecker.Models
+namespace NordChecker.Threading
 {
     public class ThreadDistributor<TPayload>
     {

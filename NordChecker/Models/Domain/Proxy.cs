@@ -1,6 +1,6 @@
 ﻿using Leaf.xNet;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Domain
 {
     public enum ProxyState
     {

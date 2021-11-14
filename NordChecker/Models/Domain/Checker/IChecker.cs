@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using System;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Domain.Checker
 {
     public interface IChecker
     {
