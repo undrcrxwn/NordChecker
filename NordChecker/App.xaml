@@ -55,7 +55,7 @@
                     <ImageBrush x:Key="PathSeparatorImageBrush" ImageSource="{StaticResource PathSeparatorDrawingImage}"/>
 
                     <vm:NumberConverter x:Key="NumberConverter"/>
-                    <vm:AccState2StringConverter x:Key="AccState2StringConverter"/>
+                    <vm:Enum2StringConverter x:Key="Enum2StringConverter"/>
                     <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
                     <vm:Boolean2DataGridHeadersVisibilityConverter x:Key="Boolean2DataGridHeadersVisibilityConverter"/>
                     <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>

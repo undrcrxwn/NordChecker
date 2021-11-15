@@ -6,9 +6,11 @@ using System.Windows;
 using System.Windows.Data;
 using NordChecker.Models.Domain;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Markup;
 using System.Windows.Controls;
+using NordChecker.Shared;
 
 namespace NordChecker.ViewModels
 {
@@ -61,25 +63,15 @@ namespace NordChecker.ViewModels
     }
 
     [ValueConversion(typeof(AccountState), typeof(string))]
-    public class AccState2StringConverter : IValueConverter
+    public class Enum2StringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (AccountState)value switch
-            {
-                AccountState.Unchecked => "🕒 В очереди",
-                AccountState.Reserved  => "🕖 В обработке",
-                AccountState.Invalid   => "❌ Невалидный",
-                AccountState.Free      => "✔️ Бесплатный",
-                AccountState.Premium   => "⭐ Премиум",
-                _ => throw new InvalidOperationException()
-            };
-        }
-
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            ((AccountState)value).GetAttribute<DisplayAttribute>()?.Name ?? value.ToString();
+        
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotSupportedException();
     }
-
+    
     [ValueConversion(typeof(bool), typeof(Visibility))]
     public class Boolean2VisibilityConverter : IValueConverter
     {
@@ -128,7 +120,7 @@ namespace NordChecker.ViewModels
             return (ApplicationTheme)value switch
             {
                 ApplicationTheme.Light => "Светлая",
-                ApplicationTheme.Dark => "Тёмная",
+                ApplicationTheme.Dark  => "Тёмная",
                 _ => value.ToString()
             };
         }

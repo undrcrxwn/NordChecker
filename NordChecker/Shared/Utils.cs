@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
@@ -47,7 +49,7 @@ namespace NordChecker.Shared
             return result;
         }
     }
-    
+
     public static class Extensions
     {
         /// <summary>
@@ -70,8 +72,8 @@ namespace NordChecker.Shared
         {
             string result = "";
 
-            if (@this.Days    > 0) result += @this.ToString(@"d\д\ ");
-            if (@this.Hours   > 0) result += @this.ToString(@"h\ч\ ");
+            if (@this.Days > 0) result += @this.ToString(@"d\д\ ");
+            if (@this.Hours > 0) result += @this.ToString(@"h\ч\ ");
             if (@this.Minutes > 0) result += @this.ToString(@"m\м\ ");
             if (@this.Seconds > 0 || (int)@this.TotalSeconds == 0)
                 result += @this.ToString(@"s\с");
@@ -97,9 +99,9 @@ namespace NordChecker.Shared
                 if (j >= @this.Length) break;
                 switch (@this[j + 1])
                 {
-                    case 'n':  builder.Append('\n'); break;
-                    case 'r':  builder.Append('\r'); break;
-                    case 't':  builder.Append('\t'); break;
+                    case 'n': builder.Append('\n'); break;
+                    case 'r': builder.Append('\r'); break;
+                    case 't': builder.Append('\t'); break;
                     case '\\': builder.Append('\\'); break;
                     default:
                         builder.Append('\\').Append(@this[j + 1]); break;
@@ -108,6 +110,14 @@ namespace NordChecker.Shared
             }
 
             return builder.ToString();
+        }
+        
+        public static TAttribute GetAttribute<TAttribute>(this Enum value)
+            where TAttribute : Attribute
+        {
+            return value.GetType()
+                .GetMember(value.ToString()).First()
+                .GetCustomAttribute<TAttribute>();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using NordChecker.Shared;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using NordChecker.Infrastructure;
 using NordChecker.Threading;
@@ -9,11 +10,11 @@ namespace NordChecker.Models.Domain
 {
     public enum AccountState
     {
-        Unchecked,
-        Reserved,
-        Invalid,
-        Free,
-        Premium
+        [Display(Name = "🕒 В очереди"  )] Unchecked,
+        [Display(Name = "🕖 В обработке")] Reserved,
+        [Display(Name = "❌ Невалидный" )] Invalid,
+        [Display(Name = "✔️ Бесплатный"  )] Free,
+        [Display(Name = "⭐ Премиум"     )] Premium
     }
 
     public class Account : INotifyPropertyChangedAdvanced

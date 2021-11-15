@@ -313,7 +313,7 @@
                 <DataGridTemplateColumn Header="Статус" SortMemberPath="State" IsReadOnly="True" CanUserSort="False" MaxWidth="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <emoji:TextBlock Text="{Binding State, Converter={StaticResource AccState2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                            <emoji:TextBlock Text="{Binding State, Converter={StaticResource Enum2StringConverter}, UpdateSourceTrigger=PropertyChanged}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
