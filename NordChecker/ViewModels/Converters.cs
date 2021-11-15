@@ -112,7 +112,7 @@ namespace NordChecker.ViewModels
             CultureInfo culture) => throw new NotSupportedException();
     }
 
-    [ValueConversion(typeof(bool), typeof(string))]
+    [ValueConversion(typeof(ApplicationTheme), typeof(string))]
     public class ApplicationTheme2StringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
