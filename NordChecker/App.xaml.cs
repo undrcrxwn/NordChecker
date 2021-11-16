@@ -94,7 +94,7 @@ namespace NordChecker
             base.OnStartup(e);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-                LogAndThrowUnhandledException(e.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
+                LogAndThrowUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
 
             DispatcherUnhandledException += (sender, e) =>
                 LogAndThrowUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");

@@ -37,7 +37,7 @@ namespace NordChecker.ViewModels
         public string Title
         {
             get => _Title;
-            private set => (this as INotifyPropertyChangedAdvanced)
+            protected set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Title, value, PropertyChanged);
         }
 
@@ -45,7 +45,7 @@ namespace NordChecker.ViewModels
         public string Description
         {
             get => _Description;
-            private set => (this as INotifyPropertyChangedAdvanced)
+            protected set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Description, value, PropertyChanged);
         }
 

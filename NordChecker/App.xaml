@@ -7,6 +7,7 @@
              xmlns:events="clr-namespace:Serilog.Events;assembly=Serilog"
              xmlns:themes="clr-namespace:HandyControl.Themes;assembly=HandyControl"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:NordChecker.Converters"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -54,19 +55,19 @@
                     <ImageBrush x:Key="HomeFillImageBrush" ImageSource="{StaticResource HomeFillDrawingImage}"/>
                     <ImageBrush x:Key="PathSeparatorImageBrush" ImageSource="{StaticResource PathSeparatorDrawingImage}"/>
 
-                    <vm:NumberConverter x:Key="NumberConverter"/>
-                    <vm:Enum2StringConverter x:Key="Enum2StringConverter"/>
-                    <vm:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
-                    <vm:Boolean2DataGridHeadersVisibilityConverter x:Key="Boolean2DataGridHeadersVisibilityConverter"/>
-                    <vm:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-                    <vm:Boolean2ModeIconStringConverter x:Key="Boolean2ModeIconStringConverter"/>
-                    <vm:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
-                    <vm:TimeSpan2TotalSecondsConverter x:Key="TimeSpan2TotalSecondsConverter"/>
-
-                    <vm:ConverterChain x:Key="InverseBoolean2DataGridHeadersVisibilityConverter">
-                        <vm:InverseBooleanConverter/>
-                        <vm:Boolean2DataGridHeadersVisibilityConverter/>
-                    </vm:ConverterChain>
+                    <converters:NumberConverter x:Key="NumberConverter"/>
+                    <converters:Enum2StringConverter x:Key="Enum2StringConverter"/>
+                    <converters:Boolean2VisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+                    <converters:Boolean2DataGridHeadersVisibilityConverter x:Key="Boolean2DataGridHeadersVisibilityConverter"/>
+                    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+                    <converters:Boolean2ModeIconStringConverter x:Key="Boolean2ModeIconStringConverter"/>
+                    <converters:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
+                    <converters:TimeSpan2TotalSecondsConverter x:Key="TimeSpan2TotalSecondsConverter"/>
+                    
+                    <converters:ConverterChain x:Key="InverseBoolean2DataGridHeadersVisibilityConverter">
+                        <converters:InverseBooleanConverter/>
+                        <converters:Boolean2DataGridHeadersVisibilityConverter/>
+                    </converters:ConverterChain>
 
                     <ObjectDataProvider x:Key="LogEventLevelEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                         <ObjectDataProvider.MethodParameters>

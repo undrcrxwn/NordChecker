@@ -19,6 +19,6 @@ namespace NordChecker.Data
         public override SolidColorBrush ReadJson(
             JsonReader reader, Type objectType, SolidColorBrush existingValue,
             bool hasExistingValue, JsonSerializer serializer) =>
-            _BrushConverter.ConvertFrom(reader.Value) as SolidColorBrush;
+            (SolidColorBrush)_BrushConverter.ConvertFrom(reader.Value);
     }
 }

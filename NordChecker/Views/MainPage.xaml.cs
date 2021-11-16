@@ -59,10 +59,10 @@ namespace NordChecker.Views
 
         private void UpdateFiltering()
         {
-            ICollectionView cv = dgAccounts.ItemsSource as ICollectionView;
+            var cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
             {
-                cv.Filter = (acc) => AppSettings.DataGridFilters[(acc as Account).State];
+                cv.Filter = (acc) => AppSettings.DataGridFilters[((Account)acc).State];
                 cv.Refresh();
             });
             Log.Information("New DataGrid filters have been applied");
@@ -72,7 +72,7 @@ namespace NordChecker.Views
 
         private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
         {
-            AppSettings.AccentColor = (sender as HandyControl.Controls.ColorPicker).SelectedBrush;
+            AppSettings.AccentColor = ((HandyControl.Controls.ColorPicker)sender).SelectedBrush;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace NordChecker.Views
 
         private void btnProceed_Click(object sender, RoutedEventArgs e)
         {
-            (DataContext as LoadProxiesWindowViewModel).IsOperationConfirmed = true;
+            ((LoadProxiesWindowViewModel)DataContext).IsOperationConfirmed = true;
             Close();
         }
 

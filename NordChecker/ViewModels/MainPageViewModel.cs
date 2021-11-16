@@ -49,7 +49,7 @@ namespace NordChecker.ViewModels
         public string Title
         {
             get => _Title;
-            private set => (this as INotifyPropertyChangedAdvanced)
+            protected set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Title, value, PropertyChanged);
         }
 
@@ -322,7 +322,7 @@ namespace NordChecker.ViewModels
                     window.Owner = Application.Current.MainWindow;
                     window.ShowDialog();
 
-                    var result = window.DataContext as LoadProxiesWindowViewModel;
+                    var result = (LoadProxiesWindowViewModel)window.DataContext;
                     if (!result.IsOperationConfirmed) return;
 
                     Task.Factory.StartNew(() =>
@@ -404,7 +404,7 @@ namespace NordChecker.ViewModels
         {
             navigationService.Navigating -= OnNavigationServiceNavigating;
             Application.Current.Dispatcher.Invoke(() =>
-                (navigationService.CurrentPage.DataContext as ExportPageViewModel)
+                ((ExportPageViewModel)navigationService.CurrentPage.DataContext)
                 .StateRefreshingTimer.Stop());
         }
 

@@ -100,7 +100,7 @@ namespace NordChecker.Models.Settings
 
         public AccountFilters Clone()
         {
-            var copy = MemberwiseClone() as AccountFilters;
+            var copy = (AccountFilters)MemberwiseClone();
             copy.Premium = Premium.Clone();
             copy.Free = Free.Clone();
             copy.Invalid = Invalid.Clone();
@@ -150,7 +150,7 @@ namespace NordChecker.Models.Settings
 
         public ExportSettings Clone()
         {
-            var copy = MemberwiseClone() as ExportSettings;
+            var copy = (ExportSettings)MemberwiseClone();
             copy.Filters = Filters.Clone();
             return copy;
         }
