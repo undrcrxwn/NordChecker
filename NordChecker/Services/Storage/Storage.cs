@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using Serilog;
-using System;
+﻿using System;
 using System.IO;
+using Newtonsoft.Json;
+using Serilog;
 
-namespace NordChecker.Data.Storage
+namespace NordChecker.Services.Storage
 {
     public class Storage
     {

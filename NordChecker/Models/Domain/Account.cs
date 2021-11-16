@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using NordChecker.Infrastructure;
-using NordChecker.Threading;
+using NordChecker.Services.Threading;
 
 namespace NordChecker.Models.Domain
 {

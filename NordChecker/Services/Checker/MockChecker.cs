@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using NordChecker.Models.Domain;
 using NordChecker.Models.Settings;
-using NordChecker.Threading;
+using NordChecker.Services.Threading;
 using Serilog;
 
-namespace NordChecker.Models.Domain.Checker
+namespace NordChecker.Services.Checker
 {
     internal class MockChecker : IChecker
     {

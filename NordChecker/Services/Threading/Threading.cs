@@ -1,13 +1,13 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Serilog;
 
-namespace NordChecker.Threading
+namespace NordChecker.Services.Threading
 {
     public class ThreadDistributor<TPayload>
     {

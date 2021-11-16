@@ -1,10 +1,9 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Timers;
+using Serilog;
 
-namespace NordChecker.Data.Storage
-
+namespace NordChecker.Services.Storage
 {
     public class ContinuousStorage : Storage
     {

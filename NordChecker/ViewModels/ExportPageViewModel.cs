@@ -19,10 +19,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using NordChecker.Data;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Models.Domain;
+using NordChecker.Services;
+using NordChecker.Services.Formatter;
 
 namespace NordChecker.ViewModels
 {

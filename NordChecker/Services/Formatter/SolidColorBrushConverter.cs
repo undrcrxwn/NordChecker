@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
-namespace NordChecker.Data
+namespace NordChecker.Services.Formatter
 {
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {

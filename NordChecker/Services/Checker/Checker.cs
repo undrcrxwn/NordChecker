@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json.Linq;
-using NordChecker.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using NordChecker.Models.Domain;
 using NordChecker.Models.Settings;
-using NordChecker.Threading;
+using NordChecker.Services.Threading;
+using NordChecker.Shared;
 
-namespace NordChecker.Models.Domain.Checker
+namespace NordChecker.Services.Checker
 {
     internal class Checker : IChecker
     {

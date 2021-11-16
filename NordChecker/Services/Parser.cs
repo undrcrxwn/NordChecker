@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using NordChecker.Models.Domain;
 
-namespace NordChecker.Models.Domain.Checker
+namespace NordChecker.Services
 {
     public class Parser
     {

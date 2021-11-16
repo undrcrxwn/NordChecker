@@ -33,6 +33,7 @@ using System.Windows.Threading;
 using System.Threading.Tasks;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
+using NordChecker.Services;
 
 namespace NordChecker.ViewModels
 {

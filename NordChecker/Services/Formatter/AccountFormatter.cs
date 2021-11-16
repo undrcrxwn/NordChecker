@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using NordChecker.Models.Domain;
 using NordChecker.Shared;
 
-namespace NordChecker.Data
+namespace NordChecker.Services.Formatter
 {
     public class AccountFormatter
     {

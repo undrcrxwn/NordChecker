@@ -14,13 +14,14 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using NordChecker.Data;
 using NordChecker.Models.Settings;
-using NordChecker.Data.Storage;
 using NordChecker.Infrastructure;
 using NordChecker.Models.Collections;
 using NordChecker.Models.Domain;
-using NordChecker.Models.Domain.Checker;
+using NordChecker.Services;
+using NordChecker.Services.Checker;
+using NordChecker.Services.Formatter;
+using NordChecker.Services.Storage;
 
 namespace NordChecker
 {

@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using NordChecker.Infrastructure;
 
-namespace NordChecker.Infrastructure
+namespace NordChecker.Services
 {
     public sealed class NavigationService : INotifyPropertyChangedAdvanced
     {
