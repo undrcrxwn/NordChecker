@@ -1,7 +1,6 @@
 ﻿using HandyControl.Themes;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Taskbar;
-using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
@@ -28,12 +27,12 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using Leaf.xNet;
 using System.Windows.Media.Effects;
-using HandyControl.Tools.Command;
 using System.Windows.Threading;
 using System.Threading.Tasks;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
+using NordChecker.Commands;
 
 namespace NordChecker.ViewModels
 {
@@ -44,7 +43,7 @@ namespace NordChecker.ViewModels
         Working
     }
 
-    public class MainWindowViewModel : INotifyPropertyChangedAdvanced
+    public partial class MainWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -70,25 +69,7 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
-
-        #region Commands
-
-        #region OpenFromTrayCommand
-
-        public ICommand OpenFromTrayCommand { get; }
-
-        private bool CanExecuteOpenFromTrayCommand(object parameter) => true;
-
-        private void OnOpenFromTrayCommandExecuted(object parameter)
-        {
-            Log.Information("OnOpenFromTrayCommandExecuted");
-            WindowVisibility = Visibility.Visible;
-        }
-
-        #endregion
-
-        #endregion
-
+        
         private void UpdateTitle()
         {
             IPageViewModel pageViewModel = null;
@@ -147,7 +128,7 @@ namespace NordChecker.ViewModels
                     UpdateAppearence();
             };
 
-            OpenFromTrayCommand = new LambdaCommand(OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
+            OpenFromTrayCommand = new RelayCommand(nameof(OpenFromTrayCommand), OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
         }
     }
 }

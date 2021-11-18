@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
@@ -21,9 +20,9 @@ using System.Windows;
 using System.Windows.Input;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Domain;
 using NordChecker.Services;
 using NordChecker.Services.Formatter;
+using NordChecker.Commands;
 
 namespace NordChecker.ViewModels
 {
@@ -266,9 +265,9 @@ namespace NordChecker.ViewModels
             UpdateOutputPreview();
             UpdateCanProceed();
 
-            ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
-            ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
-            NavigateHomeCommand = new LambdaCommand(OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
+            ExportCommand = new RelayCommand(nameof(ExportCommand), OnExportCommandExecuted, CanExecuteExportCommand);
+            ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
+            NavigateHomeCommand = new RelayCommand(nameof(NavigateHomeCommand), OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();

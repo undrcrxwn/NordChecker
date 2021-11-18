@@ -1,12 +1,11 @@
-﻿using NordChecker.Shared;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using NordChecker.Infrastructure;
 using NordChecker.Services.Threading;
 
-namespace NordChecker.Models.Domain
+namespace NordChecker.Models
 {
     public enum AccountState
     {

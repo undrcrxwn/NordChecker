@@ -1,5 +1,5 @@
 ﻿using System;
-using NordChecker.Models.Domain;
+using NordChecker.Models;
 using Serilog;
 
 namespace NordChecker.Services.Checker

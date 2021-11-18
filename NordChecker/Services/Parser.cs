@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using NordChecker.Models.Domain;
+using NordChecker.Models;
 
 namespace NordChecker.Services
 {

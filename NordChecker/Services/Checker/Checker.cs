@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
-using NordChecker.Models.Domain;
+using NordChecker.Models;
 using NordChecker.Models.Settings;
 using NordChecker.Services.Threading;
 using NordChecker.Shared;

@@ -10,8 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Collections;
-using NordChecker.Models.Domain;
+using NordChecker.Shared.Collections;
 
 namespace NordChecker.ViewModels
 {
@@ -36,16 +35,16 @@ namespace NordChecker.ViewModels
                 .Set(ref _StatsByState, value, PropertyChanged);
         }
 
-        private Dictionary<ProxyType, ArcViewModel> _ArcsByType;
-        public Dictionary<ProxyType, ArcViewModel> ArcsByType
+        private Dictionary<ProxyType, Arc> _ArcsByType;
+        public Dictionary<ProxyType, Arc> ArcsByType
         {
             get => _ArcsByType;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _ArcsByType, value, PropertyChanged);
         }
 
-        private Dictionary<ProxyState, ArcViewModel> _ArcsByState;
-        public Dictionary<ProxyState, ArcViewModel> ArcsByState
+        private Dictionary<ProxyState, Arc> _ArcsByState;
+        public Dictionary<ProxyState, Arc> ArcsByState
         {
             get => _ArcsByState;
             set => (this as INotifyPropertyChangedAdvanced)
@@ -76,16 +75,16 @@ namespace NordChecker.ViewModels
                 .Set(ref _DuplicatesCount, value, PropertyChanged);
         }
 
-        private ArcViewModel _ArcInvalid = new ArcViewModel(0, 1, Visibility.Hidden);
-        public ArcViewModel ArcInvalid
+        private Arc _ArcInvalid = new Arc(0, 1, Visibility.Hidden);
+        public Arc ArcInvalid
         {
             get => _ArcInvalid;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _ArcInvalid, value, PropertyChanged);
         }
 
-        private ArcViewModel _ArcUnchecked = new ArcViewModel(0, 1, Visibility.Hidden);
-        public ArcViewModel ArcUnchecked
+        private Arc _ArcUnchecked = new Arc(0, 1, Visibility.Hidden);
+        public Arc ArcUnchecked
         {
             get => _ArcUnchecked;
             set => (this as INotifyPropertyChangedAdvanced)
@@ -186,13 +185,13 @@ namespace NordChecker.ViewModels
             foreach (ProxyState key in Enum.GetValues(typeof(ProxyState)))
                 _StatsByState.Add(key, 0);
 
-            _ArcsByType = new Dictionary<ProxyType, ArcViewModel>();
+            _ArcsByType = new Dictionary<ProxyType, Arc>();
             foreach (ProxyType key in Enum.GetValues(typeof(ProxyType)))
-                _ArcsByType.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
+                _ArcsByType.Add(key, new Arc(0, 1, Visibility.Hidden));
 
-            _ArcsByState = new Dictionary<ProxyState, ArcViewModel>();
+            _ArcsByState = new Dictionary<ProxyState, Arc>();
             foreach (ProxyState key in Enum.GetValues(typeof(ProxyState)))
-                _ArcsByState.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
+                _ArcsByState.Add(key, new Arc(0, 1, Visibility.Hidden));
         }
     }
 }

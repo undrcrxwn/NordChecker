@@ -1,9 +1,9 @@
-﻿using NordChecker.Models.Domain;
-using NordChecker.Shared;
+﻿using NordChecker.Shared;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Windows.Data;
+using NordChecker.Models;
 
 namespace NordChecker.Converters
 {

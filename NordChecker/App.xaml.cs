@@ -16,12 +16,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Collections;
-using NordChecker.Models.Domain;
 using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Formatter;
 using NordChecker.Services.Storage;
+using NordChecker.Shared.Collections;
 
 namespace NordChecker
 {

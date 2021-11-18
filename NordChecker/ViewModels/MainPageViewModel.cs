@@ -1,6 +1,5 @@
 ﻿using Leaf.xNet;
 using Microsoft.Win32;
-using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
@@ -25,15 +24,15 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Collections;
-using NordChecker.Models.Domain;
 using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
+using NordChecker.Shared.Collections;
+using NordChecker.Commands;
 
 namespace NordChecker.ViewModels
 {
-    public class MainPageViewModel : IPageViewModel
+    public partial class MainPageViewModel : IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
@@ -82,8 +81,8 @@ namespace NordChecker.ViewModels
                 .Set(ref _ComboStats, value, PropertyChanged);
         }
 
-        private ObservableDictionary<AccountState, ArcViewModel> _ComboArcs;
-        public ObservableDictionary<AccountState, ArcViewModel> ComboArcs
+        private ObservableDictionary<AccountState, Arc> _ComboArcs;
+        public ObservableDictionary<AccountState, Arc> ComboArcs
         {
             get => _ComboArcs;
             set => (this as INotifyPropertyChangedAdvanced)
@@ -117,392 +116,7 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
-
-        #region Commands
-
-        #region StartCommand
-
-        public ICommand StartCommand { get; }
-
-        private bool CanExecuteStartCommand(object parameter) => PipelineState == PipelineState.Idle;
-
-        private void OnStartCommandExecuted(object parameter)
-        {
-            Log.Information("OnStartCommandExecuted");
-            progressWatch.Restart();
-
-            PipelineState = PipelineState.Working;
-            distributor.Start();
-        }
-
-        #endregion
-
-        #region PauseCommand
-
-        public ICommand PauseCommand { get; }
-
-        private bool CanExecutePauseCommand(object parameter) => PipelineState == PipelineState.Working;
-
-        private void OnPauseCommandExecuted(object parameter)
-        {
-            Log.Information("OnPauseCommandExecuted");
-            progressWatch.Stop();
-
-            PipelineState = PipelineState.Paused;
-            distributor.Stop();
-            tokenSource.Pause();
-        }
-
-        #endregion
-
-        #region ContinueCommand
-
-        public ICommand ContinueCommand { get; }
-
-        private bool CanExecuteContinueCommand(object parameter) => PipelineState == PipelineState.Paused;
-
-        private void OnContinueCommandExecuted(object parameter)
-        {
-            Log.Information("OnContinueCommandExecuted");
-            progressWatch.Start();
-
-            PipelineState = PipelineState.Working;
-            distributor.Start();
-            tokenSource.Continue();
-        }
-
-        #endregion
-
-        #region StopCommand
-
-        public ICommand StopCommand { get; }
-
-        private bool CanExecuteStopCommand(object parameter) => PipelineState != PipelineState.Idle;
-
-        private void OnStopCommandExecuted(object parameter)
-        {
-            Log.Information("OnStopCommandExecuted");
-            progressWatch.Stop();
-
-            PipelineState = PipelineState.Idle;
-            distributor.Stop();
-            tokenSource.Cancel();
-        }
-
-        #endregion
-
-        #region LoadCombosCommand
-
-        public ICommand LoadCombosCommand { get; }
-
-        private bool CanExecuteLoadCombosCommand(object parameter) => true;
-
-        private void OnLoadCombosCommandExecuted(object parameter)
-        {
-            Log.Information("OnLoadCombosCommandExecuted");
-
-            Task.Run(() =>
-            {
-                OpenFileDialog dialog = null;
-                bool? dialogState = null;
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    dialog = new OpenFileDialog();
-                    dialog.DefaultExt = ".txt";
-                    dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
-                    dialogState = dialog.Show(AppSettings.IsTopMostWindow);
-                });
-                if (dialogState != true) return;
-
-
-                Task.Factory.StartNew(() =>
-                {
-                    Log.Information("Reading combos from {file}", dialog.FileName);
-                    Stopwatch watch = new Stopwatch();
-                    watch.Start();
-
-                    string line;
-                    List<Account> cache = new List<Account>();
-                    using (StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName)))
-                    {
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            Account account;
-                            try
-                            {
-                                account = ComboParser.Parse(line);
-                            }
-                            catch
-                            {
-                                ComboStats.MismatchedCount++;
-                                Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
-                                continue;
-                            }
-
-                            if (AppSettings.AreComboDuplicatesSkipped)
-                            {
-                                if (Accounts.Any(a => a.Credentials == account.Credentials) ||
-                                    cache.Any(a => a.Credentials == account.Credentials))
-                                {
-                                    ComboStats.DuplicatesCount++;
-                                    Log.Debug("Account {credentials} has been skipped as duplicate", account);
-                                    continue;
-                                }
-                            }
-
-                            cache.Add(account);
-                            Log.Debug("Account {credentials} has been added to the cache", account);
-                        }
-                    }
-
-                    watch.Stop();
-                    Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
-                        cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        foreach (Account account in cache)
-                            Accounts.Add(account);
-                        lock (ComboStats.ByState)
-                            ComboStats.ByState[AccountState.Unchecked] += cache.Count;
-                    });
-                });
-            });
-        }
-
-        #endregion
-
-        #region ClearCombosCommand
-
-        public ICommand ClearCombosCommand { get; }
-
-        private bool CanExecuteClearCombosCommand(object parameter) => PipelineState != PipelineState.Working;
-
-        private void OnClearCombosCommandExecuted(object parameter)
-        {
-            Log.Information("OnClearCombosCommandExecuted");
-
-            Accounts.Clear();
-            ComboStats.Clear();
-        }
-
-        #endregion
-
-        #region StopAndClearCombosCommand
-
-        public ICommand StopAndClearCombosCommand { get; }
-
-        private bool CanExecuteStopAndClearCombosCommand(object parameter)
-            => StopCommand.CanExecute(null) && ClearCombosCommand.CanExecute(null);
-
-        private void OnStopAndClearCombosCommandExecuted(object parameter)
-        {
-            Log.Information("OnStopAndClearCombosCommandExecuted");
-
-            StopCommand.Execute(null);
-            ClearCombosCommand.Execute(null);
-        }
-
-        #endregion
-
-        #region LoadProxiesCommand
-
-        public ICommand LoadProxiesCommand { get; }
-
-        private bool CanExecuteLoadProxiesCommand(object parameter) => true;
-
-        private void OnLoadProxiesCommandExecuted(object parameter)
-        {
-            Log.Information("OnLoadProxiesCommandExecuted");
-
-            Task.Run(() =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Window window = new LoadProxiesWindow();
-                    window.Owner = Application.Current.MainWindow;
-                    window.ShowDialog();
-
-                    var result = (LoadProxiesWindowViewModel)window.DataContext;
-                    if (!result.IsOperationConfirmed) return;
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        Log.Information("Reading {type} proxies from {file}", result.ProxyType, result.Path);
-                        Stopwatch watch = new Stopwatch();
-                        watch.Start();
-
-                        string line;
-                        using (StreamReader reader = new StreamReader(File.OpenRead(result.Path)))
-                        {
-                            lock (ProxiesViewModel.Proxies)
-                            {
-                                while ((line = reader.ReadLine()) != null)
-                                {
-                                    ProxyClient client;
-                                    try
-                                    {
-                                        var types = Enum.GetValues(typeof(ProxyType));
-                                        var type = (ProxyType)types.GetValue(new Random().Next(0, types.Length));
-                                        //client = ProxyClient.Parse(result.ProxyType, line);
-                                        client = ProxyClient.Parse(type, line);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        ProxiesViewModel.MismatchedCount++;
-                                        Log.Error(e, "Line \"{line}\" has been skipped as mismatched", line);
-                                        continue;
-                                    }
-
-                                    if (AppSettings.AreProxyDuplicatesSkipped)
-                                    {
-                                        if (ProxiesViewModel.Proxies.Any(p => p.Client.ToString() == client.ToString()))
-                                        {
-                                            ProxiesViewModel.DuplicatesCount++;
-                                            Log.Debug("Proxy {proxy} has been skipped as duplicate", client);
-                                            continue;
-                                        }
-                                    }
-
-                                    Proxy proxy = new Proxy(client);
-
-                                    var states = Enum.GetValues(typeof(ProxyState));
-                                    proxy.State = (ProxyState)states.GetValue(new Random().Next(0, states.Length));
-
-                                    ProxiesViewModel.Proxies.Add(proxy);
-                                    ProxiesViewModel.LoadedCount++;
-                                    Log.Debug("Proxy {proxy} has been added to the dispenser", client);
-                                }
-                            }
-                        }
-
-                        watch.Stop();
-                        Log.Information("{total} proxies have been extracted from {file} in {elapsed}ms",
-                            ProxiesViewModel.Proxies.Count, result.Path, watch.ElapsedMilliseconds);
-                    });
-                });
-            });
-        }
-
-        #endregion
-
-        #region ExportCommand
-
-        public ICommand ExportCommand { get; }
-
-        private bool CanExecuteExportCommand(object parameter)
-            => PipelineState != PipelineState.Working
-            && Accounts.Count > 0;
-
-        private void OnExportCommandExecuted(object parameter)
-        {
-            Log.Information("OnExportCommandExecuted");
-            navigationService.Navigate<ExportPage>();
-            navigationService.Navigating += OnNavigationServiceNavigating;
-        }
-
-        private void OnNavigationServiceNavigating(object sender, Page e)
-        {
-            navigationService.Navigating -= OnNavigationServiceNavigating;
-            Application.Current.Dispatcher.Invoke(() =>
-                ((ExportPageViewModel)navigationService.CurrentPage.DataContext)
-                .StateRefreshingTimer.Stop());
-        }
-
-        #endregion
-
-        #region CopyAccountCredentialsCommand
-
-        public ICommand CopyAccountCredentialsCommand { get; }
-
-        private bool CanExecuteCopyAccountCredentialsCommand(object parameter) => true;
-
-        private void OnCopyAccountCredentialsCommandExecuted(object parameter)
-        {
-            Log.Information("OnCopyAccountCredentialsExecuted");
-            var (mail, password) = SelectedAccount.Credentials;
-            try
-            {
-                Clipboard.SetText($"{mail}:{password}");
-                Log.Information("Clipboard text has been set to {0}", $"{mail}:{password}");
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Failed to write account credentials {0} to clipboard", (mail, password));
-            }
-        }
-
-        #endregion
-
-        #region RemoveAccountCommand
-
-        public ICommand RemoveAccountCommand { get; }
-
-        private bool CanExecuteRemoveAccountCommand(object parameter) => true;
-
-        private void OnRemoveAccountCommandExecuted(object parameter)
-        {
-            Log.Information("OnRemoveAccountCommandExecuted");
-            var account = SelectedAccount;
-            account.MasterToken?.Cancel();
-            lock (ComboStats.ByState)
-                ComboStats.ByState[account.State]--;
-            Accounts.Remove(account);
-            Log.Information("{0} has been removed", account);
-        }
-
-        #endregion
-
-        #region ContactAuthorCommand
-
-        public ICommand ContactAuthorCommand { get; }
-
-        private bool CanExecuteContactAuthorCommand(object parameter) => true;
-
-        private void OnContactAuthorCommandExecuted(object parameter)
-        {
-            Log.Information("OnContactAuthorCommandExecuted");
-            try
-            {
-                if (IsTelegramInstalled)
-                    Process.Start("cmd", "/c start tg://resolve?domain=undrcrxwn");
-                else
-                    Process.Start("cmd", "/c start https://t.me/undrcrxwn");
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Cannot open Telegram URL due to {exception}", e.GetType());
-            }
-        }
-
-        private bool IsTelegramInstalled
-        {
-            get
-            {
-                string registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryKey))
-                {
-                    foreach (string subkeyName in key.GetSubKeyNames())
-                    {
-                        using (RegistryKey subkey = key.OpenSubKey(subkeyName))
-                        {
-                            try
-                            {
-                                if (subkey.GetValue("DisplayName").ToString().ToLower().StartsWith("telegram"))
-                                    return true;
-                            }
-                            catch { }
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-
-        #endregion
-
-        #endregion
-
+        
         public void RefreshComboArcs()
         {
             int loaded = Math.Max(1, Accounts.Count);
@@ -611,9 +225,9 @@ namespace NordChecker.ViewModels
                 (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ComboStats));
 
-            _ComboArcs = new ObservableDictionary<AccountState, ArcViewModel>();
+            _ComboArcs = new ObservableDictionary<AccountState, Arc>();
             foreach (AccountState key in Enum.GetValues(typeof(AccountState)))
-                _ComboArcs.Add(key, new ArcViewModel(0, 1, Visibility.Hidden));
+                _ComboArcs.Add(key, new Arc(0, 1, Visibility.Hidden));
 
             ComboArcs.CollectionChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -659,21 +273,21 @@ namespace NordChecker.ViewModels
             
             #region Commands
 
-            StartCommand = new LambdaCommand(OnStartCommandExecuted, CanExecuteStartCommand);
-            PauseCommand = new LambdaCommand(OnPauseCommandExecuted, CanExecutePauseCommand);
-            ContinueCommand = new LambdaCommand(OnContinueCommandExecuted, CanExecuteContinueCommand);
-            StopCommand = new LambdaCommand(OnStopCommandExecuted, CanExecuteStopCommand);
+            StartCommand = new RelayCommand(nameof(StartCommand), OnStartCommandExecuted, CanExecuteStartCommand);
+            PauseCommand = new RelayCommand(nameof(PauseCommand), OnPauseCommandExecuted, CanExecutePauseCommand);
+            ContinueCommand = new RelayCommand(nameof(ContinueCommand), OnContinueCommandExecuted, CanExecuteContinueCommand);
+            StopCommand = new RelayCommand(nameof(StopCommand), OnStopCommandExecuted, CanExecuteStopCommand);
 
-            LoadCombosCommand = new LambdaCommand(OnLoadCombosCommandExecuted, CanExecuteLoadCombosCommand);
-            ClearCombosCommand = new LambdaCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
-            StopAndClearCombosCommand = new LambdaCommand(OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
-            LoadProxiesCommand = new LambdaCommand(OnLoadProxiesCommandExecuted, CanExecuteLoadProxiesCommand);
-            ExportCommand = new LambdaCommand(OnExportCommandExecuted, CanExecuteExportCommand);
+            LoadCombosCommand = new RelayCommand(nameof(LoadCombosCommand), OnLoadCombosCommandExecuted);
+            ClearCombosCommand = new RelayCommand(nameof(ClearCombosCommand), OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
+            StopAndClearCombosCommand = new RelayCommand(nameof(StopAndClearCombosCommand), OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
+            LoadProxiesCommand = new RelayCommand(nameof(LoadProxiesCommand), OnLoadProxiesCommandExecuted);
+            ExportCommand = new RelayCommand(nameof(ExportCommand), OnExportCommandExecuted, CanExecuteExportCommand);
 
-            CopyAccountCredentialsCommand = new LambdaCommand(OnCopyAccountCredentialsCommandExecuted, CanExecuteCopyAccountCredentialsCommand);
-            RemoveAccountCommand = new LambdaCommand(OnRemoveAccountCommandExecuted, CanExecuteRemoveAccountCommand);
+            CopyAccountCredentialsCommand = new RelayCommand(nameof(CopyAccountCredentialsCommand), OnCopyAccountCredentialsCommandExecuted);
+            RemoveAccountCommand = new RelayCommand(nameof(RemoveAccountCommand), OnRemoveAccountCommandExecuted);
 
-            ContactAuthorCommand = new LambdaCommand(OnContactAuthorCommandExecuted, CanExecuteContactAuthorCommand);
+            ContactAuthorCommand = new RelayCommand(nameof(ContactAuthorCommand), OnContactAuthorCommandExecuted);
 
             #endregion
 

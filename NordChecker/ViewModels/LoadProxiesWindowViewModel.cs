@@ -1,6 +1,5 @@
 ﻿using Leaf.xNet;
 using Microsoft.Win32;
-using NordChecker.Commands;
 using NordChecker.Models;
 using NordChecker.Shared;
 using Serilog;
@@ -12,10 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NordChecker.Infrastructure;
+using NordChecker.Commands;
 
 namespace NordChecker.ViewModels
 {
-    public class LoadProxiesWindowViewModel : INotifyPropertyChangedAdvanced
+    public partial class LoadProxiesWindowViewModel : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -54,31 +54,10 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
-
-        public ICommand ChoosePathCommand { get; }
-
-        private bool CanExecuteChoosePathCommand(object parameter) => true;
-
-        private void OnChoosePathCommandExecuted(object parameter)
-        {
-            Log.Information("OnChoosePathCommandExecuted");
-
-            Task.Run(() =>
-            {
-                var dialog = new OpenFileDialog();
-                dialog.DefaultExt = ".txt";
-                dialog.Filter = "NordVPN Proxy List|*.txt|Все файлы|*.*";
-                IsWindowVisible = false;
-                if (dialog.ShowDialog() != true) return;
-                IsWindowVisible = true;
-
-                Path = dialog.FileName;
-            });
-        }
-
+        
         public LoadProxiesWindowViewModel()
         {
-            ChoosePathCommand = new LambdaCommand(OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
+            ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
-using NordChecker.Models.Domain;
+using NordChecker.Models;
 using NordChecker.Shared;
 
 namespace NordChecker.Services.Formatter

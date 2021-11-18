@@ -1,13 +1,12 @@
-﻿using HandyControl.Tools.Extension;
-using NordChecker.Shared;
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using HandyControl.Tools.Extension;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Collections;
+using NordChecker.Shared.Collections;
 
-namespace NordChecker.Models.Domain
+namespace NordChecker.Models
 {
     public class ComboStats : INotifyPropertyChangedAdvanced
     {
@@ -49,7 +48,7 @@ namespace NordChecker.Models.Domain
         {
             var dictionary = Enum.GetValues<AccountState>().Reverse()
                 .ToDictionary(key => key, value => 0);
-            ByState = new(dictionary);
+            ByState = new ObservableDictionary<AccountState, int>(dictionary);
         }
 
         public void Clear()

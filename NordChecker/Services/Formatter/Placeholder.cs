@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NordChecker.Models.Domain;
+using NordChecker.Models;
 
 namespace NordChecker.Services.Formatter
 {

@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordChecker", "NordChecker\NordChecker.csproj", "{958FCC21-1DC6-4278-AE16-A3D27200886F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3F97EAB1-9C3E-4719-8E45-282EF2F765A5}"
+	ProjectSection(SolutionItems) = preProject
+		.filenesting.json = .filenesting.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

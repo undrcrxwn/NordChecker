@@ -8,8 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Collections;
-using NordChecker.Models.Domain;
+using NordChecker.Shared.Collections;
 
 namespace NordChecker.Models.Settings
 {

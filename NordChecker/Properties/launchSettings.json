@@ -1,8 +1,7 @@
 {
   "profiles": {
     "NordChecker": {
-      "commandName": "Project",
-      "commandLineArgs": "-dev -logs"
+      "commandName": "Project"
     }
   }
 }

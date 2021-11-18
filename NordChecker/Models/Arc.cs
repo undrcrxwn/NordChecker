@@ -1,11 +1,10 @@
-﻿using NordChecker.Shared;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using NordChecker.Infrastructure;
 
-namespace NordChecker.ViewModels
+namespace NordChecker.Models
 {
-    public class ArcViewModel : INotifyPropertyChangedAdvanced
+    public record Arc : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -24,10 +23,8 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _EndAngle, value, PropertyChanged);
         }
-
-
+        
         private Visibility _Visibility;
-
         public Visibility Visibility
         {
             get => _Visibility;
@@ -35,7 +32,7 @@ namespace NordChecker.ViewModels
                 .Set(ref _Visibility, value, PropertyChanged);
         }
 
-        public ArcViewModel(float startAngle, float endAngle, Visibility visibility)
+        public Arc(float startAngle, float endAngle, Visibility visibility)
         {
             StartAngle = startAngle;
             EndAngle = endAngle;

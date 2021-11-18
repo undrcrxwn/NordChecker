@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using NordChecker.Infrastructure;
-using NordChecker.Models.Domain;
 
 namespace NordChecker.Models.Settings
 {

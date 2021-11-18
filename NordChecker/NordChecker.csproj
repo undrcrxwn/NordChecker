@@ -10,14 +10,19 @@
     <Copyright>undrcrxwn</Copyright>
     <NeutralLanguage>ru</NeutralLanguage>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <StartupObject>NordChecker.App</StartupObject>
+    <Win32Resource />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+    <ProjectCapability Include="DynamicDependentFile" />
+    <ProjectCapability Include="DynamicFileNesting" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,7 +20,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using NordChecker.Models.Settings;
-using NordChecker.Models.Domain;
 
 namespace NordChecker.Views
 {
