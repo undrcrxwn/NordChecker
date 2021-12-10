@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
@@ -29,8 +30,11 @@ namespace NordChecker.Services.Checker
                 breakpointHandler.HandleBreakpointIfNeeded();
             }
 
-            var states = Enum.GetValues<AccountState>();
-            account.State = states[_Random.Next(states.Length)];
+            throw new DivideByZeroException();
+            var states = Enum.GetValues<AccountState>().ToList();
+            states.Remove(AccountState.Unchecked);
+            states.Remove(AccountState.Reserved);
+            account.State = states[_Random.Next(states.Count)];
         }
 
         void IChecker.HandleFailure(Account account, Exception exception)

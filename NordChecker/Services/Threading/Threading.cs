@@ -9,9 +9,10 @@ using Serilog;
 
 namespace NordChecker.Services.Threading
 {
-    public class ThreadDistributor<TPayload>
+    public class ThreadDistributor<TPayload> where TPayload : class
     {
         public event EventHandler<TPayload> TaskCompleted;
+        public event EventHandler<TPayload> TaskAborted;
 
         private readonly MasterToken _Token;
         private readonly ObservableCollection<TPayload> _Payloads;
@@ -34,7 +35,7 @@ namespace NordChecker.Services.Threading
                 int delta = value - _ThreadCount;
                 _ThreadCount = value;
 
-                for (var i = 0; i < delta; i++)
+                for (int i = 0; i < delta; i++)
                     Distribute();
 
                 if (delta < 0)
@@ -57,7 +58,8 @@ namespace NordChecker.Services.Threading
             _Predicate = predicate;
             _Handler = handler;
 
-            TaskCompleted += (sender, e) => Distribute();
+            TaskCompleted += (sender, e) => Task.Run(Distribute);
+            TaskAborted += (sender, e) => Task.Run(Distribute);
         }
 
         public void Start() => _Token.Continue();
@@ -79,7 +81,16 @@ namespace NordChecker.Services.Threading
                     }
                 }
 
-                _Token.ThrowOrWaitIfRequested();
+                try
+                {
+                    _Token.ThrowOrWaitIfRequested();
+                }
+                catch
+                {
+                    TaskAborted?.Invoke(this, null);
+                    return;
+                }
+
                 TPayload payload;
                 try
                 {
@@ -93,17 +104,26 @@ namespace NordChecker.Services.Threading
                     return;
                 }
 
-                _Token.ThrowOrWaitIfRequested();
-                _Handler(payload);
-                TaskCompleted?.Invoke(this, payload);
+                try
+                {
+                    _Token.ThrowOrWaitIfRequested();
+                    _Handler(payload);
+                }
+                catch
+                {
+                    TaskAborted?.Invoke(this, payload);
+                    return;
+                }
 
-                var dispatcher = Dispatcher.CurrentDispatcher;
+                TaskCompleted?.Invoke(this, payload);
+                
+                Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
                 dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
                 Dispatcher.Run();
             },
               CancellationToken.None,
               TaskCreationOptions.LongRunning,
-              TaskScheduler.Default);
+              TaskScheduler.Current);
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

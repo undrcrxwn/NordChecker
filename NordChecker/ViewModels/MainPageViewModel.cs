@@ -259,14 +259,16 @@ namespace NordChecker.ViewModels
 
             distributor.TaskCompleted += (sender, account) =>
             {
+                int uncompletedCount;
                 lock (ComboStats.ByState)
                 {
                     ComboStats.ByState[AccountState.Reserved]--;
                     ComboStats.ByState[account.State]++;
-                }
 
-                int uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
-                    + ComboStats.ByState[AccountState.Reserved];
+                    uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
+                        + ComboStats.ByState[AccountState.Reserved];
+                }
+                
                 if (uncompletedCount == 0)
                     PauseCommand.Execute(null);
             };

@@ -45,5 +45,7 @@ namespace NordChecker.Models
             Email = email;
             Password = password;
         }
+
+        public override string ToString() => $"{Email}:{Password}";
     }
 }
