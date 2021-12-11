@@ -58,18 +58,18 @@ namespace NordChecker.Services.Threading
             _Predicate = predicate;
             _Handler = handler;
 
-            TaskCompleted += (sender, e) => Task.Run(Distribute);
-            TaskAborted += (sender, e) => Task.Run(Distribute);
+            TaskCompleted += (sender, e) => Distribute();
+            TaskAborted += (sender, e) => TaskCompleted?.Invoke(this, null);
         }
 
         public void Start() => _Token.Continue();
 
         public void Stop() => _Token.Pause();
 
-        public void Distribute()
+        public async Task Distribute()
         {
             Log.Verbose("New distribution");
-            Task.Factory.StartNew(() =>
+            await Task.Factory.StartNew(() =>
             {
                 _Token.ThrowOrWaitIfRequested();
                 lock (_AbortionLocker)

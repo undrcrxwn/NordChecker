@@ -30,7 +30,6 @@ namespace NordChecker.Services.Checker
                 breakpointHandler.HandleBreakpointIfNeeded();
             }
 
-            throw new DivideByZeroException();
             var states = Enum.GetValues<AccountState>().ToList();
             states.Remove(AccountState.Unchecked);
             states.Remove(AccountState.Reserved);

@@ -123,7 +123,7 @@ namespace NordChecker.ViewModels
             Dictionary<AccountState, float> shares =
                 ComboStats.ByState.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
 
-            float margin = 6;
+            const float margin = 6;
             float pivot = margin / 2;
             float maxPossibleAngle = 360 - (shares.Values.Count(v => v > 0) * margin);
             foreach (var (state, share) in shares)
@@ -263,7 +263,7 @@ namespace NordChecker.ViewModels
                 lock (ComboStats.ByState)
                 {
                     ComboStats.ByState[AccountState.Reserved]--;
-                    ComboStats.ByState[account.State]++;
+                    ComboStats.ByState[account?.State ?? AccountState.Invalid]++;
 
                     uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
                         + ComboStats.ByState[AccountState.Reserved];
@@ -272,7 +272,7 @@ namespace NordChecker.ViewModels
                 if (uncompletedCount == 0)
                     PauseCommand.Execute(null);
             };
-            
+
             #region Commands
 
             StartCommand = new RelayCommand(nameof(StartCommand), OnStartCommandExecuted, CanExecuteStartCommand);
