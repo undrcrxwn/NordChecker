@@ -45,7 +45,7 @@ namespace NordChecker.ViewModels
                 .Set(ref _Path, value, PropertyChanged);
         }
 
-        private bool _IsOperationConfirmed = false;
+        private bool _IsOperationConfirmed;
         public bool IsOperationConfirmed
         {
             get => _IsOperationConfirmed;

@@ -30,9 +30,12 @@ namespace NordChecker.Services.Checker
                 breakpointHandler.HandleBreakpointIfNeeded();
             }
 
-            var states = Enum.GetValues<AccountState>().ToList();
-            states.Remove(AccountState.Unchecked);
-            states.Remove(AccountState.Reserved);
+            var states = Enum.GetValues<AccountState>()
+                .Except(new []
+                {
+                    AccountState.Unchecked,
+                    AccountState.Reserved
+                }).ToList();
             account.State = states[_Random.Next(states.Count)];
         }
 

@@ -9,14 +9,14 @@ using Serilog;
 
 namespace NordChecker.Services.Threading
 {
-    public class ThreadDistributor<TPayload> where TPayload : class
+    public partial class ThreadDistributor<TPayload> where TPayload : class
     {
         public event EventHandler<TPayload> TaskCompleted;
         public event EventHandler<TPayload> TaskAborted;
 
         private readonly MasterToken _Token;
         private readonly ObservableCollection<TPayload> _Payloads;
-        private readonly Func<TPayload, bool> _Predicate;
+        private readonly Func<TPayload, bool> _Filter;
         private readonly Action<TPayload> _Handler;
 
         private readonly object _AbortionLocker = new();
@@ -43,25 +43,24 @@ namespace NordChecker.Services.Threading
             }
         }
 
-        public ThreadDistributor(
-            int threadCount,
-            ObservableCollection<TPayload> payloads,
-            Func<TPayload, bool> predicate,
-            Action<TPayload> handler,
-            MasterToken token = null)
+        private ThreadDistributor(Builder builder)
         {
-            _Token = token ?? new MasterToken();
-            _Token.Pause();
+            _ThreadCount = builder.ThreadCount;
 
-            ThreadCount = threadCount;
-            _Payloads = payloads;
-            _Predicate = predicate;
-            _Handler = handler;
+            if (builder.Token is null)
+            {
+                _Token = new MasterToken();
+                _Token.Pause();
+            }
+
+            _Payloads = builder.Payloads;
+            _Filter = builder.Filter;
+            _Handler = builder.Handler;
 
             TaskCompleted += (sender, e) => Distribute();
             TaskAborted += (sender, e) => TaskCompleted?.Invoke(this, null);
         }
-
+        
         public void Start() => _Token.Continue();
 
         public void Stop() => _Token.Pause();
@@ -95,7 +94,7 @@ namespace NordChecker.Services.Threading
                 try
                 {
                     lock (_PayloadsLocker)
-                        payload = _Payloads.First(_Predicate);
+                        payload = _Payloads.First(_Filter);
                 }
                 catch
                 {
