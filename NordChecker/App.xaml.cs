@@ -77,37 +77,8 @@ namespace NordChecker
             services.AddSingleton(ExportSettings);
 
             services.AddSingleton<Cyclic<Proxy>>();
-            var checker = (IChecker)services.AddSingleton<IChecker, MockChecker>().Last();
-
-
-            services.AddSingleton<ThreadDistributor<Account>>(new ThreadDistributor<Account>(
-                AppSettings.ThreadCount,
-                Accounts,
-                account =>
-                {
-                    if (account.State == AccountState.Unchecked)
-                    {
-                        account.MasterToken = tokenSource.MakeToken();
-                        account.State = AccountState.Reserved;
-                        lock (ComboStats.ByState)
-                        {
-                            ComboStats.ByState[AccountState.Unchecked]--;
-                            ComboStats.ByState[AccountState.Reserved]++;
-                        }
-                        return true;
-                    }
-                    return false;
-                },
-                services.ProcessAccount));
-
-            services.AddDistributor<Account>(builder =>
-            {
-                builder.SetThreadCount(AppSettings.ThreadCount);
-                builder.SetPayloads(Accounts);
-                builder.
-            });
-
-
+            services.AddSingleton<IChecker, MockChecker>();
+            
             services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
@@ -192,19 +163,6 @@ namespace NordChecker
         {
             ServiceProvider.GetService<MainWindow>().Show();
             _NavigationService.Navigate<MainPage>();
-        }
-    }
-
-    public static class Extensions
-    {
-        public static IServiceCollection AddDistributor<TPayload>(
-            this IServiceCollection services, Action<ThreadDistributor<TPayload>.Builder> configure)
-            where TPayload : class
-        {
-            var builder = new ThreadDistributor<TPayload>.Builder();
-            configure(builder);
-            services.AddSingleton(builder.Build());
-            return services;
         }
     }
 }

@@ -21,6 +21,8 @@ namespace NordChecker.Services.Checker
 
         void IChecker.Check(Account account)
         {
+            Log.Debug("Checking {0}", account.ToString());
+
             var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             

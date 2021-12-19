@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Leaf.xNet;
 using Microsoft.Win32;
+using NordChecker.Infrastructure;
 using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
@@ -197,8 +199,13 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnClearCombosCommandExecuted");
 
-            Accounts.Clear();
-            ComboStats.Clear();
+            lock (Accounts)
+                Accounts.Clear();
+
+            lock (ComboStats)
+                ComboStats.Clear();
+
+            StopCommand.Execute(null);
         }
 
         #endregion

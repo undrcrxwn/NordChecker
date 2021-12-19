@@ -45,13 +45,13 @@ namespace NordChecker.Services.Threading
 
         private ThreadDistributor(Builder builder)
         {
-            _ThreadCount = builder.ThreadCount;
-
             if (builder.Token is null)
             {
                 _Token = new MasterToken();
                 _Token.Pause();
             }
+            else
+                _Token = builder.Token;
 
             _Payloads = builder.Payloads;
             _Filter = builder.Filter;
@@ -59,9 +59,15 @@ namespace NordChecker.Services.Threading
 
             TaskCompleted += (sender, e) => Distribute();
             TaskAborted += (sender, e) => TaskCompleted?.Invoke(this, null);
+
+            ThreadCount = builder.ThreadCount;
         }
         
-        public void Start() => _Token.Continue();
+        public void Start()
+        {
+            Log.Warning("DISTRIBUTOR STARTED");
+            _Token.Continue();
+        }
 
         public void Stop() => _Token.Pause();
 

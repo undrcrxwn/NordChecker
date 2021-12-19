@@ -236,9 +236,32 @@ namespace NordChecker.ViewModels
             ComboStats.PropertyChanged += (sender, e) => RefreshComboArcs();
 
             Accounts.CollectionChanged += AccountsCollectionChangedHandler;
-            
+
+            distributor = new ThreadDistributor<Account>.Builder()
+                .SetThreadCount(AppSettings.ThreadCount)
+                .SetPayloads(Accounts)
+                .SetFilter(account =>
+                {
+                    if (account.State != AccountState.Unchecked)
+                        return false;
+
+                    account.MasterToken = tokenSource.MakeToken();
+                    account.State = AccountState.Reserved;
+                    lock (ComboStats.ByState)
+                    {
+                        ComboStats.ByState[AccountState.Unchecked]--;
+                        ComboStats.ByState[AccountState.Reserved]++;
+                    }
+                    return true;
+                })
+                .SetHandler(checker.ProcessAccount)
+                .Build();
+
             distributor.TaskCompleted += (sender, account) =>
             {
+                if (PipelineState == PipelineState.Idle)
+                    return;
+
                 int uncompletedCount;
                 lock (ComboStats.ByState)
                 {
