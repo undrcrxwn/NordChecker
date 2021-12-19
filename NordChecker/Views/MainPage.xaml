@@ -479,7 +479,7 @@
                 </Expander>
                 <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4, 5, 4, 4">
                             <StackPanel>
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -499,7 +499,7 @@
                                     <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="2"/>
                                     <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.Timeout, Converter={StaticResource TimeSpan2TotalSecondsConverter}}" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
                                 </Grid>
-                                <Grid Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Grid Margin="0, 0, 0, 5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
@@ -513,11 +513,13 @@
                                 </Grid>
                             </StackPanel>
 
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Height="87">
                                 <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettings.IsTopMostWindow}" HorizontalAlignment="Left"/>
                                 <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Режим разработчика" Margin="0,0,0,-6" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Показывать логи" Margin="0,6,0,0" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Показывать логи" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}"
+                                          Visibility="Collapsed"
+                                          HorizontalAlignment="Left"/>
                                 <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettings.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
                             </hc:UniformSpacingPanel>
                             <Button Content="Восстановить начальные параметры" Width="230"/>
