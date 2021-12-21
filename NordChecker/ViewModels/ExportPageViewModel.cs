@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
@@ -95,14 +96,14 @@ namespace NordChecker.ViewModels
                 .Set(ref _OutputPreview, value, PropertyChanged);
         }
 
-        private bool _CanProceed = false;
+        private bool _CanProceed;
         public bool CanProceed
         {
             get => _CanProceed;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _CanProceed, value, PropertyChanged);
         }
-        
+
         #endregion
 
         #region ChoosePathCommand
@@ -160,8 +161,8 @@ namespace NordChecker.ViewModels
             Log.Warning(ExportSettings.FormatScheme);
         }
 
-        private void UpdateCanProceed()
-            => CanProceed = Directory.Exists(OutputDirectoryPath)
+        private void UpdateCanProceed() =>
+            CanProceed = Directory.Exists(OutputDirectoryPath)
             && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
             && ExportSettings.Filters.Any(x => x.IsEnabled);
 
@@ -271,12 +272,6 @@ namespace NordChecker.ViewModels
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
-        }
-
-        ~ExportPageViewModel()
-        {
-            Log.Warning("~ExportPageViewModel");
-            ExportSettings.PropertyChanged -= OnExportSettingsPropertyChanged;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace NordChecker.Commands
         private readonly Action<object> _Execute;
         private readonly Func<object, bool> _CanExecute;
         private readonly string _Name;
-        
+
         public LoggedCommand(string name, Action<object> execute, Func<object, bool> canExecute = null)
         {
             _Name = name;
@@ -25,7 +25,7 @@ namespace NordChecker.Commands
         
         public LoggedCommand(Action<object> execute, Func<object, bool> canExecute = null)
             : this($"unknown {nameof(LoggedCommand)}", execute, canExecute) {}
-
+        
         public bool CanExecute(object parameter) =>
             _CanExecute?.Invoke(parameter) ?? true;
 

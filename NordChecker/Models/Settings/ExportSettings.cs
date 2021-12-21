@@ -5,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using NordChecker.Infrastructure;
+using Serilog;
 
 namespace NordChecker.Models.Settings
 {
@@ -86,14 +88,25 @@ namespace NordChecker.Models.Settings
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _UncheckedAndReserved, value, PropertyChanged);
         }
-        
-        public IEnumerator<OutputFilter<Account>> GetEnumerator()
+
+        public AccountFilters()
         {
-            var properties = typeof(AccountFilters).GetProperties()
-                .Where(x => x.PropertyType == typeof(OutputFilter<Account>));
-            var filters = properties.Select(x => x.GetValue(this, null) as OutputFilter<Account>);
-            return filters.GetEnumerator();
+            foreach (PropertyInfo property in GetFilterProperties())
+            {
+                var filter = property.GetValue(this, null) as OutputFilter<Account>;
+                filter.PropertyChanged += (sender, e) =>
+                {
+                    (this as INotifyPropertyChangedAdvanced)
+                        .OnPropertyChanged(PropertyChanged, nameof(property.Name));
+                };
+            }
         }
+        
+        public IEnumerator<OutputFilter<Account>> GetEnumerator() =>
+            GetFilterProperties().Select(x => x.GetValue(this, null) as OutputFilter<Account>).GetEnumerator();
+
+        private IEnumerable<PropertyInfo> GetFilterProperties() =>
+            typeof(AccountFilters).GetProperties().Where(x => x.PropertyType == typeof(OutputFilter<Account>));
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -145,6 +158,15 @@ namespace NordChecker.Models.Settings
             get => _AreRowCountsAddedToFileNames;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AreRowCountsAddedToFileNames, value, PropertyChanged);
+        }
+
+        public ExportSettings()
+        {
+            Filters.PropertyChanged += (sender, e) =>
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                    .OnPropertyChanged(PropertyChanged, nameof(Filters));
+            };
         }
 
         public ExportSettings Clone()

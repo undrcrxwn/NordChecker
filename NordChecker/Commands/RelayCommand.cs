@@ -10,6 +10,6 @@ namespace NordChecker.Commands
             : base(name, execute, canExecute) { }
 
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-            : base($"unknown {nameof(RelayCommand)}", execute, canExecute) { }
+            : base($"Unknown {nameof(RelayCommand)}", execute, canExecute) { }
     }
 }
