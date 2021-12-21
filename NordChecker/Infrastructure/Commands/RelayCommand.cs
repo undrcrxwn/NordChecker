@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Serilog;
 
-namespace NordChecker.Commands
+namespace NordChecker.Infrastructure.Commands
 {
     public class RelayCommand : LoggedCommand
     {

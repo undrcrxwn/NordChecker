@@ -23,7 +23,7 @@ using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
 using NordChecker.Services.Formatter;
-using NordChecker.Commands;
+using NordChecker.Infrastructure.Commands;
 
 namespace NordChecker.ViewModels
 {

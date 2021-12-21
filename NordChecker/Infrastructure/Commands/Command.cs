@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using Serilog;
 
-namespace NordChecker.Commands
+namespace NordChecker.Infrastructure.Commands
 {
     public class LoggedCommand : ICommand
     {

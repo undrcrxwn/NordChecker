@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NordChecker.Infrastructure;
-using NordChecker.Commands;
+using NordChecker.Infrastructure.Commands;
 
 namespace NordChecker.ViewModels
 {

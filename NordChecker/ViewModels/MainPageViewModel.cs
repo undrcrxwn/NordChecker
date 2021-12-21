@@ -28,7 +28,7 @@ using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
-using NordChecker.Commands;
+using NordChecker.Infrastructure.Commands;
 
 namespace NordChecker.ViewModels
 {
