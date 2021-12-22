@@ -36,6 +36,8 @@
                 <hc:SimpleText Text="Экспорт" FontSize="16" FontWeight="Medium"/>
             </hc:UniformSpacingPanel>
 
+            <TextBlock Text="{Binding Hash}"/>
+
             <hc:UniformSpacingPanel Grid.Row="2" Orientation="Vertical" Spacing="15">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                     <hc:SimpleText Text="Конечная директория" FontSize="18" FontWeight="Medium"/>

@@ -83,10 +83,35 @@ namespace NordChecker.ViewModels
             set
             {
                 (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _OutputDirectoryPath, value, PropertyChanged);
+                    .Set(ref _OutputDirectoryPath, value, PropertyChanged);
                 UpdateSettingsRootPath();
             }
         }
+
+
+
+
+
+
+
+
+
+        private int _Hash;
+        public int Hash
+        {
+            get => _Hash;
+            set
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _Hash, value, PropertyChanged);
+            }
+        }
+
+
+
+
+
+
 
         public AccountFormatter Formatter { get; set; }
 
@@ -262,6 +287,7 @@ namespace NordChecker.ViewModels
             this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings.Clone();
+            Hash = ExportSettings.GetHashCode();
 
             Log.Warning("AFTER ES CLONED ExportPageViewModel c-tor");
             Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
@@ -284,7 +310,7 @@ namespace NordChecker.ViewModels
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
-            StateRefreshingTimer.Stop();
+            //StateRefreshingTimer.Stop();
 
             ExportSettings.PropertyChanged += (sender, e) => Log.Warning("PROP KEERMIC");
         }
