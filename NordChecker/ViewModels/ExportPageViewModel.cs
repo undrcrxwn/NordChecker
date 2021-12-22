@@ -24,10 +24,12 @@ using NordChecker.Infrastructure;
 using NordChecker.Services;
 using NordChecker.Services.Formatter;
 using NordChecker.Infrastructure.Commands;
+using Prism.Commands;
+using Prism.Mvvm;
 
 namespace NordChecker.ViewModels
 {
-    public class ExportPageViewModel : IPageViewModel
+    public class ExportPageViewModel : BindableBase, IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
@@ -161,10 +163,13 @@ namespace NordChecker.ViewModels
             Log.Warning(ExportSettings.FormatScheme);
         }
 
-        private void UpdateCanProceed() =>
+        private void UpdateCanProceed()
+        {
             CanProceed = Directory.Exists(OutputDirectoryPath)
-            && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
-            && ExportSettings.Filters.Any(x => x.IsEnabled);
+                         && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
+                         && ExportSettings.Filters.Any(x => x.IsEnabled);
+            Log.Warning(nameof(UpdateCanProceed));
+        }
 
         private void UpdateSettingsRootPath()
         {
@@ -184,9 +189,9 @@ namespace NordChecker.ViewModels
 
         public ICommand ExportCommand { get; }
 
-        private bool CanExecuteExportCommand(object parameter) => CanProceed;
+        private bool CanExecuteExportCommand() => CanProceed;
 
-        private void OnExportCommandExecuted(object parameter)
+        private void OnExportCommandExecuted()
         {
             Log.Information("OnExportCommandExecuted");
 
@@ -237,6 +242,7 @@ namespace NordChecker.ViewModels
         private void OnExportSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             UpdateCanProceed();
+            Log.Warning("OnExportSettingsPropertyChanged");
             if (e.PropertyName == nameof(ExportSettings.FormatScheme))
             {
                 Formatter.FormatScheme = ExportSettings.FormatScheme;
@@ -244,7 +250,7 @@ namespace NordChecker.ViewModels
             }
         }
 
-        public readonly System.Timers.Timer StateRefreshingTimer = new System.Timers.Timer(TimeSpan.FromSeconds(1).TotalMilliseconds);
+        public readonly System.Timers.Timer StateRefreshingTimer = new(TimeSpan.FromSeconds(1).TotalMilliseconds);
 
         public ExportPageViewModel(
             ObservableCollection<Account> accounts,
@@ -257,6 +263,10 @@ namespace NordChecker.ViewModels
             AppSettings = appSettings;
             ExportSettings = exportSettings.Clone();
 
+            Log.Warning("AFTER ES CLONED ExportPageViewModel c-tor");
+            Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
+                ExportSettings.GetHashCode(), ExportSettings.Filters.GetHashCode(), ExportSettings.Filters.Premium.GetHashCode());
+
             Formatter = new AccountFormatter(ExportSettings.FormatScheme);
 
             ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
@@ -265,13 +275,18 @@ namespace NordChecker.ViewModels
 
             UpdateOutputPreview();
             UpdateCanProceed();
-
-            ExportCommand = new RelayCommand(nameof(ExportCommand), OnExportCommandExecuted, CanExecuteExportCommand);
+            
+            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand).ObservesProperty(() => CanProceed);
+            ExportCommand.CanExecuteChanged += (sender, e) => Log.Warning("event raised");
+            
             ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
             NavigateHomeCommand = new RelayCommand(nameof(NavigateHomeCommand), OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
+            StateRefreshingTimer.Stop();
+
+            ExportSettings.PropertyChanged += (sender, e) => Log.Warning("PROP KEERMIC");
         }
     }
 }

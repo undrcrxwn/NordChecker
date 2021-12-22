@@ -42,8 +42,11 @@ namespace NordChecker.Models.Settings
             IsEnabled = isEnabled;
         }
 
-        public OutputFilter<TPayload> Clone() =>
-            MemberwiseClone() as OutputFilter<TPayload>;
+        public OutputFilter<TPayload> Clone()
+        {
+            Log.Warning("public OutputFilter<TPayload> Clone()");
+            return MemberwiseClone() as OutputFilter<TPayload>;
+        }
 
         object ICloneable.Clone() => Clone();
     }
@@ -117,6 +120,16 @@ namespace NordChecker.Models.Settings
             copy.Free = Free.Clone();
             copy.Invalid = Invalid.Clone();
             copy.UncheckedAndReserved = UncheckedAndReserved.Clone();
+            foreach (PropertyInfo property in GetFilterProperties())
+            {
+                var filter = property.GetValue(this, null) as OutputFilter<Account>;
+                filter.PropertyChanged += (sender, e) =>
+                {
+                    (this as INotifyPropertyChangedAdvanced)
+                        .OnPropertyChanged(PropertyChanged, nameof(property.Name));
+                };
+            }
+            Log.Warning("public AccountFilters Clone()");
             return copy;
         }
 
@@ -166,13 +179,36 @@ namespace NordChecker.Models.Settings
             {
                 (this as INotifyPropertyChangedAdvanced)
                     .OnPropertyChanged(PropertyChanged, nameof(Filters));
+                Log.Warning("{0} ExportSettings event: Filters.PropertyChanged!!", this.GetHashCode());
             };
+
+            Log.Warning("public ExportSettings c-tor");
+            Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
+                GetHashCode(), Filters.GetHashCode(), Filters.Premium.GetHashCode());
         }
 
         public ExportSettings Clone()
         {
             var copy = (ExportSettings)MemberwiseClone();
             copy.Filters = Filters.Clone();
+            copy.PropertyChanged += (sender, e) =>
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                    .OnPropertyChanged(PropertyChanged, nameof(Filters));
+                Log.Warning("{0} ExportSettings copy event: Filters.PropertyChanged", this.GetHashCode());
+            };
+            copy.Filters.PropertyChanged += (sender, e) =>
+            {
+                (this as INotifyPropertyChangedAdvanced)
+                    .OnPropertyChanged(PropertyChanged, nameof(Filters));
+                Log.Warning("{0} copy.Filters.PropertyChanged !!!!!!!!!!!", this.GetHashCode());
+            };
+            Log.Warning("public ExportSettings Clone()");
+            Log.Warning("COPY HASH = {0}", copy.GetHashCode());
+
+            Log.Warning("public ExportSettings Clone()");
+            Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
+                copy.GetHashCode(), copy.Filters.GetHashCode(), copy.Filters.Premium.GetHashCode());
             return copy;
         }
 

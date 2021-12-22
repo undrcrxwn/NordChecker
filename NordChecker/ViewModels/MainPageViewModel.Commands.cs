@@ -325,7 +325,8 @@ namespace NordChecker.ViewModels
         private void OnExportCommandExecuted(object parameter)
         {
             Log.Information("OnExportCommandExecuted");
-            navigationService.Navigate<ExportPage>();
+            //navigationService.Navigate<ExportPage>();
+            navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
             navigationService.Navigating += OnNavigationServiceNavigating;
         }
 

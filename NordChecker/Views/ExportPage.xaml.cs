@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Serilog;
 
 namespace NordChecker.Views
 {
@@ -27,6 +28,12 @@ namespace NordChecker.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+            Log.Warning("Page {0} c-tor: settings hash = {1}", this.GetHashCode(), ((ExportPageViewModel)DataContext).ExportSettings.GetHashCode());
+
+            var es = ((ExportPageViewModel)DataContext).ExportSettings;
+            Log.Warning("AFTER VM TAKEN FOR CONTEXT public ExportPage(ExportPageViewModel viewModel)");
+            Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
+                es.GetHashCode(), es.Filters.GetHashCode(), es.Filters.Premium.GetHashCode());
         }
     }
 }
