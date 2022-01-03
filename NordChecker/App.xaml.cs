@@ -87,6 +87,9 @@ namespace NordChecker
             services.AddTransient<ExportPageViewModel>();
             services.AddTransient<ExportPage>();
 
+            services.AddTransient<TestPageViewModel>();
+            services.AddTransient<TestPage>();
+
             ServiceProvider = services.BuildServiceProvider();
         }
 

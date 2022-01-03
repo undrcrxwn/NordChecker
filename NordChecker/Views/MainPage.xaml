@@ -371,7 +371,7 @@
             <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[Premium]}"/>
         </hc:ButtonGroup>
 
-        <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+        <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding TestCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
             <StackPanel Margin="10,0,10,4">
                 <StackPanel.Resources>

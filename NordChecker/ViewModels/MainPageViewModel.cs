@@ -29,6 +29,7 @@ using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
 using NordChecker.Infrastructure.Commands;
+using Prism.Commands;
 
 namespace NordChecker.ViewModels
 {
@@ -293,6 +294,10 @@ namespace NordChecker.ViewModels
             RemoveAccountCommand = new RelayCommand(nameof(RemoveAccountCommand), OnRemoveAccountCommandExecuted);
 
             ContactAuthorCommand = new RelayCommand(nameof(ContactAuthorCommand), OnContactAuthorCommandExecuted);
+
+            TestCommand = new DelegateCommand(OnTestCommandExecuted, CanExecuteTestCommand)
+                .ObservesProperty(() => PipelineState)
+                .ObservesProperty(() => Accounts.Count);
 
             #endregion
 

@@ -190,13 +190,14 @@ namespace NordChecker.Models.Settings
         public ExportSettings Clone()
         {
             var copy = (ExportSettings)MemberwiseClone();
-            copy.Filters = Filters.Clone();
-            copy.PropertyChanged += (sender, e) =>
+            copy.PropertyChanged = (sender, e) =>
             {
-                (this as INotifyPropertyChangedAdvanced)
-                    .OnPropertyChanged(PropertyChanged, nameof(Filters));
+                //if (e.PropertyName != nameof(Filters))
+                //(this as INotifyPropertyChangedAdvanced)
+                //    .OnPropertyChanged(PropertyChanged, nameof(Filters));
                 Log.Warning("{0} ExportSettings copy event: Filters.PropertyChanged", this.GetHashCode());
             };
+            copy.Filters = Filters.Clone();
             copy.Filters.PropertyChanged += (sender, e) =>
             {
                 (this as INotifyPropertyChangedAdvanced)

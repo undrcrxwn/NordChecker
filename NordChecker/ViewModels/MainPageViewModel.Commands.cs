@@ -330,6 +330,7 @@ namespace NordChecker.ViewModels
             navigationService.Navigating += OnNavigationServiceNavigating;
         }
 
+        //todo: убрать этот костыль
         private void OnNavigationServiceNavigating(object sender, Page e)
         {
             navigationService.Navigating -= OnNavigationServiceNavigating;
@@ -419,6 +420,23 @@ namespace NordChecker.ViewModels
             return false;
         }
 
+        #endregion
+
+        #region TestCommand
+
+        public ICommand TestCommand { get; }
+
+        private bool CanExecuteTestCommand() =>
+            PipelineState != PipelineState.Working && Accounts.Count > 0;
+
+        private void OnTestCommandExecuted()
+        {
+            Log.Information("OnTestCommandExecuted");
+            //navigationService.Navigate<ExportPage>();
+            //navigationService.Navigate<TestPage>();
+            navigationService.Navigate((TestPage)App.ServiceProvider.GetService(typeof(TestPage)));
+        }
+        
         #endregion
     }
 }
