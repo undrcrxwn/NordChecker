@@ -63,7 +63,7 @@ namespace NordChecker.ViewModels
         }
 
         public AppSettings AppSettings { get; set; }
-        public ExportSettings ExportSettings { get; set; }
+        public Wrapped<ExportSettings> ExportSettings { get; set; }
         public ProxiesViewModel ProxiesViewModel { get; set; }
 
         private ObservableCollection<Account> _Accounts;
@@ -210,7 +210,7 @@ namespace NordChecker.ViewModels
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
             AppSettings appSettings,
-            ExportSettings exportSettings,
+            Wrapped<ExportSettings> exportSettings,
             ProxiesViewModel proxiesViewModel)
         {
             Checker = checker;

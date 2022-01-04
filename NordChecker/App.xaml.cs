@@ -69,12 +69,12 @@ namespace NordChecker
             ExportSettings = Storage.LoadOrDefault(new ExportSettings());
 
             ServiceCollection services = new ServiceCollection();
-
+            
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
 
             services.AddSingleton(AppSettings);
-            services.AddSingleton(ExportSettings);
+            services.AddSingleton(new Wrapped<ExportSettings>(ExportSettings));
 
             services.AddSingleton<Cyclic<Proxy>>();
             services.AddSingleton<IChecker, MockChecker>();

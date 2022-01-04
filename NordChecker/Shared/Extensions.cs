@@ -1,35 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace NordChecker.Shared
 {
     public static class Extensions
     {
-        /// <summary>
-        /// Replaces value of the reference type object with a <i>copy</i> of another instance's value.
-        /// </summary>
-        public static void ReplaceWith<T>(this T @this, T instance)
-            where T : class
-        {
-            if (@this is null) throw new ArgumentNullException(nameof(@this));
-            if (instance is null) throw new ArgumentNullException(nameof(instance));
-
-            var size = Marshal.SizeOf(typeof(T));
-            var pointer = Marshal.AllocHGlobal(size);
-            Marshal.StructureToPtr(instance, pointer, false);
-            Marshal.PtrToStructure(pointer, @this);
-            Marshal.FreeHGlobal(pointer);
-        }
-
         public static string ToShortDurationString(this TimeSpan @this)
         {
             string result = "";
 
-            if (@this.Days > 0)    result += @this.ToString(@"d\д\ ");
-            if (@this.Hours > 0)   result += @this.ToString(@"h\ч\ ");
+            if (@this.Days    > 0) result += @this.ToString(@"d\д\ ");
+            if (@this.Hours   > 0) result += @this.ToString(@"h\ч\ ");
             if (@this.Minutes > 0) result += @this.ToString(@"m\м\ ");
             if (@this.Seconds > 0 || (int)@this.TotalSeconds == 0)
                 result += @this.ToString(@"s\с");
@@ -37,30 +20,30 @@ namespace NordChecker.Shared
             return result;
         }
 
-        public static string ToBase64(this string @this)
-            => Convert.ToBase64String(Encoding.UTF8.GetBytes(@this));
+        public static string ToBase64(this string str) =>
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(str));
 
-        public static string Unescape(this string @this)
+        public static string Unescape(this string str)
         {
-            if (string.IsNullOrEmpty(@this)) return @this;
+            if (string.IsNullOrEmpty(str)) return str;
 
-            var builder = new StringBuilder(@this.Length);
-            for (int i = 0; i < @this.Length;)
+            var builder = new StringBuilder(str.Length);
+            for (int i = 0; i < str.Length;)
             {
-                int j = @this.IndexOf('\\', i);
-                if (j < 0 || j == @this.Length - 1)
-                    j = @this.Length;
+                int j = str.IndexOf('\\', i);
+                if (j < 0 || j == str.Length - 1)
+                    j = str.Length;
 
-                builder.Append(@this, i, j - i);
-                if (j >= @this.Length) break;
+                builder.Append(str, i, j - i);
+                if (j >= str.Length) break;
 
-                builder.Append(@this[j + 1] switch
+                builder.Append(str[j + 1] switch
                 {
                     'n'  => '\n',
                     'r'  => '\r',
                     't'  => '\t',
                     '\\' => '\\',
-                    _    => '\\' + @this[j + 1]
+                    _    => '\\' + str[j + 1]
                 });
                 i = j + 2;
             }

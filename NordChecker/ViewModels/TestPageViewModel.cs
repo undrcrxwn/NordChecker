@@ -29,6 +29,8 @@ namespace NordChecker.ViewModels
                 .Set(ref _ExportSettings, value, PropertyChanged);
         }
 
+        private Wrapped<ExportSettings> _ExportSettingsWrapped;
+
         public string Title => "title";
 
 
@@ -43,9 +45,10 @@ namespace NordChecker.ViewModels
         public ICommand ProceedCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public TestPageViewModel(ExportSettings exportSettings, NavigationService navigationService)
+        public TestPageViewModel(Wrapped<ExportSettings> exportSettingsWrapped, NavigationService navigationService)
         {
-            ExportSettings = exportSettings.Clone();
+            _ExportSettingsWrapped = exportSettingsWrapped;
+            ExportSettings = _ExportSettingsWrapped.Instance.Clone();
             this.navigationService = navigationService;
 
             ProceedCommand = new DelegateCommand(OnProceedCommandExecuted, CanExecuteProceedCommand)
@@ -54,12 +57,11 @@ namespace NordChecker.ViewModels
             CancelCommand = new DelegateCommand(OnCancelCommandExecuted);
         }
 
-        private bool CanExecuteProceedCommand() =>
-            true;
+        private bool CanExecuteProceedCommand() => true;
 
         private void OnProceedCommandExecuted()
         {
-            App.ServiceProvider.GetService<ExportSettings>().ReplaceWith(ExportSettings);
+            _ExportSettingsWrapped.ReplaceWith(ExportSettings);
             navigationService.Navigate<MainPage>();
         }
 

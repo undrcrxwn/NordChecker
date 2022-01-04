@@ -255,8 +255,8 @@ namespace NordChecker.ViewModels
                 Log.Information("{0} records have been exported to {1} in {2}ms",
                     counter, ExportSettings.RootPath, watch.ElapsedMilliseconds);
             });
+            
 
-            App.ServiceProvider.GetService<ExportSettings>().ReplaceWith(ExportSettings);
             navigationService.Navigate<MainPage>();
         }
 
