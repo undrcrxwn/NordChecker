@@ -29,7 +29,7 @@ using Prism.Mvvm;
 
 namespace NordChecker.ViewModels
 {
-    public class ExportPageViewModel : BindableBase, IPageViewModel
+    public partial class ExportPageViewModel : BindableBase, IPageViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
@@ -67,6 +67,8 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _AppSettings, value, PropertyChanged);
         }
+
+        private Wrapped<ExportSettings> _ExportSettingsWrapped;
 
         private ExportSettings _ExportSettings;
         public ExportSettings ExportSettings
@@ -129,42 +131,6 @@ namespace NordChecker.ViewModels
             get => _CanProceed;
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _CanProceed, value, PropertyChanged);
-        }
-
-        #endregion
-
-        #region ChoosePathCommand
-
-        public ICommand ChoosePathCommand { get; }
-
-        private bool CanExecuteChoosePathCommand(object parameter) => true;
-
-        private void OnChoosePathCommandExecuted(object parameter)
-        {
-            Log.Information("OnChoosePathCommandExecuted");
-
-            Task.Run(() =>
-            {
-                var dialog = new CommonOpenFileDialog() { IsFolderPicker = true };
-                CommonFileDialogResult result = Application.Current.Dispatcher.Invoke(dialog.ShowDialog);
-                if (result != CommonFileDialogResult.Ok) return;
-
-                OutputDirectoryPath = dialog.FileName;
-            });
-        }
-
-        #endregion
-
-        #region ChoosePathCommand
-
-        public ICommand NavigateHomeCommand { get; }
-
-        private bool CanExecuteNavigateHomeCommand(object parameter) => true;
-
-        private void OnNavigateHomeCommandExecuted(object parameter)
-        {
-            Log.Information("OnNavigateHomeCommandExecuted");
-            navigationService.Navigate<MainPage>();
         }
 
         #endregion
@@ -255,8 +221,8 @@ namespace NordChecker.ViewModels
                 Log.Information("{0} records have been exported to {1} in {2}ms",
                     counter, ExportSettings.RootPath, watch.ElapsedMilliseconds);
             });
-            
 
+            _ExportSettingsWrapped.ReplaceWith(ExportSettings);
             navigationService.Navigate<MainPage>();
         }
 
@@ -281,13 +247,16 @@ namespace NordChecker.ViewModels
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
             AppSettings appSettings,
-            ExportSettings exportSettings)
+            Wrapped<ExportSettings> exportSettingsWrapped)
         {
             Accounts = accounts;
             this.navigationService = navigationService;
             AppSettings = appSettings;
-            ExportSettings = exportSettings.Clone();
+            _ExportSettingsWrapped = exportSettingsWrapped;
+            ExportSettings = _ExportSettingsWrapped.Instance.Clone();
             Hash = ExportSettings.GetHashCode();
+
+            Log.Warning("EXPORT SETTINGS INSTANCE USED BY VM = {0}", ExportSettings.GetHashCode());
 
             Log.Warning("AFTER ES CLONED ExportPageViewModel c-tor");
             Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
@@ -301,18 +270,19 @@ namespace NordChecker.ViewModels
 
             UpdateOutputPreview();
             UpdateCanProceed();
-            
-            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand).ObservesProperty(() => CanProceed);
+
+            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand)
+                .ObservesProperty(() => CanProceed);
             ExportCommand.CanExecuteChanged += (sender, e) => Log.Warning("event raised");
-            
+
             ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
             NavigateHomeCommand = new RelayCommand(nameof(NavigateHomeCommand), OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
-            StateRefreshingTimer.Start();
+            //StateRefreshingTimer.Start();
             //StateRefreshingTimer.Stop();
 
-            ExportSettings.PropertyChanged += (sender, e) => Log.Warning("PROP KEERMIC");
+            ExportSettings.PropertyChanged += (sender, e) => Log.Warning("STH CHANGED");
         }
     }
 }

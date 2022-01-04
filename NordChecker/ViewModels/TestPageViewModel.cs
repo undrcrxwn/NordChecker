@@ -13,6 +13,7 @@ using NordChecker.Shared;
 using NordChecker.Views;
 using Prism.Commands;
 using Prism.Mvvm;
+using Serilog;
 
 namespace NordChecker.ViewModels
 {
@@ -50,11 +51,17 @@ namespace NordChecker.ViewModels
             _ExportSettingsWrapped = exportSettingsWrapped;
             ExportSettings = _ExportSettingsWrapped.Instance.Clone();
             this.navigationService = navigationService;
-
+            
             ProceedCommand = new DelegateCommand(OnProceedCommandExecuted, CanExecuteProceedCommand)
                 .ObservesProperty(() => CanProceed);
 
             CancelCommand = new DelegateCommand(OnCancelCommandExecuted);
+
+            ExportSettings.PropertyChanged += (sender, e) =>
+            {
+                Log.Warning("VM: copy ({0}) prop changed ({1})",
+                    ExportSettings.GetHashCode(), e.PropertyName);
+            };
         }
 
         private bool CanExecuteProceedCommand() => true;

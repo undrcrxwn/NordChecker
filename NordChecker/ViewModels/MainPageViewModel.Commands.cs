@@ -16,6 +16,7 @@ using NordChecker.Models;
 using NordChecker.Shared;
 using NordChecker.Views;
 using Serilog;
+using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
 namespace NordChecker.ViewModels
 {
@@ -110,7 +111,7 @@ namespace NordChecker.ViewModels
         {
             get;
         }
-
+        
         private void OnLoadCombosCommandExecuted(object parameter)
         {
             Log.Information("OnLoadCombosCommandExecuted");
@@ -127,8 +128,7 @@ namespace NordChecker.ViewModels
                     dialogState = dialog.Show(AppSettings.IsTopMostWindow);
                 });
                 if (dialogState != true) return;
-
-
+                
                 Task.Factory.StartNew(() =>
                 {
                     Log.Information("Reading combos from {file}", dialog.FileName);
@@ -136,8 +136,8 @@ namespace NordChecker.ViewModels
                     watch.Start();
 
                     string line;
-                    List<Account> cache = new List<Account>();
-                    using (StreamReader reader = new StreamReader(File.OpenRead(dialog.FileName)))
+                    var cache = new List<Account>();
+                    using (var reader = new StreamReader(File.OpenRead(dialog.FileName)))
                     {
                         while ((line = reader.ReadLine()) != null)
                         {
