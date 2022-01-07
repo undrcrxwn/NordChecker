@@ -90,9 +90,9 @@ namespace NordChecker.ViewModels
                 .Set(ref _ComboArcs, value, PropertyChanged);
         }
 
-        public bool IsPipelineIdle { get => PipelineState == PipelineState.Idle; }
-        public bool IsPipelinePaused { get => PipelineState == PipelineState.Paused; }
-        public bool IsPipelineWorking { get => PipelineState == PipelineState.Working; }
+        public bool IsPipelineIdle => PipelineState == PipelineState.Idle;
+        public bool IsPipelinePaused => PipelineState == PipelineState.Paused;
+        public bool IsPipelineWorking => PipelineState == PipelineState.Working;
 
         private PipelineState _PipelineState = PipelineState.Idle;
         public PipelineState PipelineState
@@ -117,7 +117,7 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
-        
+
         public void RefreshComboArcs()
         {
             int loaded = Math.Max(1, Accounts.Count);
@@ -272,7 +272,7 @@ namespace NordChecker.ViewModels
                     uncompletedCount = ComboStats.ByState[AccountState.Unchecked]
                         + ComboStats.ByState[AccountState.Reserved];
                 }
-                
+
                 if (uncompletedCount == 0)
                     PauseCommand.Execute(null);
             };

@@ -279,7 +279,7 @@ namespace NordChecker.ViewModels
             NavigateHomeCommand = new RelayCommand(nameof(NavigateHomeCommand), OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
-            //StateRefreshingTimer.Start();
+            StateRefreshingTimer.Start();
             //StateRefreshingTimer.Stop();
 
             ExportSettings.PropertyChanged += (sender, e) => Log.Warning("STH CHANGED");
