@@ -1,7 +1,7 @@
-﻿using HandyControl.Themes;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Data;
+using HandyControl.Themes;
 
 namespace NordChecker.Converters
 {

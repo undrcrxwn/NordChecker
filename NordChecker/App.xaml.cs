@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
@@ -164,6 +165,9 @@ namespace NordChecker
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            ToolTipService.ShowDurationProperty.OverrideMetadata(
+                typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+
             ServiceProvider.GetService<MainWindow>().Show();
             _NavigationService.Navigate<MainPage>();
         }

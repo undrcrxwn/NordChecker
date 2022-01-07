@@ -33,7 +33,7 @@
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
 
         <TabControl Grid.Row="2" TabStripPlacement="Bottom" Background="Transparent">
-            <TabItem>
+            <TabItem BorderBrush="{DynamicResource PrimaryBrush}">
                 <TabItem.Header>
                     <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
                 </TabItem.Header>
@@ -155,7 +155,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem>
+            <TabItem BorderBrush="{DynamicResource PrimaryBrush}">
                 <TabItem.Header>
                     <TextBlock Text="Прокси" Width="55" TextAlignment="Center"/>
                 </TabItem.Header>
@@ -357,7 +357,7 @@
                     VerticalAlignment="Center"
                     Margin="0,0,0,20"
                     Visibility="{Binding IsGreetingVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
-            <emoji:TextBlock Text="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2ModeIconStringConverter}}" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
+            <emoji:TextBlock Text="🦄" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
             <hc:SimpleText Text="NordVPN Checker" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Center"/>
             <hc:SimpleText Text="Лицензия действительна до 28.08.2021 13:52" HorizontalAlignment="Center"/>
             <hc:SimpleText Text="Тикет e07fc1f90ae7" HorizontalAlignment="Center"/>
@@ -373,16 +373,11 @@
 
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <ScrollViewer Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
-            <StackPanel Margin="10,0,10,4">
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type Expander}" BasedOn="{StaticResource ExpanderBaseStyle}">
-                        <Setter Property="Margin" Value="0,0,0,6"/>
-                    </Style>
-                </StackPanel.Resources>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="10,0,10,4">
                 <Expander Header="База" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
-                            <StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="4, 5, 4, 4">
+                            <StackPanel Margin="0, 0, 0, 5">
                                 <TextBlock Text="mail:pass строки NordVPN" Margin="2,0,0,4"/>
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -398,8 +393,9 @@
                                     <Button Content="Очистить" Command="{Binding ClearCombosCommand}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
-                            <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
+
+                            <StackPanel Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
                                 <TextBox Text="{Binding AppSettings.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
@@ -417,17 +413,36 @@
                                     </TextBox.ToolTip>
                                 </TextBox>
                             </StackPanel>
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
+
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreComboDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreComboDuplicatesSkipped}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                            <emoji:TextBlock.ToolTip>
+                                                <ToolTip StaysOpen="True">
+                                                    <TextBlock>
+Проверка входных строк на наличие дубликатов влечёт за собой повышение
+<LineBreak/>нагрузки на ЦП, что может существенно понизить скорость работы приложения
+<LineBreak/>во время загрузки комбо-баз.
+                                                    </TextBlock>
+                                                </ToolTip>
+                                            </emoji:TextBlock.ToolTip>
+                                        </emoji:TextBlock>
+                                    </StackPanel>
+                                </Grid>
                             </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
+                        </StackPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Прокси" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+
+                <Expander Header="Прокси" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" Margin="4, 5, 4, 4">
-                            <StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="4, 5, 4, 4">
+                            <StackPanel Margin="0, 0, 0, 5">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
@@ -442,8 +457,9 @@
                                     <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </StackPanel>
-                            <StackPanel Margin="0,0,0,5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                <TextBlock Text="RegExp маска" Margin="2,0,0,4"/>
+
+                            <StackPanel Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
                                 <TextBox Text="{Binding AppSettings.ProxyRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
@@ -461,14 +477,32 @@
                                     </TextBox.ToolTip>
                                 </TextBox>
                             </StackPanel>
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="0,-15,0,0">
+
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreProxyDuplicatesSkipped}" HorizontalAlignment="Left"/>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreProxyDuplicatesSkipped}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                            <emoji:TextBlock.ToolTip>
+                                                <ToolTip StaysOpen="True">
+                                                    <TextBlock>
+                                                        Проверка входных строк на наличие дубликатов влечёт за собой повышение
+                                                        <LineBreak/>нагрузки на ЦП, что может существенно понизить скорость работы приложения
+                                                        <LineBreak/>во время загрузки прокси-баз.
+                                                    </TextBlock>
+                                                </ToolTip>
+                                            </emoji:TextBlock.ToolTip>
+                                        </emoji:TextBlock>
+                                    </StackPanel>
+                                </Grid>
                             </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
+                        </StackPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Автоматизация" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
+                <Expander Header="Автоматизация" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4, 5, 4, 4">
                             <CheckBox Content="Визуальное уведомление" IsChecked="True" ToolTip="Показать на экране уведомление Windows с краткой статистикой по завершении обработки базы&#10;при условии, что окно приложения свёрнуто" HorizontalAlignment="Left"/>
@@ -513,15 +547,15 @@
                                 </Grid>
                             </StackPanel>
 
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Height="87">
-                                <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettings.IsTopMostWindow}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" HorizontalAlignment="Left"/>
-                                <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left"/>
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettings.IsTopMostWindow}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
+                                <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
+                                <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
                                 <CheckBox Content="Показывать логи" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}"
-                                          Visibility="Collapsed"
-                                          HorizontalAlignment="Left"/>
+                                          Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                          HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
                                 <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettings.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
-                            </hc:UniformSpacingPanel>
+                            </StackPanel>
                             <Button Content="Восстановить начальные параметры" Width="230"/>
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -558,12 +592,15 @@
                         <hc:SimpleText Text="По всем вопросам и предложениям" Margin="2,0,0,0"/>
                         <TextBlock>
                             <Hyperlink Command="{Binding ContactAuthorCommand}" FontWeight="Normal" FontStyle="Normal" Foreground="{DynamicResource PrimaryTextBrush}">
-                                <emoji:TextBlock Style="{StaticResource HyperLinkDefault}" Text="💜 t.me/undrcrxwn" Cursor="Hand"/>
+                                <TextBlock Style="{StaticResource HyperLinkDefault}">
+                                    <TextBlock Style="{DynamicResource TextBlockDefaultPrimary}" Text="🖤"/>
+                                    <TextBlock Text="t.me/undrcrxwn"/>
+                                </TextBlock>
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
                 </Border>
-            </StackPanel>
+            </hc:UniformSpacingPanel>
         </ScrollViewer>
     </Grid>
 </Page>
