@@ -352,12 +352,12 @@
         </DataGrid>
 
         <StackPanel Grid.Column="1" Grid.Row="1"
-                    Grid.ColumnSpan="2" Grid.RowSpan="2"
+                    Grid.ColumnSpan="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Margin="0,0,0,20"
                     Visibility="{Binding IsGreetingVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
-            <emoji:TextBlock Text="🦄" FontSize="80" Margin="0,0,0,10"  TextAlignment="Center"/>
+            <emoji:TextBlock Text="🦄" FontSize="80" Margin="0,0,0,10" TextAlignment="Center"/>
             <hc:SimpleText Text="NordVPN Checker" FontSize="24" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Center"/>
             <hc:SimpleText Text="Лицензия действительна до 28.08.2021 13:52" HorizontalAlignment="Center"/>
             <hc:SimpleText Text="Тикет e07fc1f90ae7" HorizontalAlignment="Center"/>
@@ -400,7 +400,7 @@
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
-Регулярное выражение, применяемое к каждой строке загружаемой базы NordVPN
+Регулярное выражение, применяемое к каждой строке загружаемой комбо-базы.
 <LineBreak/>
 <LineBreak/>Ожидаемые группы захвата:
 <LineBreak/>– Groups[0] – полное совпадение;
@@ -464,7 +464,7 @@
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
-Регулярное выражение, применяемое к каждой строке загружаемой базы прокси
+Регулярное выражение, применяемое к каждой строке загружаемой прокси-базы.
 <LineBreak/>
 <LineBreak/>Ожидаемые группы захвата:
 <LineBreak/>– Groups[0] – полное совпадение;
@@ -556,7 +556,9 @@
                                           HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
                                 <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettings.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
                             </StackPanel>
-                            <Button Content="Восстановить начальные параметры" Width="230"/>
+
+                            <Button Content="Сохранить параметры" Command="{Binding SaveSettingsCommand}" Visibility="{Binding AppSettings.IsAutoSaveEnabled, Converter={StaticResource InverseBoolean2VisibilityConverter}}"/>
+                            <Button Content="Восстановить начальные параметры" Command="{Binding RestoreSettingsCommand}"/>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>

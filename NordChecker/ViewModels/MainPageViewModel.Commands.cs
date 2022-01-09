@@ -13,6 +13,7 @@ using Leaf.xNet;
 using Microsoft.Win32;
 using NordChecker.Infrastructure;
 using NordChecker.Models;
+using NordChecker.Models.Settings;
 using NordChecker.Shared;
 using NordChecker.Views;
 using Serilog;
@@ -421,20 +422,26 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
+        
+        #region SaveSettingsCommand
 
-        #region TestCommand
-
-        public ICommand TestCommand { get; }
-
-        private bool CanExecuteTestCommand() =>
-            PipelineState != PipelineState.Working && Accounts.Count > 0;
-
-        private void OnTestCommandExecuted()
+        public ICommand SaveSettingsCommand { get; }
+        
+        private void OnSaveSettingsCommandExecuted()
         {
-            Log.Information("OnTestCommandExecuted");
-            //navigationService.Navigate<ExportPage>();
-            //navigationService.Navigate<TestPage>();
-            navigationService.Navigate((TestPage)App.ServiceProvider.GetService(typeof(TestPage)));
+            Storage.Save(AppSettings);
+            Storage.Save(ExportSettings.Instance);
+        }
+        
+        #endregion
+
+        #region RestoreSettingsCommand
+
+        public ICommand RestoreSettingsCommand { get; }
+        
+        private void OnRestoreSettingsCommandExecuted()
+        {
+            ExportSettings.Instance = new ExportSettings();
         }
         
         #endregion

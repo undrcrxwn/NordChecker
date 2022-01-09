@@ -39,7 +39,7 @@ namespace NordChecker
         public static IServiceProvider ServiceProvider { get; set; }
 
         private readonly NavigationService _NavigationService;
-        private static readonly ContinuousStorage Storage = new($"{Directory.GetCurrentDirectory()}\\data");
+        private static readonly ContinuousStorage Storage;
 
         private static readonly AppSettings AppSettings;
         private static readonly ExportSettings ExportSettings;
@@ -60,17 +60,20 @@ namespace NordChecker
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 Converters = { new StringEnumConverter(), new SolidColorBrushConverter() }
             };
-
+            
             Utils.AllocConsole();
             FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
-
+            
+            Storage = new ContinuousStorage($"{Directory.GetCurrentDirectory()}\\data");
             AppSettings = Storage.LoadOrDefault(new AppSettings());
             ExportSettings = Storage.LoadOrDefault(new ExportSettings());
 
-            ServiceCollection services = new ServiceCollection();
+            var services = new ServiceCollection();
             
+            services.AddSingleton<Storage>(Storage);
+
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
 

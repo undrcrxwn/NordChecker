@@ -63,6 +63,11 @@
                     <converters:ApplicationTheme2StringConverter x:Key="ApplicationTheme2StringConverter"/>
                     <converters:TimeSpan2TotalSecondsConverter x:Key="TimeSpan2TotalSecondsConverter"/>
                     
+                    <converters:ConverterChain x:Key="InverseBoolean2VisibilityConverter">
+                        <converters:InverseBooleanConverter/>
+                        <converters:Boolean2VisibilityConverter/>
+                    </converters:ConverterChain>
+
                     <converters:ConverterChain x:Key="InverseBoolean2DataGridHeadersVisibilityConverter">
                         <converters:InverseBooleanConverter/>
                         <converters:Boolean2DataGridHeadersVisibilityConverter/>

@@ -29,6 +29,7 @@ using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
 using NordChecker.Infrastructure.Commands;
+using NordChecker.Services.Storage;
 using Prism.Commands;
 
 namespace NordChecker.ViewModels
@@ -38,6 +39,7 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
 
+        public Storage Storage;
         public IChecker Checker;
         public Parser ComboParser;
         private ThreadDistributor<Account> distributor;
@@ -206,6 +208,7 @@ namespace NordChecker.ViewModels
         }
 
         public MainPageViewModel(
+            Storage storage,
             IChecker checker,
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
@@ -213,6 +216,7 @@ namespace NordChecker.ViewModels
             Wrapped<ExportSettings> exportSettings,
             ProxiesViewModel proxiesViewModel)
         {
+            Storage = storage;
             Checker = checker;
             Accounts = accounts;
             this.navigationService = navigationService;
@@ -295,9 +299,8 @@ namespace NordChecker.ViewModels
 
             ContactAuthorCommand = new RelayCommand(nameof(ContactAuthorCommand), OnContactAuthorCommandExecuted);
 
-            TestCommand = new DelegateCommand(OnTestCommandExecuted, CanExecuteTestCommand)
-                .ObservesProperty(() => PipelineState)
-                .ObservesProperty(() => Accounts.Count);
+            SaveSettingsCommand = new DelegateCommand(OnSaveSettingsCommandExecuted);
+            RestoreSettingsCommand = new DelegateCommand(OnRestoreSettingsCommandExecuted);
 
             #endregion
 
