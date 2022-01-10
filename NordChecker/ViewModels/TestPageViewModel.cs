@@ -30,7 +30,7 @@ namespace NordChecker.ViewModels
                 .Set(ref _ExportSettings, value, PropertyChanged);
         }
 
-        private Wrapped<ExportSettings> _ExportSettingsWrapped;
+        private readonly Wrapped<ExportSettings> _ExportSettingsWrapped;
 
         public string Title => "title";
 

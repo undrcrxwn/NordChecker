@@ -23,7 +23,6 @@ using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
 using NordChecker.Services.Formatter;
-using NordChecker.Infrastructure.Commands;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -59,23 +58,23 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _Accounts, value, PropertyChanged);
         }
-
-        private AppSettings _AppSettings;
-        public AppSettings AppSettings
+        
+        private Wrapped<AppSettings> _AppSettingsWrapped;
+        public Wrapped<AppSettings> AppSettingsWrapped
         {
-            get => _AppSettings;
+            get => _AppSettingsWrapped;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AppSettings, value, PropertyChanged);
+                .Set(ref _AppSettingsWrapped, value, PropertyChanged);
         }
 
         private Wrapped<ExportSettings> _ExportSettingsWrapped;
 
-        private ExportSettings _ExportSettings;
-        public ExportSettings ExportSettings
+        private ExportSettings _ExportSettingsDraft;
+        public ExportSettings ExportSettingsDraft
         {
-            get => _ExportSettings;
+            get => _ExportSettingsDraft;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ExportSettings, value, PropertyChanged);
+                .Set(ref _ExportSettingsDraft, value, PropertyChanged);
         }
 
         private string _OutputDirectoryPath;
@@ -151,24 +150,24 @@ namespace NordChecker.ViewModels
         private void UpdateOutputPreview()
         {
             OutputPreview = Formatter.Format(sampleAccount);
-            Log.Warning(ExportSettings.FormatScheme);
+            Log.Warning(ExportSettingsDraft.FormatScheme);
         }
 
         private void UpdateCanProceed()
         {
             CanProceed = Directory.Exists(OutputDirectoryPath)
-                         && !string.IsNullOrEmpty(ExportSettings.FormatScheme)
-                         && ExportSettings.Filters.Any(x => x.IsEnabled);
+                         && !string.IsNullOrEmpty(ExportSettingsDraft.FormatScheme)
+                         && ExportSettingsDraft.Filters.Any(x => x.IsEnabled);
             Log.Warning(nameof(UpdateCanProceed));
         }
 
         private void UpdateSettingsRootPath()
         {
             if (string.IsNullOrEmpty(OutputDirectoryPath))
-                ExportSettings.RootPath = null;
+                ExportSettingsDraft.RootPath = null;
             else
             {
-                ExportSettings.RootPath = OutputDirectoryPath +
+                ExportSettingsDraft.RootPath = OutputDirectoryPath +
                 $"\\NVPNC {DateTime.Now:yyyy-MM-dd}" +
                 $" at {DateTime.Now:HH-mm-ss}";
             }
@@ -188,25 +187,25 @@ namespace NordChecker.ViewModels
 
             Task.Run(() =>
             {
-                Log.Information("Exporting combos to {0}", ExportSettings.RootPath);
-                Directory.CreateDirectory(ExportSettings.RootPath);
+                Log.Information("Exporting combos to {0}", ExportSettingsDraft.RootPath);
+                Directory.CreateDirectory(ExportSettingsDraft.RootPath);
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                Formatter.FormatScheme = ExportSettings.FormatScheme;
+                Formatter.FormatScheme = ExportSettingsDraft.FormatScheme;
 
                 int counter = 0;
-                foreach (var filter in ExportSettings.Filters)
+                foreach (var filter in ExportSettingsDraft.Filters)
                 {
                     if (!filter.IsEnabled) continue;
 
                     IEnumerable<Account> selection = Accounts.Where(x => filter.Predicate(x));
 
                     string suffix = "";
-                    if (ExportSettings.AreRowCountsAddedToFileNames)
+                    if (ExportSettingsDraft.AreRowCountsAddedToFileNames)
                         suffix = $" ({selection.Count()})";
                     string fileName = filter.FileName.Replace("{suffix}", suffix);
-                    using (var writer = new StreamWriter(ExportSettings.RootPath + $"/{fileName}", true))
+                    using (var writer = new StreamWriter(ExportSettingsDraft.RootPath + $"/{fileName}", true))
                     {
                         foreach (var account in selection)
                         {
@@ -219,10 +218,10 @@ namespace NordChecker.ViewModels
 
                 watch.Stop();
                 Log.Information("{0} records have been exported to {1} in {2}ms",
-                    counter, ExportSettings.RootPath, watch.ElapsedMilliseconds);
+                    counter, ExportSettingsDraft.RootPath, watch.ElapsedMilliseconds);
             });
 
-            _ExportSettingsWrapped.ReplaceWith(ExportSettings);
+            _ExportSettingsWrapped.ReplaceWith(ExportSettingsDraft);
             navigationService.Navigate<MainPage>();
         }
 
@@ -234,9 +233,9 @@ namespace NordChecker.ViewModels
         {
             UpdateCanProceed();
             Log.Warning("OnExportSettingsPropertyChanged");
-            if (e.PropertyName == nameof(ExportSettings.FormatScheme))
+            if (e.PropertyName == nameof(ExportSettingsDraft.FormatScheme))
             {
-                Formatter.FormatScheme = ExportSettings.FormatScheme;
+                Formatter.FormatScheme = ExportSettingsDraft.FormatScheme;
                 UpdateOutputPreview();
             }
         }
@@ -246,27 +245,27 @@ namespace NordChecker.ViewModels
         public ExportPageViewModel(
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
-            AppSettings appSettings,
+            Wrapped<AppSettings> appSettingsWrapped,
             Wrapped<ExportSettings> exportSettingsWrapped)
         {
             Accounts = accounts;
             this.navigationService = navigationService;
-            AppSettings = appSettings;
+            AppSettingsWrapped = appSettingsWrapped;
             _ExportSettingsWrapped = exportSettingsWrapped;
-            ExportSettings = _ExportSettingsWrapped.Instance.Clone();
-            Hash = ExportSettings.GetHashCode();
+            ExportSettingsDraft = _ExportSettingsWrapped.Instance.Clone();
+            Hash = ExportSettingsDraft.GetHashCode();
 
-            Log.Warning("EXPORT SETTINGS INSTANCE USED BY VM = {0}", ExportSettings.GetHashCode());
+            Log.Warning("EXPORT SETTINGS INSTANCE USED BY VM = {0}", ExportSettingsDraft.GetHashCode());
 
             Log.Warning("AFTER ES CLONED ExportPageViewModel c-tor");
             Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
-                ExportSettings.GetHashCode(), ExportSettings.Filters.GetHashCode(), ExportSettings.Filters.Premium.GetHashCode());
+                ExportSettingsDraft.GetHashCode(), ExportSettingsDraft.Filters.GetHashCode(), ExportSettingsDraft.Filters.Premium.GetHashCode());
 
-            Formatter = new AccountFormatter(ExportSettings.FormatScheme);
+            Formatter = new AccountFormatter(ExportSettingsDraft.FormatScheme);
 
-            ExportSettings.PropertyChanged += OnExportSettingsPropertyChanged;
-            if (ExportSettings.RootPath is not null)
-                OutputDirectoryPath = string.Join('\\', ExportSettings.RootPath.Split('\\').SkipLast(1));
+            ExportSettingsDraft.PropertyChanged += OnExportSettingsPropertyChanged;
+            if (ExportSettingsDraft.RootPath is not null)
+                OutputDirectoryPath = string.Join('\\', ExportSettingsDraft.RootPath.Split('\\').SkipLast(1));
 
             UpdateOutputPreview();
             UpdateCanProceed();
@@ -275,14 +274,14 @@ namespace NordChecker.ViewModels
                 .ObservesProperty(() => CanProceed);
             ExportCommand.CanExecuteChanged += (sender, e) => Log.Warning("event raised");
 
-            ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted, CanExecuteChoosePathCommand);
-            NavigateHomeCommand = new RelayCommand(nameof(NavigateHomeCommand), OnNavigateHomeCommandExecuted, CanExecuteNavigateHomeCommand);
+            ChoosePathCommand = new DelegateCommand(OnChoosePathCommandExecuted);
+            NavigateHomeCommand = new DelegateCommand(OnNavigateHomeCommandExecuted);
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
             //StateRefreshingTimer.Stop();
 
-            ExportSettings.PropertyChanged += (sender, e) => Log.Warning("STH CHANGED");
+            ExportSettingsDraft.PropertyChanged += (sender, e) => Log.Warning("STH CHANGED");
         }
     }
 }

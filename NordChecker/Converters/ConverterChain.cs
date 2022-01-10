@@ -15,20 +15,16 @@ namespace NordChecker.Converters
     public class ConverterChain : IValueConverter
     {
         public ValueConverterCollection Converters { get; } = new();
-        
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Converters
-                .Aggregate(value, (current, converter) =>
-                    converter.Convert(current, targetType, parameter, culture));
-        }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Converters.Reverse()
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            Converters
                 .Aggregate(value, (current, converter) =>
                     converter.Convert(current, targetType, parameter, culture));
-        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+            Converters.Reverse()
+                .Aggregate(value, (current, converter) =>
+                    converter.Convert(current, targetType, parameter, culture));
     }
 
     /// <summary>

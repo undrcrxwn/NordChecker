@@ -3,21 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Leaf.xNet;
 using Microsoft.Win32;
-using NordChecker.Infrastructure;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
 using NordChecker.Shared;
 using NordChecker.Views;
 using Serilog;
-using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
 namespace NordChecker.ViewModels
 {
@@ -30,9 +26,9 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteStartCommand(object parameter) => PipelineState == PipelineState.Idle;
+        private bool CanExecuteStartCommand() => PipelineState == PipelineState.Idle;
 
-        private void OnStartCommandExecuted(object parameter)
+        private void OnStartCommandExecuted()
         {
             Log.Information("OnStartCommandExecuted");
             progressWatch.Restart();
@@ -50,9 +46,9 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecutePauseCommand(object parameter) => PipelineState == PipelineState.Working;
+        private bool CanExecutePauseCommand() => PipelineState == PipelineState.Working;
 
-        private void OnPauseCommandExecuted(object parameter)
+        private void OnPauseCommandExecuted()
         {
             Log.Information("OnPauseCommandExecuted");
             progressWatch.Stop();
@@ -71,9 +67,9 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteContinueCommand(object parameter) => PipelineState == PipelineState.Paused;
+        private bool CanExecuteContinueCommand() => PipelineState == PipelineState.Paused;
 
-        private void OnContinueCommandExecuted(object parameter)
+        private void OnContinueCommandExecuted()
         {
             Log.Information("OnContinueCommandExecuted");
             progressWatch.Start();
@@ -92,9 +88,9 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteStopCommand(object parameter) => PipelineState != PipelineState.Idle;
+        private bool CanExecuteStopCommand() => PipelineState != PipelineState.Idle;
 
-        private void OnStopCommandExecuted(object parameter)
+        private void OnStopCommandExecuted()
         {
             Log.Information("OnStopCommandExecuted");
             progressWatch.Stop();
@@ -113,7 +109,7 @@ namespace NordChecker.ViewModels
             get;
         }
         
-        private void OnLoadCombosCommandExecuted(object parameter)
+        private void OnLoadCombosCommandExecuted()
         {
             Log.Information("OnLoadCombosCommandExecuted");
 
@@ -126,14 +122,14 @@ namespace NordChecker.ViewModels
                     dialog = new OpenFileDialog();
                     dialog.DefaultExt = ".txt";
                     dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
-                    dialogState = dialog.Show(AppSettings.IsTopMostWindow);
+                    dialogState = dialog.Show(AppSettingsWrapped.Instance.IsTopMostWindow);
                 });
                 if (dialogState != true) return;
                 
                 Task.Factory.StartNew(() =>
                 {
                     Log.Information("Reading combos from {file}", dialog.FileName);
-                    Stopwatch watch = new Stopwatch();
+                    var watch = new Stopwatch();
                     watch.Start();
 
                     string line;
@@ -154,7 +150,7 @@ namespace NordChecker.ViewModels
                                 continue;
                             }
 
-                            if (AppSettings.AreComboDuplicatesSkipped)
+                            if (AppSettingsWrapped.Instance.AreComboDuplicatesSkipped)
                             {
                                 if (Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
@@ -194,9 +190,9 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteClearCombosCommand(object parameter) => PipelineState != PipelineState.Working;
+        private bool CanExecuteClearCombosCommand() => PipelineState != PipelineState.Working;
 
-        private void OnClearCombosCommandExecuted(object parameter)
+        private void OnClearCombosCommandExecuted()
         {
             Log.Information("OnClearCombosCommandExecuted");
 
@@ -218,10 +214,10 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteStopAndClearCombosCommand(object parameter)
-            => StopCommand.CanExecute(null) && ClearCombosCommand.CanExecute(null);
+        private bool CanExecuteStopAndClearCombosCommand() =>
+            StopCommand.CanExecute(null) && ClearCombosCommand.CanExecute(null);
 
-        private void OnStopAndClearCombosCommandExecuted(object parameter)
+        private void OnStopAndClearCombosCommandExecuted()
         {
             Log.Information("OnStopAndClearCombosCommandExecuted");
 
@@ -238,7 +234,7 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private void OnLoadProxiesCommandExecuted(object parameter)
+        private void OnLoadProxiesCommandExecuted()
         {
             Log.Information("OnLoadProxiesCommandExecuted");
 
@@ -281,7 +277,7 @@ namespace NordChecker.ViewModels
                                         continue;
                                     }
 
-                                    if (AppSettings.AreProxyDuplicatesSkipped)
+                                    if (AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped)
                                     {
                                         if (ProxiesViewModel.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
@@ -320,10 +316,10 @@ namespace NordChecker.ViewModels
             get;
         }
 
-        private bool CanExecuteExportCommand(object parameter) =>
+        private bool CanExecuteExportCommand() =>
             PipelineState != PipelineState.Working && Accounts.Count > 0;
 
-        private void OnExportCommandExecuted(object parameter)
+        private void OnExportCommandExecuted()
         {
             Log.Information("OnExportCommandExecuted");
             //navigationService.Navigate<ExportPage>();
@@ -346,7 +342,7 @@ namespace NordChecker.ViewModels
 
         public ICommand CopyAccountCredentialsCommand { get; }
 
-        private void OnCopyAccountCredentialsCommandExecuted(object parameter)
+        private void OnCopyAccountCredentialsCommandExecuted()
         {
             Log.Information("OnCopyAccountCredentialsExecuted");
             var (mail, password) = SelectedAccount.Credentials;
@@ -367,7 +363,7 @@ namespace NordChecker.ViewModels
 
         public ICommand RemoveAccountCommand { get; }
 
-        private void OnRemoveAccountCommandExecuted(object parameter)
+        private void OnRemoveAccountCommandExecuted()
         {
             Log.Information("OnRemoveAccountCommandExecuted");
             var account = SelectedAccount;
@@ -384,7 +380,7 @@ namespace NordChecker.ViewModels
 
         public ICommand ContactAuthorCommand { get; }
 
-        private void OnContactAuthorCommandExecuted(object parameter)
+        private void OnContactAuthorCommandExecuted()
         {
             Log.Information("OnContactAuthorCommandExecuted");
             try
@@ -429,8 +425,8 @@ namespace NordChecker.ViewModels
         
         private void OnSaveSettingsCommandExecuted()
         {
-            Storage.Save(AppSettings);
-            Storage.Save(ExportSettings.Instance);
+            Storage.Save(AppSettingsWrapped);
+            Storage.Save(ExportSettingsWrapped.Instance);
         }
         
         #endregion
@@ -441,7 +437,9 @@ namespace NordChecker.ViewModels
         
         private void OnRestoreSettingsCommandExecuted()
         {
-            ExportSettings.Instance = new ExportSettings();
+            Log.Information("OnRestoreSettingsCommandExecuted");
+            AppSettingsWrapped.ReplaceWith(new AppSettings());
+            ExportSettingsWrapped.ReplaceWith(new ExportSettings());
         }
         
         #endregion

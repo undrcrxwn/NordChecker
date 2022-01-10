@@ -27,6 +27,7 @@ using System.Diagnostics;
 using Serilog;
 using HandyControl.Themes;
 using Newtonsoft.Json;
+using NordChecker.Infrastructure;
 using NordChecker.Models.Settings;
 
 namespace NordChecker.Views
@@ -36,7 +37,7 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public AppSettings AppSettings { get; set; }
+        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
         public MainWindowViewModel ViewModel { get; set; }
 
         private static void HideBoundingBox(object root)
@@ -57,15 +58,15 @@ namespace NordChecker.Views
         [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
         public static extern IntPtr FindWindow(IntPtr ZeroOnly, string lpWindowName);
 
-        public MainWindow(MainWindowViewModel viewModel, AppSettings appSettings)
+        public MainWindow(MainWindowViewModel viewModel, Wrapped<AppSettings> appSettingsWrapped)
         {
-            AppSettings = appSettings;
+            AppSettingsWrapped = appSettingsWrapped;
             ViewModel = viewModel;
             DataContext = ViewModel;
 
             StateChanged += (sender, e) =>
             {
-                if (AppSettings.IsMinimizedToTray)
+                if (AppSettingsWrapped.Instance.IsMinimizedToTray)
                 {
                     ViewModel.WindowVisibility = WindowState != WindowState.Minimized
                         ? Visibility.Visible : Visibility.Collapsed;

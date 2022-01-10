@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NordChecker.Infrastructure;
-using NordChecker.Infrastructure.Commands;
+using Prism.Commands;
 
 namespace NordChecker.ViewModels
 {
@@ -57,7 +57,7 @@ namespace NordChecker.ViewModels
         
         public LoadProxiesWindowViewModel()
         {
-            ChoosePathCommand = new RelayCommand(nameof(ChoosePathCommand), OnChoosePathCommandExecuted);
+            ChoosePathCommand = new DelegateCommand(OnChoosePathCommandExecuted);
         }
     }
 }

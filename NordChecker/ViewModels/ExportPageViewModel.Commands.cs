@@ -12,10 +12,8 @@ namespace NordChecker.ViewModels
         #region ChoosePathCommand
 
         public ICommand ChoosePathCommand { get; }
-
-        private bool CanExecuteChoosePathCommand(object parameter) => true;
-
-        private void OnChoosePathCommandExecuted(object parameter)
+        
+        private void OnChoosePathCommandExecuted()
         {
             Log.Information("OnChoosePathCommandExecuted");
 
@@ -34,10 +32,8 @@ namespace NordChecker.ViewModels
         #region NavigateHomeCommand
 
         public ICommand NavigateHomeCommand { get; }
-
-        private bool CanExecuteNavigateHomeCommand(object parameter) => true;
-
-        private void OnNavigateHomeCommandExecuted(object parameter)
+        
+        private void OnNavigateHomeCommandExecuted()
         {
             Log.Information("OnNavigateHomeCommandExecuted");
             navigationService.Navigate<MainPage>();

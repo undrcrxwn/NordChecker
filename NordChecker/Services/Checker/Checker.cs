@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
+using NordChecker.Infrastructure;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
 using NordChecker.Services.Threading;
@@ -12,16 +13,16 @@ namespace NordChecker.Services.Checker
 {
     internal class Checker : IChecker
     {
-        private readonly AppSettings _AppSettings;
+        private readonly Wrapped<AppSettings> _AppSettingsWrapped;
 
-        public Checker(AppSettings appSettings) => _AppSettings = appSettings;
+        public Checker(Wrapped<AppSettings> appSettingsWrapped) => _AppSettingsWrapped = appSettingsWrapped;
 
         public async void ProcessAccount(Account account)
         {
             Action<MasterToken> accountProcessingCancellationHandler = x => account.State = AccountState.Invalid;
             account.MasterToken.Canceled += accountProcessingCancellationHandler;
 
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettingsWrapped.Instance.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             
             breakpointHandler.HandleBreakpointIfNeeded();

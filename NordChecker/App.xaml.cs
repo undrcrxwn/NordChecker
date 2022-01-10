@@ -41,8 +41,8 @@ namespace NordChecker
         private readonly NavigationService _NavigationService;
         private static readonly ContinuousStorage Storage;
 
-        private static readonly AppSettings AppSettings;
-        private static readonly ExportSettings ExportSettings;
+        private static readonly Wrapped<AppSettings> AppSettingsWrapped;
+        private static readonly Wrapped<ExportSettings> ExportSettingsWrapped;
 
         static App()
         {
@@ -62,13 +62,13 @@ namespace NordChecker
             };
             
             Utils.AllocConsole();
-            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
+            FileLogger    = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
             
             Storage = new ContinuousStorage($"{Directory.GetCurrentDirectory()}\\data");
-            AppSettings = Storage.LoadOrDefault(new AppSettings());
-            ExportSettings = Storage.LoadOrDefault(new ExportSettings());
+            AppSettingsWrapped    = new Wrapped<AppSettings>(Storage.LoadOrDefault(new AppSettings()));
+            ExportSettingsWrapped = new Wrapped<ExportSettings>(Storage.LoadOrDefault(new ExportSettings()));
 
             var services = new ServiceCollection();
             
@@ -77,8 +77,8 @@ namespace NordChecker
             services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<NavigationService>();
 
-            services.AddSingleton(AppSettings);
-            services.AddSingleton(new Wrapped<ExportSettings>(ExportSettings));
+            services.AddSingleton(AppSettingsWrapped);
+            services.AddSingleton(ExportSettingsWrapped);
 
             services.AddSingleton<Cyclic<Proxy>>();
             services.AddSingleton<IChecker, MockChecker>();
@@ -112,10 +112,10 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogAndThrowUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            AppSettings.PropertyChanged += (sender, e) =>
+            AppSettingsWrapped.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(AppSettings.IsAutoSaveEnabled) ||
-                    e.PropertyName == nameof(AppSettings.ContinuousSyncInterval))
+                if (e.PropertyName == nameof(AppSettingsWrapped.IsAutoSaveEnabled) ||
+                    e.PropertyName == nameof(AppSettingsWrapped.ContinuousSyncInterval))
                     RefreshSettingsAutoSave();
             };
             RefreshSettingsAutoSave();
@@ -143,10 +143,10 @@ namespace NordChecker
             if (Storage.IsSynchronized<ExportSettings>())
                 Storage.StopContinuousSync<ExportSettings>();
 
-            if (AppSettings.IsAutoSaveEnabled)
+            if (AppSettingsWrapped.IsAutoSaveEnabled)
             {
-                Storage.StartContinuousSync(AppSettings, AppSettings.ContinuousSyncInterval);
-                Storage.StartContinuousSync(ExportSettings, AppSettings.ContinuousSyncInterval);
+                Storage.StartContinuousSync(AppSettingsWrapped, AppSettingsWrapped.ContinuousSyncInterval);
+                Storage.StartContinuousSync(ExportSettingsWrapped, AppSettingsWrapped.ContinuousSyncInterval);
             }
         }
 
@@ -156,10 +156,10 @@ namespace NordChecker
 
             base.OnExit(e);
 
-            if (AppSettings.IsAutoSaveEnabled)
+            if (AppSettingsWrapped.IsAutoSaveEnabled)
             {
-                Storage.Save(AppSettings);
-                Storage.Save(ExportSettings);
+                Storage.Save(AppSettingsWrapped);
+                Storage.Save(ExportSettingsWrapped);
             }
 
             Log.CloseAndFlush();

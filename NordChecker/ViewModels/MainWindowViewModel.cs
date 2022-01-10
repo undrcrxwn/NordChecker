@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
-using NordChecker.Infrastructure.Commands;
+using Prism.Commands;
 
 namespace NordChecker.ViewModels
 {
@@ -48,7 +48,7 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         public NavigationService NavigationService { get; set; }
-        public AppSettings AppSettings { get; set; }
+        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
 
         #region Properties
 
@@ -93,14 +93,15 @@ namespace NordChecker.ViewModels
 
         private void UpdateAppearence()
         {
-            ThemeManager.Current.ApplicationTheme = AppSettings.Theme;
-            ThemeManager.Current.AccentColor = AppSettings.AccentColor;
+            ThemeManager.Current.ApplicationTheme = AppSettingsWrapped.Instance.Theme;
+            ThemeManager.Current.AccentColor = AppSettingsWrapped.Instance.AccentColor;
+            Log.Warning("Updated to {0}", AppSettingsWrapped.Instance.AccentColor);
         }
 
-        public MainWindowViewModel(NavigationService navigationService, AppSettings appSettings)
+        public MainWindowViewModel(NavigationService navigationService, Wrapped<AppSettings> appSettingsWrapped)
         {
             NavigationService = navigationService;
-            AppSettings = appSettings;
+            AppSettingsWrapped = appSettingsWrapped;
 
             NavigationService.Navigating += (sender, e) =>
             {
@@ -119,16 +120,20 @@ namespace NordChecker.ViewModels
                 ((IPageViewModel)NavigationService.CurrentPage.DataContext)
                     .PropertyChanged += OnPagePropertyChanged;
             };
-
-            UpdateAppearence();
-            AppSettings.PropertyChanged += (sender, e) =>
+            
+            AppSettingsWrapped.ForEach(appSettings =>
             {
-                if (e.PropertyName == nameof(AppSettings.AccentColor) ||
-                    e.PropertyName == nameof(AppSettings.Theme))
-                    UpdateAppearence();
-            };
+                appSettings.PropertyChanged += (sender, e) =>
+                {
+                    if (e.PropertyName
+                        is nameof(AppSettingsWrapped.Instance.AccentColor)
+                        or nameof(AppSettingsWrapped.Instance.Theme))
+                        UpdateAppearence();
+                };
+                UpdateAppearence();
+            });
 
-            OpenFromTrayCommand = new RelayCommand(nameof(OpenFromTrayCommand), OnOpenFromTrayCommandExecuted, CanExecuteOpenFromTrayCommand);
+            OpenFromTrayCommand = new DelegateCommand(OnOpenFromTrayCommandExecuted);
         }
     }
 }

@@ -16,10 +16,9 @@ namespace NordChecker.ViewModels
         public ICommand ChoosePathCommand
         {
             get;
-            init;
         }
         
-        private void OnChoosePathCommandExecuted(object parameter)
+        private void OnChoosePathCommandExecuted()
         {
             Log.Information("OnChoosePathCommandExecuted");
 

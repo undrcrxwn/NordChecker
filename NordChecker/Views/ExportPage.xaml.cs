@@ -28,9 +28,9 @@ namespace NordChecker.Views
         {
             InitializeComponent();
             DataContext = viewModel;
-            Log.Warning("Page {0} c-tor: settings hash = {1}", this.GetHashCode(), ((ExportPageViewModel)DataContext).ExportSettings.GetHashCode());
+            Log.Warning("Page {0} c-tor: settings hash = {1}", this.GetHashCode(), ((ExportPageViewModel)DataContext).ExportSettingsDraft.GetHashCode());
 
-            var es = ((ExportPageViewModel)DataContext).ExportSettings;
+            var es = ((ExportPageViewModel)DataContext).ExportSettingsDraft;
             Log.Warning("AFTER VM TAKEN FOR CONTEXT public ExportPage(ExportPageViewModel viewModel)");
             Log.Warning("SETTINGS = {0}, FILTERS = {1}, PREMIUM = {2}",
                 es.GetHashCode(), es.Filters.GetHashCode(), es.Filters.Premium.GetHashCode());

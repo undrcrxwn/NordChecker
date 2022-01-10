@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using NordChecker.Infrastructure;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
 using NordChecker.Services.Threading;
@@ -14,16 +15,16 @@ namespace NordChecker.Services.Checker
         private const int ElapsedMilliseconds = 5000;
         private const int BreakpointCount = 5;
         
-        private readonly AppSettings _AppSettings;
+        private readonly Wrapped<AppSettings> _AppSettingsWrapped;
         private readonly Random _Random = new();
 
-        public MockChecker(AppSettings appSettings) => _AppSettings = appSettings;
+        public MockChecker(Wrapped<AppSettings> appSettingsWrapped) => _AppSettingsWrapped = appSettingsWrapped;
 
         void IChecker.Check(Account account)
         {
             Log.Debug("Checking {0}", account.ToString());
 
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettingsWrapped.Instance.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             
             for (int i = 0; i < BreakpointCount; i++)

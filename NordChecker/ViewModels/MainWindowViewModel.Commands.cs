@@ -15,10 +15,8 @@ namespace NordChecker.ViewModels
         #region OpenFromTrayCommand
 
         public ICommand OpenFromTrayCommand { get; }
-
-        private bool CanExecuteOpenFromTrayCommand(object parameter) => true;
-
-        private void OnOpenFromTrayCommandExecuted(object parameter)
+        
+        private void OnOpenFromTrayCommandExecuted()
         {
             Log.Information("OnOpenFromTrayCommandExecuted");
             WindowVisibility = Visibility.Visible;

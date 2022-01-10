@@ -24,7 +24,7 @@ namespace NordChecker.Models.Settings
                 .Set(ref _IsDeveloperModeEnabled, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private bool _IsConsoleLoggingEnabled = true;
+        private bool _IsConsoleLoggingEnabled;
         public bool IsConsoleLoggingEnabled
         {
             get => _IsConsoleLoggingEnabled;

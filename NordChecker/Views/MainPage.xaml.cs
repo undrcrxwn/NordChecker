@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using NordChecker.Infrastructure;
 using NordChecker.Models.Settings;
 
 namespace NordChecker.Views
@@ -28,19 +29,19 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainPage : Page
     {
-        public AppSettings AppSettings { get; set; }
+        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
 
         public MainPage(MainPageViewModel viewModel)
         {
             DataContext = viewModel;
-            AppSettings = viewModel.AppSettings;
+            AppSettingsWrapped = viewModel.AppSettingsWrapped;
             InitializeComponent();
 
-            AppSettings.DataGridFilters.CollectionChanged +=
-                (object sender, NotifyCollectionChangedEventArgs e) =>
-                UpdateFiltering();
+            AppSettingsWrapped.ForEach(appSettings =>
+                appSettings.DataGridFilters.CollectionChanged += (sender, e) =>
+                    UpdateFiltering());
 
-            var source = new CollectionViewSource() { Source = viewModel.Accounts };
+            var source = new CollectionViewSource { Source = viewModel.Accounts };
             ICollectionView cv = source.View;
             dgAccounts.ItemsSource = cv;
 
@@ -61,7 +62,7 @@ namespace NordChecker.Views
             var cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
             {
-                cv.Filter = (acc) => AppSettings.DataGridFilters[((Account)acc).State];
+                cv.Filter = acc => AppSettingsWrapped.Instance.DataGridFilters[((Account)acc).State];
                 cv.Refresh();
             });
             Log.Information("New DataGrid filters have been applied");
@@ -71,7 +72,8 @@ namespace NordChecker.Views
 
         private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
         {
-            AppSettings.AccentColor = ((HandyControl.Controls.ColorPicker)sender).SelectedBrush;
+            Log.Warning(((HandyControl.Controls.ColorPicker)sender).SelectedBrush.Color.ToString());
+            AppSettingsWrapped.Instance.AccentColor = ((HandyControl.Controls.ColorPicker)sender).SelectedBrush;
         }
     }
 }

@@ -28,7 +28,6 @@ using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
-using NordChecker.Infrastructure.Commands;
 using NordChecker.Services.Storage;
 using Prism.Commands;
 
@@ -64,9 +63,10 @@ namespace NordChecker.ViewModels
                 .Set(ref _SelectedAccount, value, PropertyChanged);
         }
 
-        public AppSettings AppSettings { get; set; }
-        public Wrapped<ExportSettings> ExportSettings { get; set; }
+        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
+        public Wrapped<ExportSettings> ExportSettingsWrapped { get; set; }
         public ProxiesViewModel ProxiesViewModel { get; set; }
+
 
         private ObservableCollection<Account> _Accounts;
         public ObservableCollection<Account> Accounts
@@ -212,19 +212,19 @@ namespace NordChecker.ViewModels
             IChecker checker,
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
-            AppSettings appSettings,
-            Wrapped<ExportSettings> exportSettings,
+            Wrapped<AppSettings> appSettingsWrapped,
+            Wrapped<ExportSettings> exportSettingsWrapped,
             ProxiesViewModel proxiesViewModel)
         {
             Storage = storage;
             Checker = checker;
             Accounts = accounts;
             this.navigationService = navigationService;
-            AppSettings = appSettings;
-            ExportSettings = exportSettings;
+            AppSettingsWrapped = appSettingsWrapped;
+            ExportSettingsWrapped = exportSettingsWrapped;
             ProxiesViewModel = proxiesViewModel;
 
-            ComboParser = new Parser(AppSettings.ComboRegexMask);
+            ComboParser = new Parser(AppSettingsWrapped.Instance.ComboRegexMask);
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -243,7 +243,7 @@ namespace NordChecker.ViewModels
             Accounts.CollectionChanged += AccountsCollectionChangedHandler;
 
             distributor = new ThreadDistributor<Account>.Builder()
-                .SetThreadCount(AppSettings.ThreadCount)
+                .SetThreadCount(AppSettingsWrapped.Instance.ThreadCount)
                 .SetPayloads(Accounts)
                 .SetFilter(account =>
                 {
@@ -283,39 +283,48 @@ namespace NordChecker.ViewModels
 
             #region Commands
 
-            StartCommand = new RelayCommand(nameof(StartCommand), OnStartCommandExecuted, CanExecuteStartCommand);
-            PauseCommand = new RelayCommand(nameof(PauseCommand), OnPauseCommandExecuted, CanExecutePauseCommand);
-            ContinueCommand = new RelayCommand(nameof(ContinueCommand), OnContinueCommandExecuted, CanExecuteContinueCommand);
-            StopCommand = new RelayCommand(nameof(StopCommand), OnStopCommandExecuted, CanExecuteStopCommand);
+            StartCommand = new DelegateCommand(OnStartCommandExecuted, CanExecuteStartCommand)
+                .ObservesProperty(() => PipelineState);
+            PauseCommand = new DelegateCommand(OnPauseCommandExecuted, CanExecutePauseCommand)
+                .ObservesProperty(() => PipelineState);
+            ContinueCommand = new DelegateCommand(OnContinueCommandExecuted, CanExecuteContinueCommand)
+                .ObservesProperty(() => PipelineState);
+            StopCommand = new DelegateCommand(OnStopCommandExecuted, CanExecuteStopCommand)
+                .ObservesProperty(() => PipelineState);
 
-            LoadCombosCommand = new RelayCommand(nameof(LoadCombosCommand), OnLoadCombosCommandExecuted);
-            ClearCombosCommand = new RelayCommand(nameof(ClearCombosCommand), OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
-            StopAndClearCombosCommand = new RelayCommand(nameof(StopAndClearCombosCommand), OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
-            LoadProxiesCommand = new RelayCommand(nameof(LoadProxiesCommand), OnLoadProxiesCommandExecuted);
-            ExportCommand = new RelayCommand(nameof(ExportCommand), OnExportCommandExecuted, CanExecuteExportCommand);
+            LoadCombosCommand = new DelegateCommand(OnLoadCombosCommandExecuted);
+            ClearCombosCommand = new DelegateCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
+            StopAndClearCombosCommand = new DelegateCommand(OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
+            LoadProxiesCommand = new DelegateCommand(OnLoadProxiesCommandExecuted);
+            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand);
 
-            CopyAccountCredentialsCommand = new RelayCommand(nameof(CopyAccountCredentialsCommand), OnCopyAccountCredentialsCommandExecuted);
-            RemoveAccountCommand = new RelayCommand(nameof(RemoveAccountCommand), OnRemoveAccountCommandExecuted);
+            CopyAccountCredentialsCommand = new DelegateCommand(OnCopyAccountCredentialsCommandExecuted);
+            RemoveAccountCommand = new DelegateCommand(OnRemoveAccountCommandExecuted);
 
-            ContactAuthorCommand = new RelayCommand(nameof(ContactAuthorCommand), OnContactAuthorCommandExecuted);
+            ContactAuthorCommand = new DelegateCommand(OnContactAuthorCommandExecuted);
 
             SaveSettingsCommand = new DelegateCommand(OnSaveSettingsCommandExecuted);
             RestoreSettingsCommand = new DelegateCommand(OnRestoreSettingsCommandExecuted);
 
             #endregion
 
-            AppSettings.PropertyChanged += (sender, e) =>
+            AppSettingsWrapped.ForEach(appSettings =>
             {
-                switch (e.PropertyName)
+                appSettings.PropertyChanged += (sender, e) =>
                 {
-                    case nameof(AppSettings.ComboRegexMask):
-                        ComboParser.RegexMask = AppSettings.ComboRegexMask;
-                        break;
-                    case nameof(AppSettings.ThreadCount):
-                        distributor.ThreadCount = AppSettings.ThreadCount;
-                        break;
-                }
-            };
+                    switch (e.PropertyName)
+                    {
+                        case nameof(AppSettingsWrapped.Instance.ComboRegexMask):
+                            ComboParser.RegexMask = AppSettingsWrapped.Instance.ComboRegexMask;
+                            break;
+                        case nameof(AppSettingsWrapped.Instance.ThreadCount):
+                            distributor.ThreadCount = AppSettingsWrapped.Instance.ThreadCount;
+                            break;
+                    }
+                };
+
+                (this as INotifyPropertyChangedAdvanced).NotifyAll(PropertyChanged);
+            });
 
             PropertyChanged += (sender, e) =>
             {

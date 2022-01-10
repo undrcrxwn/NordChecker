@@ -32,7 +32,7 @@
         <Button Content="Остановить" Command="{Binding PauseCommand}"    Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonDanger}"  HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
         <Button Content="Продолжить" Command="{Binding ContinueCommand}" Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2VisibilityConverter}}" Height="30" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
 
-        <TabControl Grid.Row="2" TabStripPlacement="Bottom" Background="Transparent">
+        <TabControl Grid.Row="1" TabStripPlacement="Bottom" Background="Transparent">
             <TabItem BorderBrush="{DynamicResource PrimaryBrush}">
                 <TabItem.Header>
                     <TextBlock Text="Комбо" Width="55" TextAlignment="Center"/>
@@ -144,7 +144,7 @@
                                         <hc:SimpleText Text="{Binding ComboStats.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
-                                <Border Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
                                         <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                         <hc:SimpleText Text="{Binding ComboStats.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
@@ -279,7 +279,7 @@
                                         <hc:SimpleText Text="{Binding ProxiesViewModel.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
-                                <Border Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Visibility="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
                                         <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                         <hc:SimpleText Text="{Binding ProxiesViewModel.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
@@ -364,11 +364,11 @@
         </StackPanel>
 
         <hc:ButtonGroup VerticalAlignment="Center" Height="30" Grid.Column="2">
-            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettings.DataGridFilters[Unchecked]}"/>
-            <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettings.DataGridFilters[Reserved]}"/>
-            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[Invalid]}"/>
-            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettings.DataGridFilters[Free]}"/>
-            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettings.DataGridFilters[Premium]}"/>
+            <ToggleButton Content="В очереди"   IsChecked="{Binding Path=AppSettingsWrapped.Instance.DataGridFilters[Unchecked]}"/>
+            <ToggleButton Content="В обработке" IsChecked="{Binding Path=AppSettingsWrapped.Instance.DataGridFilters[Reserved]}"/>
+            <ToggleButton Content="Невалидные"  IsChecked="{Binding Path=AppSettingsWrapped.Instance.DataGridFilters[Invalid]}"/>
+            <ToggleButton Content="Бесплатные"  IsChecked="{Binding Path=AppSettingsWrapped.Instance.DataGridFilters[Free]}"/>
+            <ToggleButton Content="Премиум"     IsChecked="{Binding Path=AppSettingsWrapped.Instance.DataGridFilters[Premium]}"/>
         </hc:ButtonGroup>
 
         <Button Grid.Column="3" x:Name="btnExport" Content="Экспорт..." Command="{Binding ExportCommand}" ToolTip="Выгрузка результатов работы в файловую структуру" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Height="30" HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
@@ -394,9 +394,9 @@
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <StackPanel Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
-                                <TextBox Text="{Binding AppSettings.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                <TextBox Text="{Binding AppSettingsWrapped.Instance.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
@@ -418,10 +418,10 @@
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreComboDuplicatesSkipped}"/>
+                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettings.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <emoji:TextBlock.ToolTip>
                                                 <ToolTip StaysOpen="True">
                                                     <TextBlock>
@@ -458,9 +458,9 @@
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <StackPanel Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
-                                <TextBox Text="{Binding AppSettings.ProxyRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                <TextBox Text="{Binding AppSettingsWrapped.Instance.ProxyRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
@@ -482,10 +482,10 @@
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettings.AreProxyDuplicatesSkipped}"/>
+                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettings.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <emoji:TextBlock.ToolTip>
                                                 <ToolTip StaysOpen="True">
                                                     <TextBlock>
@@ -529,11 +529,11 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Потоки" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.ThreadCount}" Minimum="1" Maximum="2000" Grid.Column="2" Increment="50"/>
+                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettingsWrapped.Instance.ThreadCount}" Minimum="1" Maximum="2000" Grid.Column="2" Increment="50"/>
                                     <TextBlock Text="Таймаут (сек.)" Margin="4,0,0,0" VerticalAlignment="Center" Grid.Row="2"/>
-                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettings.Timeout, Converter={StaticResource TimeSpan2TotalSecondsConverter}}" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
+                                    <hc:NumericUpDown IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Value="{Binding AppSettingsWrapped.Instance.Timeout, Converter={StaticResource TimeSpan2TotalSecondsConverter}}" Minimum="5" Maximum="30" Grid.Row="2" Grid.Column="2" Increment="5"/>
                                 </Grid>
-                                <Grid Margin="0, 0, 0, 5" Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Grid Margin="0, 0, 0, 5" Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
@@ -543,21 +543,21 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="LogEventLevel" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource LogEventLevelEnumValues}}" SelectedValue="{Binding AppSettings.LogEventLevel}" Grid.Column="2"/>
+                                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource LogEventLevelEnumValues}}" SelectedValue="{Binding AppSettingsWrapped.Instance.LogEventLevel}" Grid.Column="2"/>
                                 </Grid>
                             </StackPanel>
 
                             <StackPanel Orientation="Vertical">
-                                <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettings.IsTopMostWindow}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
-                                <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettings.IsMinimizedToTray}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
-                                <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettings.IsDeveloperModeEnabled}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
-                                <CheckBox Content="Показывать логи" IsChecked="{Binding AppSettings.IsConsoleLoggingEnabled}"
-                                          Visibility="{Binding AppSettings.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettingsWrapped.Instance.IsTopMostWindow}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
+                                <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettingsWrapped.Instance.IsMinimizedToTray}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
+                                <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
+                                <CheckBox Content="Показывать логи" IsChecked="{Binding AppSettingsWrapped.Instance.IsConsoleLoggingEnabled}"
+                                          Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}"
                                           HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
-                                <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettings.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
+                                <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettingsWrapped.Instance.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
                             </StackPanel>
 
-                            <Button Content="Сохранить параметры" Command="{Binding SaveSettingsCommand}" Visibility="{Binding AppSettings.IsAutoSaveEnabled, Converter={StaticResource InverseBoolean2VisibilityConverter}}"/>
+                            <Button Content="Сохранить параметры" Command="{Binding SaveSettingsCommand}" Visibility="{Binding AppSettingsWrapped.Instance.IsAutoSaveEnabled, Converter={StaticResource InverseBoolean2VisibilityConverter}}"/>
                             <Button Content="Восстановить начальные параметры" Command="{Binding RestoreSettingsCommand}"/>
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -576,7 +576,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Тема" Margin="4,0,0,0" VerticalAlignment="Center"/>
                                 <hc:ComboBox ItemsSource="{Binding Source={StaticResource ApplicationThemeEnumValues}}"
-                                             SelectedValue="{Binding AppSettings.Theme}"
+                                             SelectedValue="{Binding AppSettingsWrapped.Instance.Theme}"
                                              Grid.Column="2">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
@@ -585,7 +585,7 @@
                                     </ComboBox.ItemTemplate>
                                 </hc:ComboBox>
                             </Grid>
-                            <hc:ColorPicker SelectedBrush="{Binding AppSettings.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0, -7,0,0"/>
+                            <hc:ColorPicker SelectedBrush="{Binding AppSettingsWrapped.Instance.AccentColor}" SelectedColorChanged="ColorPicker_SelectedColorChanged" Height="233" Margin="0, -7,0,0"/>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
