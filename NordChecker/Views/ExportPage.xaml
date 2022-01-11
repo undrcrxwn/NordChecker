@@ -24,7 +24,7 @@
             <hc:UniformSpacingPanel Spacing="5">
                 <Button Command="{Binding NavigateHomeCommand}" Height="20" Style="{StaticResource NavigateHomeButtonStyle}"/>
 
-                <Rectangle Width="18" Height="18" VerticalAlignment="Bottom" Opacity="0.5">
+                <Rectangle Width="18" Height="18" Margin="0, 2, 0, 0"  Opacity="0.5">
                     <Rectangle.Style>
                         <Style TargetType="{x:Type Rectangle}">
                             <Setter Property="Fill" Value="{DynamicResource PrimaryTextBrush}"/>

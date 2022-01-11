@@ -11,19 +11,21 @@ namespace NordChecker.Services.Storage
 
         public Storage(string directory) => _Directory = directory;
 
-        public void Save<T>(T target)
+        public void Save(object target, string identifier)
         {
-            string path = GetAbsolutePath<T>();
+            string path = GetAbsolutePath(identifier);
             string json = JsonConvert.SerializeObject(target);
 
             Directory.CreateDirectory(_Directory);
             File.WriteAllText(path, json);
-            Log.Information("{0} has been saved to {1}", typeof(T).Name, path);
+            Log.Information("Entity [identifier = {0}] has been saved to {1}", identifier, path);
         }
 
-        public T Load<T>()
+        public void Save<T>(T target) => Save(target, typeof(T).Name);
+
+        public T Load<T>(string identifier)
         {
-            string path = GetAbsolutePath<T>();
+            string path = GetAbsolutePath(identifier);
             string json;
 
             try
@@ -32,28 +34,30 @@ namespace NordChecker.Services.Storage
             }
             catch (Exception e)
             {
-                Log.Error(e, "Unable to access {0} to load {1}", path, typeof(T).Name);
+                Log.Error(e, "Unable to access {0} to load entity [identifier = {1}]", path, identifier);
                 throw;
             }
 
             try
             {
-                T obj = (T)JsonConvert.DeserializeObject(json, typeof(T));
-                Log.Information("{0} has been loaded from {1}", typeof(T).Name, path);
-                return obj;
+                T entity = JsonConvert.DeserializeObject<T>(json);
+                Log.Information("Entity [identifier = {0}] has been loaded from {1}", identifier, path);
+                return entity;
             }
             catch (Exception e)
             {
-                Log.Error(e, "Unable to deserialize {0} from {1}", typeof(T).Name, json);
+                Log.Error(e, "Unable to deserialize entity [identifier = {0}] from {1}", identifier, json);
                 throw;
             }
         }
 
-        public T LoadOrDefault<T>(T obj)
+        public T Load<T>() => Load<T>(typeof(T).Name);
+
+        public T LoadOrDefault<T>(string identifier, T obj)
         {
             try
             {
-                return Load<T>();
+                return Load<T>(identifier);
             }
             catch
             {
@@ -61,6 +65,12 @@ namespace NordChecker.Services.Storage
             }
         }
 
-        private string GetAbsolutePath<T>() => $"{_Directory}\\{typeof(T).Name}.json";
+        public T LoadOrDefault<T>(T obj) => LoadOrDefault(typeof(T).Name, obj);
+
+        private static string GetFileName(string identifier) => $"{identifier}.json";
+        private static string GetFileName<T>() => GetFileName(typeof(T).Name);
+
+        private string GetAbsolutePath(string identifier) => $"{_Directory}\\{GetFileName(identifier)}";
+        private string GetAbsolutePath<T>() => GetAbsolutePath(GetFileName<T>());
     }
 }

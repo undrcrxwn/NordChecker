@@ -293,10 +293,14 @@ namespace NordChecker.ViewModels
                 .ObservesProperty(() => PipelineState);
 
             LoadCombosCommand = new DelegateCommand(OnLoadCombosCommandExecuted);
-            ClearCombosCommand = new DelegateCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand);
+            ClearCombosCommand = new DelegateCommand(OnClearCombosCommandExecuted, CanExecuteClearCombosCommand)
+                .ObservesProperty(() => PipelineState);
+
             StopAndClearCombosCommand = new DelegateCommand(OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
             LoadProxiesCommand = new DelegateCommand(OnLoadProxiesCommandExecuted);
-            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand);
+            ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand)
+                .ObservesProperty(() => PipelineState)
+                .ObservesProperty(() => Accounts.Count);
 
             CopyAccountCredentialsCommand = new DelegateCommand(OnCopyAccountCredentialsCommandExecuted);
             RemoveAccountCommand = new DelegateCommand(OnRemoveAccountCommandExecuted);

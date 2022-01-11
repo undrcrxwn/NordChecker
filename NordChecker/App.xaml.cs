@@ -25,6 +25,7 @@ using NordChecker.Services.Formatter;
 using NordChecker.Services.Storage;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
+using Serilog.Events;
 
 namespace NordChecker
 {
@@ -53,25 +54,25 @@ namespace NordChecker
                     NumberDecimalSeparator = "."
                 }
             };
-            
+
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 Converters = { new StringEnumConverter(), new SolidColorBrushConverter() }
             };
-            
+
             Utils.AllocConsole();
-            FileLogger    = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
+            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
-            
+
             Storage = new ContinuousStorage($"{Directory.GetCurrentDirectory()}\\data");
-            AppSettingsWrapped    = new Wrapped<AppSettings>(Storage.LoadOrDefault(new AppSettings()));
+            AppSettingsWrapped = new Wrapped<AppSettings>(Storage.LoadOrDefault(new AppSettings()));
             ExportSettingsWrapped = new Wrapped<ExportSettings>(Storage.LoadOrDefault(new ExportSettings()));
 
             var services = new ServiceCollection();
-            
+
             services.AddSingleton<Storage>(Storage);
 
             services.AddSingleton<ObservableCollection<Account>>();
@@ -82,7 +83,7 @@ namespace NordChecker
 
             services.AddSingleton<Cyclic<Proxy>>();
             services.AddSingleton<IChecker, MockChecker>();
-            
+
             services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainWindow>();
@@ -112,16 +113,36 @@ namespace NordChecker
             TaskScheduler.UnobservedTaskException += (sender, e) =>
                 LogAndThrowUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
 
-            AppSettingsWrapped.PropertyChanged += (sender, e) =>
+            AppSettingsWrapped.ForEach(appSettings =>
             {
-                if (e.PropertyName == nameof(AppSettingsWrapped.IsAutoSaveEnabled) ||
-                    e.PropertyName == nameof(AppSettingsWrapped.ContinuousSyncInterval))
-                    RefreshSettingsAutoSave();
-            };
-            RefreshSettingsAutoSave();
+                appSettings.PropertyChanged += (sender, e) =>
+                {
+                    switch (e.PropertyName)
+                    {
+                        case nameof(AppSettings.IsAutoSaveEnabled)
+                            or nameof(AppSettings.ContinuousSyncInterval):
+                            RefreshSettingsAutoSave();
+                            break;
+                        case nameof(AppSettings.IsConsoleLoggingEnabled):
+                            if (appSettings.IsConsoleLoggingEnabled)
+                            {
+                                Utils.ShowConsole();
+                                Log.Logger = Log.Logger.Merge(ConsoleLogger);
+                            }
+                            else
+                            {
+                                Utils.HideConsole();
+                                Log.Logger = FileLogger;
+                            }
+                            break;
+                    }
+                };
+
+                RefreshSettingsAutoSave();
+            });
 
             var assembly = Assembly.GetEntryAssembly();
-            var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
+            string configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
             Log.Information("{0} {1} is running in {2} configuration",
                 assembly.GetName().Name,
                 assembly.GetName().Version,
@@ -143,10 +164,10 @@ namespace NordChecker
             if (Storage.IsSynchronized<ExportSettings>())
                 Storage.StopContinuousSync<ExportSettings>();
 
-            if (AppSettingsWrapped.IsAutoSaveEnabled)
+            if (AppSettingsWrapped.Instance.IsAutoSaveEnabled)
             {
-                Storage.StartContinuousSync(AppSettingsWrapped, AppSettingsWrapped.ContinuousSyncInterval);
-                Storage.StartContinuousSync(ExportSettingsWrapped, AppSettingsWrapped.ContinuousSyncInterval);
+                Storage.StartContinuousSync(() => AppSettingsWrapped.Instance, AppSettingsWrapped.Instance.ContinuousSyncInterval);
+                Storage.StartContinuousSync(() => ExportSettingsWrapped.Instance, AppSettingsWrapped.Instance.ContinuousSyncInterval);
             }
         }
 
@@ -156,10 +177,10 @@ namespace NordChecker
 
             base.OnExit(e);
 
-            if (AppSettingsWrapped.IsAutoSaveEnabled)
+            if (AppSettingsWrapped.Instance.IsAutoSaveEnabled)
             {
-                Storage.Save(AppSettingsWrapped);
-                Storage.Save(ExportSettingsWrapped);
+                Storage.Save(AppSettingsWrapped.Instance);
+                Storage.Save(ExportSettingsWrapped.Instance);
             }
 
             Log.CloseAndFlush();

@@ -31,21 +31,9 @@ namespace NordChecker.Models.Settings
             set
             {
                 if (_IsConsoleLoggingEnabled == value) return;
-
-                if (value)
-                {
-                    Utils.ShowConsole();
-                    Log.Logger = Log.Logger.Merge(App.ConsoleLogger);
-                    (this as INotifyPropertyChangedAdvanced)
-                        .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
-                }
-                else
-                {
-                    (this as INotifyPropertyChangedAdvanced)
-                        .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
-                    Utils.HideConsole();
-                    Log.Logger = App.FileLogger;
-                }
+                
+                (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _IsConsoleLoggingEnabled, value, PropertyChanged, LogEventLevel.Information);
             }
         }
 
@@ -105,7 +93,7 @@ namespace NordChecker.Models.Settings
                 .Set(ref _ThreadCount, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private TimeSpan _Timeout = TimeSpan.FromSeconds(5);
+        private TimeSpan _Timeout = TimeSpan.FromSeconds(15);
         public TimeSpan Timeout
         {
             get => _Timeout;

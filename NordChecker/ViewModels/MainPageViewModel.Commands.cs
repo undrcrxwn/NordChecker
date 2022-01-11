@@ -425,7 +425,7 @@ namespace NordChecker.ViewModels
         
         private void OnSaveSettingsCommandExecuted()
         {
-            Storage.Save(AppSettingsWrapped);
+            Storage.Save(AppSettingsWrapped.Instance);
             Storage.Save(ExportSettingsWrapped.Instance);
         }
         
