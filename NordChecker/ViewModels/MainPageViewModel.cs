@@ -24,6 +24,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
+using NordChecker.Models.Stats;
 using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Threading;
@@ -42,8 +43,8 @@ namespace NordChecker.ViewModels
         public IChecker Checker;
         public Parser ComboParser;
         private ThreadDistributor<Account> distributor;
-        private MasterTokenSource tokenSource = new MasterTokenSource();
-        private Stopwatch progressWatch = new Stopwatch();
+        private MasterTokenSource tokenSource = new();
+        private Stopwatch progressWatch = new();
 
         #region Properties
 
@@ -65,6 +66,7 @@ namespace NordChecker.ViewModels
 
         public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
         public Wrapped<ExportSettings> ExportSettingsWrapped { get; set; }
+        public Wrapped<ImportSettings> ImportSettingsWrapped { get; set; }
         public ProxiesViewModel ProxiesViewModel { get; set; }
 
 
@@ -76,7 +78,15 @@ namespace NordChecker.ViewModels
                 .Set(ref _Accounts, value, PropertyChanged);
         }
 
-        private ComboStats _ComboStats = new ComboStats();
+        private ProxyStats _ProxyStats;
+        public ProxyStats ProxyStats
+        {
+            get => _ProxyStats;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ProxyStats, value, PropertyChanged);
+        }
+
+        private ComboStats _ComboStats;
         public ComboStats ComboStats
         {
             get => _ComboStats;
@@ -188,7 +198,7 @@ namespace NordChecker.ViewModels
                 - ComboStats.ByState[AccountState.Reserved];
             float percentageChecked = checkedCount
                 / Math.Max(Accounts.Count, 1.0f) * 100;
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"{percentageChecked:0}%");
 
             if (PipelineState != PipelineState.Idle)
@@ -210,21 +220,27 @@ namespace NordChecker.ViewModels
         public MainPageViewModel(
             Storage storage,
             IChecker checker,
+            ComboStats comboStats,
+            ProxyStats proxyStats,
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
             Wrapped<AppSettings> appSettingsWrapped,
             Wrapped<ExportSettings> exportSettingsWrapped,
+            Wrapped<ImportSettings> importSettingsWrapped,
             ProxiesViewModel proxiesViewModel)
         {
             Storage = storage;
             Checker = checker;
+            ComboStats = comboStats;
+            ProxyStats = proxyStats;
             Accounts = accounts;
             this.navigationService = navigationService;
             AppSettingsWrapped = appSettingsWrapped;
             ExportSettingsWrapped = exportSettingsWrapped;
+            ImportSettingsWrapped = importSettingsWrapped;
             ProxiesViewModel = proxiesViewModel;
 
-            ComboParser = new Parser(AppSettingsWrapped.Instance.ComboRegexMask);
+            ComboParser = new Parser(ImportSettingsWrapped.Instance.ComboRegexMask);
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -309,6 +325,7 @@ namespace NordChecker.ViewModels
 
             SaveSettingsCommand = new DelegateCommand(OnSaveSettingsCommandExecuted);
             RestoreSettingsCommand = new DelegateCommand(OnRestoreSettingsCommandExecuted);
+            OpenSettingsDirectoryCommand = new DelegateCommand(OnOpenSettingsDirectoryCommandExecuted);
 
             #endregion
 
@@ -318,8 +335,8 @@ namespace NordChecker.ViewModels
                 {
                     switch (e.PropertyName)
                     {
-                        case nameof(AppSettingsWrapped.Instance.ComboRegexMask):
-                            ComboParser.RegexMask = AppSettingsWrapped.Instance.ComboRegexMask;
+                        case nameof(ImportSettingsWrapped.Instance.ComboRegexMask):
+                            ComboParser.RegexMask = ImportSettingsWrapped.Instance.ComboRegexMask;
                             break;
                         case nameof(AppSettingsWrapped.Instance.ThreadCount):
                             distributor.ThreadCount = AppSettingsWrapped.Instance.ThreadCount;

@@ -8,6 +8,7 @@
              xmlns:themes="clr-namespace:HandyControl.Themes;assembly=HandyControl"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:NordChecker.Converters"
+             xmlns:xnet="clr-namespace:Leaf.xNet;assembly=Leaf.xNet"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -50,6 +51,12 @@
                             </DrawingGroup>
                         </DrawingImage.Drawing>
                     </DrawingImage>
+
+                    <ObjectDataProvider x:Key="ProxyTypeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                        <ObjectDataProvider.MethodParameters>
+                            <x:Type TypeName="xnet:ProxyType"/>
+                        </ObjectDataProvider.MethodParameters>
+                    </ObjectDataProvider>
 
                     <ImageBrush x:Key="HomeStrokeImageBrush" ImageSource="{StaticResource HomeStrokeDrawingImage}"/>
                     <ImageBrush x:Key="HomeFillImageBrush" ImageSource="{StaticResource HomeFillDrawingImage}"/>

@@ -7,16 +7,16 @@ namespace NordChecker.Services.Storage
 {
     public class Storage
     {
-        private readonly string _Directory;
+        public string RootDirectory;
 
-        public Storage(string directory) => _Directory = directory;
+        public Storage(string directory) => RootDirectory = directory;
 
         public void Save(object target, string identifier)
         {
             string path = GetAbsolutePath(identifier);
             string json = JsonConvert.SerializeObject(target);
 
-            Directory.CreateDirectory(_Directory);
+            Directory.CreateDirectory(RootDirectory);
             File.WriteAllText(path, json);
             Log.Information("Entity [identifier = {0}] has been saved to {1}", identifier, path);
         }
@@ -70,7 +70,7 @@ namespace NordChecker.Services.Storage
         private static string GetFileName(string identifier) => $"{identifier}.json";
         private static string GetFileName<T>() => GetFileName(typeof(T).Name);
 
-        private string GetAbsolutePath(string identifier) => $"{_Directory}\\{GetFileName(identifier)}";
+        private string GetAbsolutePath(string identifier) => $"{RootDirectory}\\{GetFileName(identifier)}";
         private string GetAbsolutePath<T>() => GetAbsolutePath(GetFileName<T>());
     }
 }

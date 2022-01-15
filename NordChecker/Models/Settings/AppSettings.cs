@@ -45,46 +45,6 @@ namespace NordChecker.Models.Settings
                 .Set(ref _DataGridFilters, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private bool _AreComboDuplicatesSkipped;
-        public bool AreComboDuplicatesSkipped
-        {
-            get => _AreComboDuplicatesSkipped;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreComboDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
-        }
-
-        private bool _AreProxyDuplicatesSkipped;
-        public bool AreProxyDuplicatesSkipped
-        {
-            get => _AreProxyDuplicatesSkipped;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AreProxyDuplicatesSkipped, value, PropertyChanged, LogEventLevel.Information);
-        }
-
-        private string _ComboRegexMask = @"\W*(^\w+(?:[-+.']\w+|-)*@\w+(?:[-.]\w+)*\.\w+(?:[-.]\w+)*):(\w+)\W*$";
-        public string ComboRegexMask
-        {
-            get => _ComboRegexMask;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ComboRegexMask, value, PropertyChanged, LogEventLevel.Information);
-        }
-
-        private string _ProxyRegexMask;
-        public string ProxyRegexMask
-        {
-            get => _ProxyRegexMask;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ProxyRegexMask, value, PropertyChanged, LogEventLevel.Information);
-        }
-
-        private ProxyType _LastChosenProxyType = ProxyType.Socks4;
-        public ProxyType LastChosenProxyType
-        {
-            get => _LastChosenProxyType;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _LastChosenProxyType, value, PropertyChanged, LogEventLevel.Information);
-        }
-        
         private int _ThreadCount = 50;
         public int ThreadCount
         {

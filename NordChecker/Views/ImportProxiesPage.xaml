@@ -1,0 +1,134 @@
+﻿<Page x:Class="NordChecker.Views.ImportProxiesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NordChecker.Views"
+      xmlns:xnet="clr-namespace:Leaf.xNet;assembly=Leaf.xNet"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:viewModels="clr-namespace:NordChecker.ViewModels"
+      xmlns:wpf="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance Type=viewModels:ImportProxiesPageViewModel}"
+      d:Background="{DynamicResource RegionBrush}">
+    <Grid>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <hc:UniformSpacingPanel Spacing="5">
+                <Button Command="{Binding NavigateHomeCommand}" Height="20" Style="{StaticResource NavigateHomeButtonStyle}"/>
+
+                <Rectangle Width="18" Height="18" Margin="0, 2, 0, 0"  Opacity="0.5">
+                    <Rectangle.Style>
+                        <Style TargetType="{x:Type Rectangle}">
+                            <Setter Property="Fill" Value="{DynamicResource PrimaryTextBrush}"/>
+                            <Setter Property="OpacityMask" Value="{StaticResource PathSeparatorImageBrush}"/>
+                        </Style>
+                    </Rectangle.Style>
+                </Rectangle>
+
+                <hc:SimpleText Text="Импорт прокси" FontSize="16" FontWeight="Medium"/>
+            </hc:UniformSpacingPanel>
+
+            <hc:UniformSpacingPanel Grid.Row="2" Orientation="Vertical" Spacing="5">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <hc:SimpleText Text="Целевой файл" FontSize="18" FontWeight="Medium"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="4"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding Path}" IsReadOnly="True"/>
+                        <Button Command="{Binding ChoosePathCommand}" Content="•••" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" HorizontalAlignment="Stretch" Padding="0"/>
+                    </Grid>
+                </hc:UniformSpacingPanel>
+
+                <StackPanel Orientation="Vertical">
+                    <hc:SimpleText Text="Параметры" FontSize="18" FontWeight="Medium" Margin="0, 0, 0, 5"/>
+                    <Grid Margin="0, 0, 0, 5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Тип прокси" Margin="2,0,0,0"/>
+                        <hc:ComboBox ItemsSource="{Binding Source={StaticResource ProxyTypeEnumValues}}" SelectedValue="{Binding ProxyType}" Grid.Row="2"/>
+
+                        <TextBlock Text="RegEx маска" Margin="2,0,0,0" Grid.Column="2"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ImportSettingsWrapped.Instance.ProxyRegexMask}" FontFamily="Consolas">
+                            <TextBox.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                    Регулярное выражение, применяемое к каждой строке загружаемой прокси-базы.
+                                    <LineBreak/>
+                                    <LineBreak/>Ожидаемые группы захвата:
+                                    <LineBreak/>– $1 – IP-адрес;
+                                    <LineBreak/>– $2 – порт.
+                                    <LineBreak/>
+                                    <LineBreak/>Для тестирования пользовательских масок посетите <Run>https://regex101.com/</Run>
+                                    </TextBlock>
+                                </ToolTip>
+                            </TextBox.ToolTip>
+                        </TextBox>
+                    </Grid>
+
+                    <StackPanel Orientation="Vertical" Width="190" HorizontalAlignment="Left">
+                        <CheckBox Content="Нормализация строк" Margin="0, 0, 0, 5" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="{Binding ImportSettingsWrapped.Instance.AreProxyLinesNormalized}" HorizontalAlignment="Left"/>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding ImportSettingsWrapped.Instance.AreProxyDuplicatesSkipped}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <wpf:TextBlock Text="⚠️" Margin="0, 0, 1, 0" Visibility="{Binding ImportSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <wpf:TextBlock.ToolTip>
+                                        <ToolTip StaysOpen="True">
+                                            <TextBlock>
+                                                        Проверка входных строк на наличие дубликатов влечёт за собой повышение
+                                                        <LineBreak/>нагрузки на ЦП, что может существенно снизить скорость работы приложения
+                                                        <LineBreak/>во время загрузки прокси-баз.
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </wpf:TextBlock.ToolTip>
+                                </wpf:TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="btnProceed" Content="Продолжить" HorizontalAlignment="Stretch">
+                        <Button.Style>
+                            <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path}" Value="{x:Null}">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="btnCancel" Content="Отмена" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </hc:UniformSpacingPanel>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,33 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using HandyControl.Tools.Extension;
 using NordChecker.Infrastructure;
 using NordChecker.Shared.Collections;
 
-namespace NordChecker.Models
+namespace NordChecker.Models.Stats
 {
-    public class ComboStats : INotifyPropertyChangedAdvanced
+    public class ProxyStats : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ObservableDictionary<AccountState, int> _ByState;
-        public ObservableDictionary<AccountState, int> ByState
+        private ObservableDictionary<AccountState, int> _ByType;
+        public ObservableDictionary<AccountState, int> ByType
         {
-            get => _ByState;
+            get => _ByType;
             set
             {
-                if (_ByState is not null)
-                    _ByState.CollectionChanged -= OnByStateCollectionChanged;
+                if (_ByType is not null)
+                    _ByType.CollectionChanged -= OnByStateCollectionChanged;
 
                 (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _ByState, value, PropertyChanged);
+                    .Set(ref _ByType, value, PropertyChanged);
 
-                _ByState.CollectionChanged += OnByStateCollectionChanged;
+                _ByType.CollectionChanged += OnByStateCollectionChanged;
             }
         }
-        
+
         private int _DuplicatesCount;
         public int DuplicatesCount
         {
@@ -35,7 +38,7 @@ namespace NordChecker.Models
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _DuplicatesCount, value, PropertyChanged);
         }
-        
+
         private int _MismatchedCount;
         public int MismatchedCount
         {
@@ -44,16 +47,16 @@ namespace NordChecker.Models
                 .Set(ref _MismatchedCount, value, PropertyChanged);
         }
 
-        public ComboStats()
+        public ProxyStats()
         {
             var dictionary = Enum.GetValues<AccountState>().Reverse()
                 .ToDictionary(key => key, value => 0);
-            ByState = new ObservableDictionary<AccountState, int>(dictionary);
+            ByType = new ObservableDictionary<AccountState, int>(dictionary);
         }
 
         public void Clear()
         {
-            ByState.ForEach(x => ByState[x.Key] = 0);
+            ByType.ForEach(x => ByType[x.Key] = 0);
             DuplicatesCount = 0;
             MismatchedCount = 0;
         }
@@ -61,7 +64,7 @@ namespace NordChecker.Models
         private void OnByStateCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             (this as INotifyPropertyChangedAdvanced)
-                .OnPropertyChanged(PropertyChanged, nameof(ByState));
+                .OnPropertyChanged(PropertyChanged, nameof(ByType));
         }
     }
 }

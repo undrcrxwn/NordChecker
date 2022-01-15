@@ -150,7 +150,7 @@ namespace NordChecker.ViewModels
                                 continue;
                             }
 
-                            if (AppSettingsWrapped.Instance.AreComboDuplicatesSkipped)
+                            if (ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped)
                             {
                                 if (Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
@@ -238,6 +238,12 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnLoadProxiesCommandExecuted");
 
+            //navigationService.Navigate<ExportPage>();
+            navigationService.Navigate((ImportProxiesPage)App.ServiceProvider.GetService(typeof(ImportProxiesPage)));
+            navigationService.Navigating += OnNavigationServiceNavigating;
+
+            return;
+
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -277,7 +283,7 @@ namespace NordChecker.ViewModels
                                         continue;
                                     }
 
-                                    if (AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped)
+                                    if (ImportSettingsWrapped.Instance.AreProxyDuplicatesSkipped)
                                     {
                                         if (ProxiesViewModel.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
@@ -322,6 +328,7 @@ namespace NordChecker.ViewModels
         private void OnExportCommandExecuted()
         {
             Log.Information("OnExportCommandExecuted");
+            
             //navigationService.Navigate<ExportPage>();
             navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
             navigationService.Navigating += OnNavigationServiceNavigating;
@@ -440,6 +447,24 @@ namespace NordChecker.ViewModels
             Log.Information("OnRestoreSettingsCommandExecuted");
             AppSettingsWrapped.ReplaceWith(new AppSettings());
             ExportSettingsWrapped.ReplaceWith(new ExportSettings());
+            ImportSettingsWrapped.ReplaceWith(new ImportSettings());
+        }
+
+        #endregion
+
+        #region OpenSettingsDirectoryCommand
+
+        public ICommand OpenSettingsDirectoryCommand { get; }
+        
+        private void OnOpenSettingsDirectoryCommandExecuted()
+        {
+            Log.Information("OnOpenSettingsDirectoryCommandExecuted");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Storage.RootDirectory,
+                UseShellExecute = true,
+                Verb = "open"
+            });
         }
         
         #endregion

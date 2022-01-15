@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Controls;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
+using NordChecker.Models.Stats;
 using NordChecker.Services;
 using NordChecker.Services.Checker;
 using NordChecker.Services.Formatter;
@@ -44,6 +45,7 @@ namespace NordChecker
 
         private static readonly Wrapped<AppSettings> AppSettingsWrapped;
         private static readonly Wrapped<ExportSettings> ExportSettingsWrapped;
+        private static readonly Wrapped<ImportSettings> ImportSettingsWrapped;
 
         static App()
         {
@@ -70,31 +72,39 @@ namespace NordChecker
             Storage = new ContinuousStorage($"{Directory.GetCurrentDirectory()}\\data");
             AppSettingsWrapped = new Wrapped<AppSettings>(Storage.LoadOrDefault(new AppSettings()));
             ExportSettingsWrapped = new Wrapped<ExportSettings>(Storage.LoadOrDefault(new ExportSettings()));
+            ImportSettingsWrapped = new Wrapped<ImportSettings>(Storage.LoadOrDefault(new ImportSettings()));
 
             var services = new ServiceCollection();
-
-            services.AddSingleton<Storage>(Storage);
-
-            services.AddSingleton<ObservableCollection<Account>>();
-            services.AddSingleton<NavigationService>();
-
+            
+            // Data
             services.AddSingleton(AppSettingsWrapped);
             services.AddSingleton(ExportSettingsWrapped);
-
+            services.AddSingleton(ImportSettingsWrapped);
+            services.AddSingleton<ObservableCollection<Account>>();
             services.AddSingleton<Cyclic<Proxy>>();
+            services.AddSingleton<ComboStats>();
+            services.AddSingleton<ProxyStats>();
+            
+            // Services
+            services.AddSingleton<Storage>(Storage);
+            services.AddSingleton<NavigationService>();
             services.AddSingleton<IChecker, MockChecker>();
 
+            // ViewModels
             services.AddSingleton<ProxiesViewModel>();
             services.AddSingleton<MainWindowViewModel>();
-            services.AddSingleton<MainWindow>();
             services.AddSingleton<MainPageViewModel>();
-            services.AddSingleton<MainPage>();
+            services.AddSingleton<ImportProxiesPageViewModel>();
             services.AddTransient<ExportPageViewModel>();
-            services.AddTransient<ExportPage>();
-
             services.AddTransient<TestPageViewModel>();
-            services.AddTransient<TestPage>();
 
+            // Views
+            services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainPage>();
+            services.AddSingleton<ImportProxiesPage>();
+            services.AddTransient<ExportPage>();
+            services.AddTransient<TestPage>();
+            
             ServiceProvider = services.BuildServiceProvider();
         }
 
@@ -164,10 +174,14 @@ namespace NordChecker
             if (Storage.IsSynchronized<ExportSettings>())
                 Storage.StopContinuousSync<ExportSettings>();
 
+            if (Storage.IsSynchronized<ImportSettings>())
+                Storage.StopContinuousSync<ImportSettings>();
+
             if (AppSettingsWrapped.Instance.IsAutoSaveEnabled)
             {
-                Storage.StartContinuousSync(() => AppSettingsWrapped.Instance, AppSettingsWrapped.Instance.ContinuousSyncInterval);
+                Storage.StartContinuousSync(() => AppSettingsWrapped.Instance,    AppSettingsWrapped.Instance.ContinuousSyncInterval);
                 Storage.StartContinuousSync(() => ExportSettingsWrapped.Instance, AppSettingsWrapped.Instance.ContinuousSyncInterval);
+                Storage.StartContinuousSync(() => ImportSettingsWrapped.Instance, AppSettingsWrapped.Instance.ContinuousSyncInterval);
             }
         }
 
@@ -181,6 +195,7 @@ namespace NordChecker
             {
                 Storage.Save(AppSettingsWrapped.Instance);
                 Storage.Save(ExportSettingsWrapped.Instance);
+                Storage.Save(ImportSettingsWrapped.Instance);
             }
 
             Log.CloseAndFlush();

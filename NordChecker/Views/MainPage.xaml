@@ -403,9 +403,8 @@
 Регулярное выражение, применяемое к каждой строке загружаемой комбо-базы.
 <LineBreak/>
 <LineBreak/>Ожидаемые группы захвата:
-<LineBreak/>– Groups[0] – полное совпадение;
-<LineBreak/>– Groups[1] – почтовый адрес;
-<LineBreak/>– Groups[2] – пароль.
+<LineBreak/>– $1 – почтовый адрес;
+<LineBreak/>– $2 – пароль.
 <LineBreak/>
 <LineBreak/>Для тестирования пользовательских масок посетите <Run>https://regex101.com/</Run>
                                             </TextBlock>
@@ -421,12 +420,12 @@
                                         <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <emoji:TextBlock Text="⚠️" Margin="0, 0, 1, 0" Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <emoji:TextBlock.ToolTip>
                                                 <ToolTip StaysOpen="True">
                                                     <TextBlock>
 Проверка входных строк на наличие дубликатов влечёт за собой повышение
-<LineBreak/>нагрузки на ЦП, что может существенно понизить скорость работы приложения
+<LineBreak/>нагрузки на ЦП, что может существенно снизить скорость работы приложения
 <LineBreak/>во время загрузки комбо-баз.
                                                     </TextBlock>
                                                 </ToolTip>
@@ -442,63 +441,19 @@
                 <Expander Header="Прокси" IsExpanded="True" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Vertical" Margin="4, 5, 4, 4">
-                            <StackPanel Margin="0, 0, 0, 5">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="4"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Content="Загрузить" Command="{Binding LoadProxiesCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                                    <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
-                                </Grid>
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
-                                <TextBox Text="{Binding AppSettingsWrapped.Instance.ProxyRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
-                                    <TextBox.ToolTip>
-                                        <ToolTip>
-                                            <TextBlock>
-Регулярное выражение, применяемое к каждой строке загружаемой прокси-базы.
-<LineBreak/>
-<LineBreak/>Ожидаемые группы захвата:
-<LineBreak/>– Groups[0] – полное совпадение;
-<LineBreak/>– Groups[1] – IP-адрес;
-<LineBreak/>– Groups[2] – порт.
-<LineBreak/>
-<LineBreak/>Для тестирования пользовательских масок посетите <Run>https://regex101.com/</Run>
-                                            </TextBlock>
-                                        </ToolTip>
-                                    </TextBox.ToolTip>
-                                </TextBox>
-                            </StackPanel>
-
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
-                                <Grid>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <emoji:TextBlock Text="⚠️" Visibility="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                            <emoji:TextBlock.ToolTip>
-                                                <ToolTip StaysOpen="True">
-                                                    <TextBlock>
-                                                        Проверка входных строк на наличие дубликатов влечёт за собой повышение
-                                                        <LineBreak/>нагрузки на ЦП, что может существенно понизить скорость работы приложения
-                                                        <LineBreak/>во время загрузки прокси-баз.
-                                                    </TextBlock>
-                                                </ToolTip>
-                                            </emoji:TextBlock.ToolTip>
-                                        </emoji:TextBlock>
-                                    </StackPanel>
-                                </Grid>
-                            </hc:UniformSpacingPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Content="Загрузить" Command="{Binding LoadProxiesCommand}" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                                <Button IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Content="Очистить" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Expander>
@@ -513,7 +468,7 @@
                 </Expander>
                 <Expander Header="Параметры" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
                     <Border CornerRadius="0,0,5,5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,1,1">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" Margin="4, 5, 4, 4">
+                        <StackPanel Orientation="Vertical" Margin="4, 5, 4, 4">
                             <StackPanel>
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -547,7 +502,7 @@
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel Orientation="Vertical">
+                            <StackPanel Margin="0, 0, 0, 5">
                                 <CheckBox Content="Поверх всех окон" IsChecked="{Binding AppSettingsWrapped.Instance.IsTopMostWindow}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
                                 <CheckBox Content="Сворачивать в трей" IsChecked="{Binding AppSettingsWrapped.Instance.IsMinimizedToTray}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
                                 <CheckBox Content="Режим разработчика" IsChecked="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled}" HorizontalAlignment="Left" Margin="0, 0, 0, 5"/>
@@ -557,9 +512,10 @@
                                 <CheckBox Content="Автосохранение параметров" IsChecked="{Binding AppSettingsWrapped.Instance.IsAutoSaveEnabled}" HorizontalAlignment="Left"/>
                             </StackPanel>
 
-                            <Button Content="Сохранить параметры" Command="{Binding SaveSettingsCommand}" Visibility="{Binding AppSettingsWrapped.Instance.IsAutoSaveEnabled, Converter={StaticResource InverseBoolean2VisibilityConverter}}"/>
-                            <Button Content="Восстановить начальные параметры" Command="{Binding RestoreSettingsCommand}"/>
-                        </hc:UniformSpacingPanel>
+                            <Button Content="Сохранить параметры" HorizontalAlignment="Stretch" Margin="0, 0, 0, 5" Command="{Binding SaveSettingsCommand}" Visibility="{Binding AppSettingsWrapped.Instance.IsAutoSaveEnabled, Converter={StaticResource InverseBoolean2VisibilityConverter}}"/>
+                            <Button Content="Восстановить начальные параметры" HorizontalAlignment="Stretch" Command="{Binding RestoreSettingsCommand}"/>
+                            <Button Content="Открыть расположение" HorizontalAlignment="Stretch" Margin="0, 5, 0, 0" Command="{Binding OpenSettingsDirectoryCommand}" Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        </StackPanel>
                     </Border>
                 </Expander>
                 <Expander Header="Кастомизация" IsExpanded="False" BorderBrush="{DynamicResource BorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Normal" Background="{x:Null}">
