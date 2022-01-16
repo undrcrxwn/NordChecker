@@ -238,8 +238,7 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnLoadProxiesCommandExecuted");
 
-            //navigationService.Navigate<ExportPage>();
-            navigationService.Navigate((ImportProxiesPage)App.ServiceProvider.GetService(typeof(ImportProxiesPage)));
+            navigationService.Navigate<ImportProxiesPage>();
             navigationService.Navigating += OnNavigationServiceNavigating;
 
             return;
@@ -329,8 +328,8 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnExportCommandExecuted");
             
-            //navigationService.Navigate<ExportPage>();
-            navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
+            navigationService.Navigate<ExportPage>();
+            //navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
             navigationService.Navigating += OnNavigationServiceNavigating;
         }
 

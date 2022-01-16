@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using NordChecker.Infrastructure;
+using Prism.Unity;
 
 namespace NordChecker.Services
 {
@@ -29,7 +30,8 @@ namespace NordChecker.Services
 
         public void Navigate<TPage>() where TPage : Page
         {
-            CurrentPage = App.ServiceProvider.GetService<TPage>();
+            CurrentPage = (TPage)Prism.Ioc.ContainerLocator.Current.Resolve(typeof(TPage));
+            //CurrentPage = PrismApplication.Current..ServiceProvider.GetService<TPage>();
             Navigate(CurrentPage);
         }
     }

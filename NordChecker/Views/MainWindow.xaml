@@ -36,7 +36,6 @@
         <ContentControl prism:RegionManager.RegionName="ContentRegion"/>
 
         <Frame x:Name="MainFrame"
-               Content="{Binding NavigationService.CurrentPage}"
                KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
                hc:BorderElement.CornerRadius="0" BorderThickness="0">
             <Frame.Effect>
@@ -61,9 +60,8 @@
                     BorderThickness="1" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}"
                     Background="{DynamicResource RegionBrush}">
-                <Frame Content=""
-                   KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
-                   hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
+                <Frame KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
+                       hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
             </Border>
         </Grid>
     </Grid>

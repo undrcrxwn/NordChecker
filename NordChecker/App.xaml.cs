@@ -26,26 +26,28 @@ using NordChecker.Services.Formatter;
 using NordChecker.Services.Storage;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
+using Prism.Ioc;
+using Prism.Regions;
 using Serilog.Events;
+using Prism.Unity;
 
 namespace NordChecker
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new();
-        public static IServiceProvider ServiceProvider { get; set; }
 
-        private readonly NavigationService _NavigationService;
-        private static readonly ContinuousStorage Storage;
+        private readonly NavigationService _NavigationService = new();
+        private static ContinuousStorage Storage;
 
-        private static readonly Wrapped<AppSettings> AppSettingsWrapped;
-        private static readonly Wrapped<ExportSettings> ExportSettingsWrapped;
-        private static readonly Wrapped<ImportSettings> ImportSettingsWrapped;
+        private static Wrapped<AppSettings> AppSettingsWrapped;
+        private static Wrapped<ExportSettings> ExportSettingsWrapped;
+        private static Wrapped<ImportSettings> ImportSettingsWrapped;
 
         static App()
         {
@@ -63,57 +65,22 @@ namespace NordChecker
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 Converters = { new StringEnumConverter(), new SolidColorBrushConverter() }
             };
-
-            Utils.AllocConsole();
-            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
-            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
-            Log.Logger = FileLogger.Merge(ConsoleLogger);
-
+        }
+        
+        protected override void OnStartup(StartupEventArgs e)
+        {
             Storage = new ContinuousStorage($"{Directory.GetCurrentDirectory()}\\data");
             AppSettingsWrapped = new Wrapped<AppSettings>(Storage.LoadOrDefault(new AppSettings()));
             ExportSettingsWrapped = new Wrapped<ExportSettings>(Storage.LoadOrDefault(new ExportSettings()));
             ImportSettingsWrapped = new Wrapped<ImportSettings>(Storage.LoadOrDefault(new ImportSettings()));
 
-            var services = new ServiceCollection();
-            
-            // Data
-            services.AddSingleton(AppSettingsWrapped);
-            services.AddSingleton(ExportSettingsWrapped);
-            services.AddSingleton(ImportSettingsWrapped);
-            services.AddSingleton<ObservableCollection<Account>>();
-            services.AddSingleton<Cyclic<Proxy>>();
-            services.AddSingleton<ComboStats>();
-            services.AddSingleton<ProxyStats>();
-            
-            // Services
-            services.AddSingleton<Storage>(Storage);
-            services.AddSingleton<NavigationService>();
-            services.AddSingleton<IChecker, MockChecker>();
-
-            // ViewModels
-            services.AddSingleton<ProxiesViewModel>();
-            services.AddSingleton<MainWindowViewModel>();
-            services.AddSingleton<MainPageViewModel>();
-            services.AddSingleton<ImportProxiesPageViewModel>();
-            services.AddTransient<ExportPageViewModel>();
-            services.AddTransient<TestPageViewModel>();
-
-            // Views
-            services.AddSingleton<MainWindow>();
-            services.AddSingleton<MainPage>();
-            services.AddSingleton<ImportProxiesPage>();
-            services.AddTransient<ExportPage>();
-            services.AddTransient<TestPage>();
-            
-            ServiceProvider = services.BuildServiceProvider();
-        }
-
-        public App() => _NavigationService = ServiceProvider.GetService<NavigationService>();
-
-        protected override void OnStartup(StartupEventArgs e)
-        {
             base.OnStartup(e);
 
+            Utils.AllocConsole();
+            FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
+            ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
+            Log.Logger = FileLogger.Merge(ConsoleLogger);
+            
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 LogAndThrowUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
 
@@ -151,13 +118,57 @@ namespace NordChecker
                 RefreshSettingsAutoSave();
             });
 
+            //ToolTipService.ShowDurationProperty.OverrideMetadata(
+            //    typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+        }
+
+        protected override void OnInitialized()
+        {
             var assembly = Assembly.GetEntryAssembly();
             string configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>().Configuration;
             Log.Information("{0} {1} is running in {2} configuration",
                 assembly.GetName().Name,
                 assembly.GetName().Version,
                 configuration.ToLower());
+
+            var regionManager = Container.Resolve<IRegionManager>();
+            regionManager.RegisterViewWithRegion("ContentRegion", "MainPage");
+            regionManager.RequestNavigate("ContentRegion", "MainPage");
         }
+
+        protected override void RegisterTypes(IContainerRegistry registry)
+        {
+            // Data
+            registry.RegisterInstance(AppSettingsWrapped);
+            registry.RegisterInstance(ExportSettingsWrapped);
+            registry.RegisterInstance(ImportSettingsWrapped);
+            registry.RegisterSingleton<ObservableCollection<Account>>();
+            registry.RegisterSingleton<Cyclic<Proxy>>();
+            registry.RegisterSingleton<ComboStats>();
+            registry.RegisterSingleton<ProxyStats>();
+
+            // Services
+            registry.RegisterInstance<Storage>(Storage);
+            registry.RegisterSingleton<NavigationService>();
+            registry.RegisterSingleton<IChecker, MockChecker>();
+
+            // ViewModels
+            registry.RegisterSingleton<ProxiesViewModel>();
+            registry.RegisterSingleton<MainWindowViewModel>();
+            registry.RegisterSingleton<MainPageViewModel>();
+            registry.RegisterSingleton<ImportProxiesPageViewModel>();
+            registry.RegisterSingleton<ExportPageViewModel>();
+            registry.RegisterSingleton<TestPageViewModel>();
+
+            // Views
+            registry.RegisterForNavigation<MainWindow>("MainWindow");
+            registry.RegisterForNavigation<MainPage>("MainPage");
+            registry.RegisterForNavigation<ImportProxiesPage>("ImportProxiesPage");
+            registry.Register<ExportPage>();
+            registry.Register<TestPage>();
+        }
+
+        protected override Window CreateShell() => Container.Resolve<MainWindow>();
 
         private static void LogAndThrowUnhandledException(Exception exception, string type)
         {
@@ -200,15 +211,6 @@ namespace NordChecker
 
             Log.CloseAndFlush();
             Utils.FreeConsole();
-        }
-
-        private void App_OnStartup(object sender, StartupEventArgs e)
-        {
-            ToolTipService.ShowDurationProperty.OverrideMetadata(
-                typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
-
-            ServiceProvider.GetService<MainWindow>().Show();
-            _NavigationService.Navigate<MainPage>();
         }
     }
 }
