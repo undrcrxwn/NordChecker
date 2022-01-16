@@ -6,7 +6,7 @@ using NordChecker.Infrastructure;
 
 namespace NordChecker.Services
 {
-    public sealed class NavigationService : INotifyPropertyChangedAdvanced
+    public class NavigationService : INotifyPropertyChangedAdvanced
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<Page> Navigating;

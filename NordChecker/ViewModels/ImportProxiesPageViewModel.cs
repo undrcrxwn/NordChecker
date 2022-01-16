@@ -23,36 +23,12 @@ namespace NordChecker.ViewModels
         public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
         public Wrapped<ImportSettings> ImportSettingsWrapped { get; set; }
 
-        private bool _IsWindowVisible = true;
-        public bool IsWindowVisible
+        private string _FilePath;
+        public string FilePath
         {
-            get => _IsWindowVisible;
+            get => _FilePath;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsWindowVisible, value, PropertyChanged);
-        }
-
-        private ProxyType _ProxyType = ProxyType.Socks4;
-        public ProxyType ProxyType
-        {
-            get => _ProxyType;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ProxyType, value, PropertyChanged);
-        }
-
-        private string _Path;
-        public string Path
-        {
-            get => _Path;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Path, value, PropertyChanged);
-        }
-
-        private bool _IsOperationConfirmed;
-        public bool IsOperationConfirmed
-        {
-            get => _IsOperationConfirmed;
-            set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _IsOperationConfirmed, value, PropertyChanged);
+                .Set(ref _FilePath, value, PropertyChanged);
         }
 
         #endregion

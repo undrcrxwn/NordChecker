@@ -46,6 +46,14 @@ namespace NordChecker.Models.Settings
 
         #region Proxies
 
+        private string _ProxyImportDirectory;
+        public string ProxyImportDirectory
+        {
+            get => _ProxyImportDirectory;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _ProxyImportDirectory, value, PropertyChanged);
+        }
+
         private bool _AreProxyDuplicatesSkipped;
         public bool AreProxyDuplicatesSkipped
         {
@@ -70,12 +78,12 @@ namespace NordChecker.Models.Settings
                 .Set(ref _ProxyRegexMask, value, PropertyChanged, LogEventLevel.Information);
         }
 
-        private ProxyType _LastChosenProxyType = ProxyType.Socks4;
-        public ProxyType LastChosenProxyType
+        private ProxyType _ProxyType = ProxyType.Socks4;
+        public ProxyType ProxyType
         {
-            get => _LastChosenProxyType;
+            get => _ProxyType;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _LastChosenProxyType, value, PropertyChanged, LogEventLevel.Information);
+                .Set(ref _ProxyType, value, PropertyChanged, LogEventLevel.Information);
         }
 
         #endregion

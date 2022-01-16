@@ -144,7 +144,7 @@
                                         <hc:SimpleText Text="{Binding ComboStats.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
-                                <Border Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Visibility="{Binding ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
                                         <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                         <hc:SimpleText Text="{Binding ComboStats.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
@@ -279,7 +279,7 @@
                                         <hc:SimpleText Text="{Binding ProxiesViewModel.MismatchedCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
                                     </Grid>
                                 </Border>
-                                <Border Visibility="{Binding AppSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Visibility="{Binding ImportSettingsWrapped.Instance.AreProxyDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                     <Grid>
                                         <hc:SimpleText Text="Дубликатов" VerticalAlignment="Top" Margin="6,4,0,0"/>
                                         <hc:SimpleText Text="{Binding ProxiesViewModel.DuplicatesCount, Converter={StaticResource NumberConverter}}" HorizontalAlignment="Stretch" Height="33" VerticalAlignment="Bottom" FontSize="24" FontWeight="Medium" Margin="6,0,0,0"/>
@@ -396,7 +396,7 @@
 
                             <StackPanel Visibility="{Binding AppSettingsWrapped.Instance.IsDeveloperModeEnabled, Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <TextBlock Text="RegEx маска" Margin="2,0,0,5"/>
-                                <TextBox Text="{Binding AppSettingsWrapped.Instance.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
+                                <TextBox Text="{Binding ImportSettingsWrapped.Instance.ComboRegexMask}" IsEnabled="{Binding IsPipelineWorking, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,0,4">
                                     <TextBox.ToolTip>
                                         <ToolTip>
                                             <TextBlock>
@@ -417,10 +417,10 @@
                                 <CheckBox Content="Нормализация строк" ToolTip="Замена взаимозаменяемых спец. символов на предпочтительные (например ; на : и т. д.)" IsChecked="True" HorizontalAlignment="Left"/>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped}"/>
+                                        <CheckBox Content="Не загружать дубликаты" IsChecked="{Binding ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <emoji:TextBlock Text="⚠️" Margin="0, 0, 1, 0" Visibility="{Binding AppSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <emoji:TextBlock Text="⚠️" Margin="0, 0, 1, 0" Visibility="{Binding ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <emoji:TextBlock.ToolTip>
                                                 <ToolTip StaysOpen="True">
                                                     <TextBlock>

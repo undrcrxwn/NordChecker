@@ -27,11 +27,9 @@ namespace NordChecker.ViewModels
                 var dialog = new OpenFileDialog();
                 dialog.DefaultExt = ".txt";
                 dialog.Filter = "NordVPN Proxy List|*.txt|Все файлы|*.*";
-                IsWindowVisible = false;
                 if (dialog.ShowDialog() != true) return;
-                IsWindowVisible = true;
 
-                Path = dialog.FileName;
+                FilePath = dialog.FileName;
             });
         }
 

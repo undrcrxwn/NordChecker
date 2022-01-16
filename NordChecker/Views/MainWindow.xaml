@@ -9,6 +9,7 @@
     xmlns:xnet="clr-namespace:Leaf.xNet;assembly=Leaf.xNet"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+    xmlns:prism="http://prismlibrary.com/"
     x:Class="NordChecker.Views.MainWindow"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
@@ -31,9 +32,39 @@
                 </Border>
             </hc:NotifyIcon.ContextContent>
         </hc:NotifyIcon>
+
+        <ContentControl prism:RegionManager.RegionName="ContentRegion"/>
+
         <Frame x:Name="MainFrame"
                Content="{Binding NavigationService.CurrentPage}"
                KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
-               hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
+               hc:BorderElement.CornerRadius="0" BorderThickness="0">
+            <Frame.Effect>
+                <BlurEffect Radius="50" KernelType="Gaussian"/>
+            </Frame.Effect>
+        </Frame>
+
+        <Rectangle Fill="Transparent"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="1" Grid.Column="1"
+                    BorderThickness="1" CornerRadius="10"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    Background="{DynamicResource RegionBrush}">
+                <Frame Content=""
+                   KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
+                   hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
