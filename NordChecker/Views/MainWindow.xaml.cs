@@ -81,7 +81,6 @@ namespace NordChecker.Views
                     {
                         Log.Warning("ACTIVATE ATTEMPT    => {0}", Activate());
                         Log.Warning("FOCUS ATTEMPT       => {0}", Focus());
-                        Log.Warning("FRAME FOCUS ATTEMPT => {0}", MainFrame.Focus());
                     }
                 }
             };

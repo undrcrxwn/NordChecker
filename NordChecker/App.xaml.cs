@@ -41,8 +41,7 @@ namespace NordChecker
         public static ILogger FileLogger;
         public static ILogger ConsoleLogger;
         public static LoggingLevelSwitch LogLevelSwitch = new();
-
-        private readonly NavigationService _NavigationService = new();
+        
         private static ContinuousStorage Storage;
 
         private static Wrapped<AppSettings> AppSettingsWrapped;
@@ -118,8 +117,8 @@ namespace NordChecker
                 RefreshSettingsAutoSave();
             });
 
-            //ToolTipService.ShowDurationProperty.OverrideMetadata(
-            //    typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+            ToolTipService.ShowDurationProperty.OverrideMetadata(
+                typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
         }
 
         protected override void OnInitialized()
@@ -132,8 +131,8 @@ namespace NordChecker
                 configuration.ToLower());
 
             var regionManager = Container.Resolve<IRegionManager>();
-            regionManager.RegisterViewWithRegion("ContentRegion", "MainPage");
-            regionManager.RequestNavigate("ContentRegion", "MainPage");
+            regionManager.RegisterViewWithRegion("ContentRegion", typeof(MainPage));
+            regionManager.RegisterViewWithRegion("OverlayRegion", typeof(ImportProxiesPage));
         }
 
         protected override void RegisterTypes(IContainerRegistry registry)
@@ -161,11 +160,11 @@ namespace NordChecker
             registry.RegisterSingleton<TestPageViewModel>();
 
             // Views
-            registry.RegisterForNavigation<MainWindow>("MainWindow");
-            registry.RegisterForNavigation<MainPage>("MainPage");
-            registry.RegisterForNavigation<ImportProxiesPage>("ImportProxiesPage");
-            registry.Register<ExportPage>();
-            registry.Register<TestPage>();
+            registry.RegisterForNavigation<MainWindow>();
+            registry.RegisterForNavigation<MainPage>();
+            registry.RegisterForNavigation<ImportProxiesPage>();
+            registry.RegisterForNavigation<ExportPage>();
+            registry.RegisterForNavigation<TestPage>();
         }
 
         protected override Window CreateShell() => Container.Resolve<MainWindow>();

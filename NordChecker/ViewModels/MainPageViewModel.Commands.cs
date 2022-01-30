@@ -338,7 +338,7 @@ namespace NordChecker.ViewModels
         {
             navigationService.Navigating -= OnNavigationServiceNavigating;
             Application.Current.Dispatcher.Invoke(() =>
-                ((ExportPageViewModel)navigationService.CurrentPage.DataContext)
+                ((ExportPageViewModel)navigationService.ContentPage.DataContext)
                 .StateRefreshingTimer.Stop());
         }
 

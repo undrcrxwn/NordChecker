@@ -18,11 +18,11 @@
     KeyboardNavigation.TabNavigation="None"
     MinWidth="976" MinHeight="600"
     Background="{DynamicResource RegionBrush}"
-    Topmost="{Binding AppSettingsWrapped.IsTopMostWindow}"
+    Topmost="{Binding AppSettingsWrapped.Instance.IsTopMostWindow}"
     Title="{Binding Title}"
     Visibility="{Binding WindowVisibility, Mode=TwoWay}">
     <Grid>
-        <hc:NotifyIcon x:Name="NotifyIcon" Text="NordVPN Checker" Visibility="{Binding AppSettingsWrapped.IsMinimizedToTray, Converter={StaticResource Boolean2VisibilityConverter}}">
+        <hc:NotifyIcon x:Name="NotifyIcon" Text="NordVPN Checker" Visibility="{Binding AppSettingsWrapped.Instance.IsMinimizedToTray, Converter={StaticResource Boolean2VisibilityConverter}}">
             <hc:NotifyIcon.ContextContent>
                 <Border Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5">
                     <hc:UniformSpacingPanel Width="200" VerticalAlignment="Center" Orientation="Vertical" Margin="5">
@@ -33,36 +33,32 @@
             </hc:NotifyIcon.ContextContent>
         </hc:NotifyIcon>
 
-        <ContentControl prism:RegionManager.RegionName="ContentRegion"/>
-
-        <Frame x:Name="MainFrame"
-               KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
-               hc:BorderElement.CornerRadius="0" BorderThickness="0">
+        <Frame prism:RegionManager.RegionName="ContentRegion">
             <Frame.Effect>
-                <BlurEffect Radius="50" KernelType="Gaussian"/>
+                <BlurEffect Radius="15" RenderingBias="Performance" />
             </Frame.Effect>
         </Frame>
 
-        <Rectangle Fill="Transparent"/>
-
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="10*"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Border Grid.Row="1" Grid.Column="1"
+            <Rectangle Fill="Transparent"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto" MinWidth="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto" MinHeight="50"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="1" Grid.Column="1"
                     BorderThickness="1" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}"
                     Background="{DynamicResource RegionBrush}">
-                <Frame KeyboardNavigation.TabNavigation="None" NavigationUIVisibility="Hidden"
-                       hc:BorderElement.CornerRadius="0" BorderThickness="0"/>
-            </Border>
+                    <Frame prism:RegionManager.RegionName="OverlayRegion"/>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

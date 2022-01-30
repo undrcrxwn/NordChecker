@@ -1,9 +1,19 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using HandyControl.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using NordChecker.Infrastructure;
+using NordChecker.Models.Stats;
+using NordChecker.ViewModels;
+using NordChecker.Views;
+using Prism.Ioc;
+using Prism.Modularity;
 using Prism.Unity;
+using Serilog;
+using Unity;
 
 namespace NordChecker.Services
 {
@@ -12,27 +22,29 @@ namespace NordChecker.Services
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<Page> Navigating;
         public event EventHandler<Page> Navigated;
-
-        private Page _CurrentPage;
-        public Page CurrentPage
+        private readonly IUnityContainer _Container;
+        
+        private Page _ContentPage;
+        public Page ContentPage
         {
-            get => _CurrentPage;
+            get => _ContentPage;
             private set
             {
-                Navigating?.Invoke(this, CurrentPage);
+                Navigating?.Invoke(this, ContentPage);
                 (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _CurrentPage, value, PropertyChanged);
-                Navigated?.Invoke(this, CurrentPage);
+                    .Set(ref _ContentPage, value, PropertyChanged);
+                Navigated?.Invoke(this, ContentPage);
             }
         }
 
-        public void Navigate(Page page) => CurrentPage = page;
-
-        public void Navigate<TPage>() where TPage : Page
+        public NavigationService(IUnityContainer container)
         {
-            CurrentPage = (TPage)Prism.Ioc.ContainerLocator.Current.Resolve(typeof(TPage));
-            //CurrentPage = PrismApplication.Current..ServiceProvider.GetService<TPage>();
-            Navigate(CurrentPage);
+            _Container = container;
         }
+        
+        public void Navigate(Page page) => ContentPage = page;
+
+        public void Navigate<TPage>() where TPage : Page =>
+            Navigate(_Container.Resolve<TPage>());
     }
 }
