@@ -69,12 +69,12 @@ namespace NordChecker.ViewModels
         private void OnProceedCommandExecuted()
         {
             _ExportSettingsWrapped.ReplaceWith(ExportSettings);
-            navigationService.Navigate<MainPage>();
+            navigationService.NavigateContent("MainView");
         }
 
         private void OnCancelCommandExecuted()
         {
-            navigationService.Navigate<MainPage>();
+            navigationService.NavigateContent("MainView");
         }
     }
 }

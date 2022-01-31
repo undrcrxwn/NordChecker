@@ -34,12 +34,22 @@
         </hc:NotifyIcon>
 
         <Frame prism:RegionManager.RegionName="ContentRegion">
-            <Frame.Effect>
-                <BlurEffect Radius="15" RenderingBias="Performance" />
-            </Frame.Effect>
+            <Frame.Style>
+                <Style TargetType="{x:Type Frame}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding NavigationService.IsOverlayFocused}" Value="True">
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <BlurEffect Radius="15" RenderingBias="Performance" />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Frame.Style>
         </Frame>
 
-        <Grid>
+        <Grid Visibility="{Binding NavigationService.IsOverlayFocused, Converter={StaticResource Boolean2VisibilityConverter}}">
             <Rectangle Fill="Transparent"/>
             <Grid>
                 <Grid.ColumnDefinitions>

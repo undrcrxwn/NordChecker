@@ -222,7 +222,7 @@ namespace NordChecker.ViewModels
             });
 
             _ExportSettingsWrapped.ReplaceWith(ExportSettingsDraft);
-            navigationService.Navigate<MainPage>();
+            navigationService.NavigateContent("MainView");
         }
 
         #endregion

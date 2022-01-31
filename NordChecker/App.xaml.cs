@@ -161,10 +161,10 @@ namespace NordChecker
 
             // Views
             registry.RegisterForNavigation<MainWindow>();
-            registry.RegisterForNavigation<MainPage>();
-            registry.RegisterForNavigation<ImportProxiesPage>();
-            registry.RegisterForNavigation<ExportPage>();
-            registry.RegisterForNavigation<TestPage>();
+            registry.RegisterForNavigation<MainPage>("MainView");
+            registry.RegisterForNavigation<ImportProxiesPage>("ImportProxiesView");
+            registry.RegisterForNavigation<ExportPage>("ExportView");
+            registry.RegisterForNavigation<TestPage>("TestView");
         }
 
         protected override Window CreateShell() => Container.Resolve<MainWindow>();

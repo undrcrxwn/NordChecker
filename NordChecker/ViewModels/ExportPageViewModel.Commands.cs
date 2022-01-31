@@ -36,7 +36,7 @@ namespace NordChecker.ViewModels
         private void OnNavigateHomeCommandExecuted()
         {
             Log.Information("OnNavigateHomeCommandExecuted");
-            navigationService.Navigate<MainPage>();
+            navigationService.NavigateContent("MainView");
         }
 
         #endregion

@@ -73,8 +73,8 @@ namespace NordChecker.ViewModels
         private void UpdateTitle()
         {
             IPageViewModel pageViewModel = null;
-            Application.Current.Dispatcher.Invoke(() =>
-                pageViewModel = (IPageViewModel)NavigationService.ContentPage.DataContext);
+            //Application.Current.Dispatcher.Invoke(() =>
+            //    pageViewModel = (IPageViewModel)NavigationService.ContentPage.DataContext);
 
             StringBuilder builder = new StringBuilder();
             builder.Append("NordVPN Checker");
@@ -105,20 +105,20 @@ namespace NordChecker.ViewModels
 
             NavigationService.Navigating += (sender, e) =>
             {
-                if (NavigationService.ContentPage == null) return;
-                UpdateTitle();
+                //if (NavigationService.ContentPage == null) return;
+                //UpdateTitle();
 
-                ((IPageViewModel)NavigationService.ContentPage.DataContext)
-                    .PropertyChanged -= OnPagePropertyChanged;
+                //((IPageViewModel)NavigationService.ContentPage.DataContext)
+                //    .PropertyChanged -= OnPagePropertyChanged;
             };
             
             NavigationService.Navigated += (sender, e) =>
             {
-                if (NavigationService.ContentPage == null) return;
-                UpdateTitle();
+                //if (NavigationService.ContentPage == null) return;
+                //UpdateTitle();
 
-                ((IPageViewModel)NavigationService.ContentPage.DataContext)
-                    .PropertyChanged += OnPagePropertyChanged;
+                //((IPageViewModel)NavigationService.ContentPage.DataContext)
+                //    .PropertyChanged += OnPagePropertyChanged;
             };
             
             AppSettingsWrapped.ForEach(appSettings =>

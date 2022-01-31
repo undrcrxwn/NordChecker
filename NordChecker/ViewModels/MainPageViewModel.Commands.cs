@@ -11,8 +11,10 @@ using Leaf.xNet;
 using Microsoft.Win32;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
+using NordChecker.Services;
 using NordChecker.Shared;
 using NordChecker.Views;
+using Prism.Regions;
 using Serilog;
 
 namespace NordChecker.ViewModels
@@ -237,8 +239,8 @@ namespace NordChecker.ViewModels
         private void OnLoadProxiesCommandExecuted()
         {
             Log.Information("OnLoadProxiesCommandExecuted");
-
-            navigationService.Navigate<ImportProxiesPage>();
+            
+            navigationService.NavigateOverlay("ImportProxiesView");
             navigationService.Navigating += OnNavigationServiceNavigating;
 
             return;
@@ -328,18 +330,18 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnExportCommandExecuted");
             
-            navigationService.Navigate<ExportPage>();
+            navigationService.NavigateOverlay("ExportView");
             //navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
             navigationService.Navigating += OnNavigationServiceNavigating;
         }
 
         //todo: убрать этот костыль
-        private void OnNavigationServiceNavigating(object sender, Page e)
+        private void OnNavigationServiceNavigating(object sender, RegionNavigationEventArgs e)
         {
-            navigationService.Navigating -= OnNavigationServiceNavigating;
-            Application.Current.Dispatcher.Invoke(() =>
-                ((ExportPageViewModel)navigationService.ContentPage.DataContext)
-                .StateRefreshingTimer.Stop());
+            //navigationService.Navigating -= OnNavigationServiceNavigating;
+            //Application.Current.Dispatcher.Invoke(() =>
+            //    ((ExportPageViewModel)navigationService.ContentPage.DataContext)
+            //    .StateRefreshingTimer.Stop());
         }
 
         #endregion
