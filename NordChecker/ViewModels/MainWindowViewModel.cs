@@ -29,6 +29,7 @@ using Leaf.xNet;
 using System.Windows.Media.Effects;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
@@ -70,57 +71,25 @@ namespace NordChecker.ViewModels
 
         #endregion
         
-        private void UpdateTitle()
-        {
-            IPageViewModel pageViewModel = null;
-            //Application.Current.Dispatcher.Invoke(() =>
-            //    pageViewModel = (IPageViewModel)NavigationService.ContentPage.DataContext);
-
-            StringBuilder builder = new StringBuilder();
-            builder.Append("NordVPN Checker");
-            
-            if (!string.IsNullOrEmpty(pageViewModel.Title))
-                builder.Append($" — {pageViewModel.Title}");
-
-            Title = builder.ToString();
-        }
-
-        private void OnPagePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPageViewModel.Title))
-                UpdateTitle();
-        }
-
-        private void UpdateAppearence()
-        {
-            ThemeManager.Current.ApplicationTheme = AppSettingsWrapped.Instance.Theme;
-            ThemeManager.Current.AccentColor = AppSettingsWrapped.Instance.AccentColor;
-            Log.Warning("Updated to {0}", AppSettingsWrapped.Instance.AccentColor);
-        }
-
         public MainWindowViewModel(NavigationService navigationService, Wrapped<AppSettings> appSettingsWrapped)
         {
             NavigationService = navigationService;
             AppSettingsWrapped = appSettingsWrapped;
-
-            NavigationService.Navigating += (sender, e) =>
-            {
-                //if (NavigationService.ContentPage == null) return;
-                //UpdateTitle();
-
-                //((IPageViewModel)NavigationService.ContentPage.DataContext)
-                //    .PropertyChanged -= OnPagePropertyChanged;
-            };
             
             NavigationService.Navigated += (sender, e) =>
             {
-                //if (NavigationService.ContentPage == null) return;
-                //UpdateTitle();
-
-                //((IPageViewModel)NavigationService.ContentPage.DataContext)
-                //    .PropertyChanged += OnPagePropertyChanged;
+                object view = NavigationService.FocusedRegion.ActiveViews.First();
+                if (view is Page page)
+                    UnbindPageTitle((IPageViewModel)page.DataContext);
             };
-            
+
+            NavigationService.Navigated += (sender, e) =>
+            {
+                object view = NavigationService.FocusedRegion.ActiveViews.First();
+                if (view is Page page)
+                    BindPageTitle((IPageViewModel)page.DataContext);
+            };
+
             AppSettingsWrapped.ForEach(appSettings =>
             {
                 appSettings.PropertyChanged += (sender, e) =>
@@ -128,12 +97,45 @@ namespace NordChecker.ViewModels
                     if (e.PropertyName
                         is nameof(AppSettingsWrapped.Instance.AccentColor)
                         or nameof(AppSettingsWrapped.Instance.Theme))
-                        UpdateAppearence();
+                        RefreshAppearence();
                 };
-                UpdateAppearence();
+                RefreshAppearence();
             });
 
             OpenFromTrayCommand = new DelegateCommand(OnOpenFromTrayCommandExecuted);
+        }
+
+        private void RefreshAppearence()
+        {
+            ThemeManager.Current.ApplicationTheme = AppSettingsWrapped.Instance.Theme;
+            ThemeManager.Current.AccentColor = AppSettingsWrapped.Instance.AccentColor;
+            Log.Warning("Updated to {0}", AppSettingsWrapped.Instance.AccentColor);
+        }
+
+        private void BindPageTitle(IPageViewModel viewModel)
+        {
+            InheritTitle(viewModel);
+            viewModel.PropertyChanged += OnPageViewModelPropertyChanged;
+        }
+
+        private void UnbindPageTitle(IPageViewModel viewModel)
+            => viewModel.PropertyChanged -= OnPageViewModelPropertyChanged;
+
+        private void OnPageViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IPageViewModel.Title))
+                InheritTitle((IPageViewModel)sender);
+        }
+
+        private void InheritTitle(IPageViewModel pageViewModel)
+        {
+            var builder = new StringBuilder();
+            builder.Append("NordVPN Checker");
+
+            if (!string.IsNullOrEmpty(pageViewModel.Title))
+                builder.Append($" — {pageViewModel.Title}");
+
+            Title = builder.ToString();
         }
     }
 }

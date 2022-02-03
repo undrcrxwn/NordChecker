@@ -119,6 +119,8 @@ namespace NordChecker
 
             ToolTipService.ShowDurationProperty.OverrideMetadata(
                 typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+            
+            Container.Resolve<NavigationService>().NavigateContent("MainView");
         }
 
         protected override void OnInitialized()

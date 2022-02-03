@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Leaf.xNet;
 using Microsoft.Win32;
+using NordChecker.Infrastructure;
 using NordChecker.Models;
 using NordChecker.Models.Settings;
 using NordChecker.Services;
@@ -446,11 +447,12 @@ namespace NordChecker.ViewModels
         private void OnRestoreSettingsCommandExecuted()
         {
             Log.Information("OnRestoreSettingsCommandExecuted");
+
             AppSettingsWrapped.ReplaceWith(new AppSettings());
             ExportSettingsWrapped.ReplaceWith(new ExportSettings());
             ImportSettingsWrapped.ReplaceWith(new ImportSettings());
         }
-
+        
         #endregion
 
         #region OpenSettingsDirectoryCommand

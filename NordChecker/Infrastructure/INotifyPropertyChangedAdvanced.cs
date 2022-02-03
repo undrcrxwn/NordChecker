@@ -31,6 +31,6 @@ namespace NordChecker.Infrastructure
         public void LogPropertyChanged<T>(string propertyName, T value, string className, LogEventLevel logEventLevel) =>
             Log.Write(logEventLevel, "{0} property of {1} has been set to {2}", propertyName, className, value);
 
-        public void NotifyAll(PropertyChangedEventHandler handler) => OnPropertyChanged(handler, "");
+        public void NotifyAll(PropertyChangedEventHandler handler) => OnPropertyChanged(handler, string.Empty);
     }
 }

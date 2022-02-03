@@ -32,7 +32,22 @@ namespace NordChecker.ViewModels
                 FilePath = dialog.FileName;
             });
         }
+        
+        #endregion
 
+        #region CancelCommand
+
+        public ICommand CancelCommand
+        {
+            get;
+        }
+
+        private void OnCancelCommandExecuted()
+        {
+            Log.Information("OnCancelCommandExecuted");
+            NavigationService.NavigateContent("MainView");
+        }
+        
         #endregion
     }
 }
