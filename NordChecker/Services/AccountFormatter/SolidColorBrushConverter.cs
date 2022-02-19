@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using Newtonsoft.Json;
 
-namespace NordChecker.Services.Formatter
+namespace NordChecker.Services.AccountFormatter
 {
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {

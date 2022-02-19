@@ -22,7 +22,7 @@ using NordChecker.Infrastructure;
 using NordChecker.Models.Stats;
 using NordChecker.Services;
 using NordChecker.Services.Checker;
-using NordChecker.Services.Formatter;
+using NordChecker.Services.AccountFormatter;
 using NordChecker.Services.Storage;
 using NordChecker.Services.Threading;
 using NordChecker.Shared.Collections;
@@ -75,7 +75,7 @@ namespace NordChecker
 
             base.OnStartup(e);
 
-            Utils.AllocConsole();
+            WindowHelper.AllocConsole();
             FileLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseFile().Build();
             ConsoleLogger = new LoggerBuilder().SetLevelSwitch(LogLevelSwitch).UseConsole().Build();
             Log.Logger = FileLogger.Merge(ConsoleLogger);
@@ -102,12 +102,12 @@ namespace NordChecker
                         case nameof(AppSettings.IsConsoleLoggingEnabled):
                             if (appSettings.IsConsoleLoggingEnabled)
                             {
-                                Utils.ShowConsole();
+                                WindowHelper.ShowConsole();
                                 Log.Logger = Log.Logger.Merge(ConsoleLogger);
                             }
                             else
                             {
-                                Utils.HideConsole();
+                                WindowHelper.HideConsole();
                                 Log.Logger = FileLogger;
                             }
                             break;
@@ -119,7 +119,7 @@ namespace NordChecker
 
             ToolTipService.ShowDurationProperty.OverrideMetadata(
                 typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
-            
+
             Container.Resolve<NavigationService>().NavigateContent("MainView");
         }
 
@@ -133,8 +133,9 @@ namespace NordChecker
                 configuration.ToLower());
 
             var regionManager = Container.Resolve<IRegionManager>();
-            regionManager.RegisterViewWithRegion("ContentRegion", typeof(MainPage));
-            regionManager.RegisterViewWithRegion("OverlayRegion", typeof(ImportProxiesPage));
+            regionManager.RegisterViewWithRegion("ContentRegion", "MainView");
+            //regionManager.RegisterViewWithRegion("ContentRegion", "MainView");
+            regionManager.RegisterViewWithRegion("OverlayRegion", "TestView");
         }
 
         protected override void RegisterTypes(IContainerRegistry registry)
@@ -152,6 +153,7 @@ namespace NordChecker
             registry.RegisterInstance<Storage>(Storage);
             registry.RegisterSingleton<NavigationService>();
             registry.RegisterSingleton<IChecker, MockChecker>();
+            registry.Register<ProxyParser>(x => new ProxyParser(ImportSettingsWrapped.Instance.ProxyRegexMask));
 
             // ViewModels
             registry.RegisterSingleton<ProxiesViewModel>();
@@ -162,7 +164,7 @@ namespace NordChecker
             registry.RegisterSingleton<TestPageViewModel>();
 
             // Views
-            registry.RegisterForNavigation<MainWindow>();
+            registry.Register<MainWindow>();
             registry.RegisterForNavigation<MainPage>("MainView");
             registry.RegisterForNavigation<ImportProxiesPage>("ImportProxiesView");
             registry.RegisterForNavigation<ExportPage>("ExportView");
@@ -211,7 +213,7 @@ namespace NordChecker
             }
 
             Log.CloseAndFlush();
-            Utils.FreeConsole();
+            WindowHelper.FreeConsole();
         }
     }
 }

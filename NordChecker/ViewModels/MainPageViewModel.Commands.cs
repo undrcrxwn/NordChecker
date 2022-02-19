@@ -131,7 +131,7 @@ namespace NordChecker.ViewModels
                 
                 Task.Factory.StartNew(() =>
                 {
-                    Log.Information("Reading combos from {file}", dialog.FileName);
+                    Log.Information("Reading combos from {0}", dialog.FileName);
                     var watch = new Stopwatch();
                     watch.Start();
 
@@ -144,12 +144,12 @@ namespace NordChecker.ViewModels
                             Account account;
                             try
                             {
-                                account = ComboParser.Parse(line);
+                                account = AccountParser.Parse(line);
                             }
                             catch
                             {
                                 ComboStats.MismatchedCount++;
-                                Log.Debug("Line \"{line}\" has been skipped as mismatched", line);
+                                Log.Debug("Line \"{0}\" has been skipped as mismatched", line);
                                 continue;
                             }
 
@@ -159,18 +159,18 @@ namespace NordChecker.ViewModels
                                     cache.Any(a => a.Credentials == account.Credentials))
                                 {
                                     ComboStats.DuplicatesCount++;
-                                    Log.Debug("Account {credentials} has been skipped as duplicate", account);
+                                    Log.Debug("Account {0} has been skipped as duplicate", account);
                                     continue;
                                 }
                             }
 
                             cache.Add(account);
-                            Log.Debug("Account {credentials} has been added to the cache", account);
+                            Log.Debug("Account {0} has been added to the cache", account);
                         }
                     }
 
                     watch.Stop();
-                    Log.Information("{total} accounts have been extracted from {file} in {elapsed}ms",
+                    Log.Information("{0} accounts have been extracted from {1} in {2}ms",
                         cache.Count, dialog.FileName, watch.ElapsedMilliseconds);
 
                     Application.Current.Dispatcher.Invoke(() =>
@@ -242,8 +242,7 @@ namespace NordChecker.ViewModels
             Log.Information("OnLoadProxiesCommandExecuted");
             
             navigationService.NavigateOverlay("ImportProxiesView");
-            navigationService.Navigating += OnNavigationServiceNavigating;
-
+            
             return;
 
             Task.Run(() =>
@@ -333,16 +332,6 @@ namespace NordChecker.ViewModels
             
             navigationService.NavigateOverlay("ExportView");
             //navigationService.Navigate((ExportPage)App.ServiceProvider.GetService(typeof(ExportPage)));
-            navigationService.Navigating += OnNavigationServiceNavigating;
-        }
-
-        //todo: убрать этот костыль
-        private void OnNavigationServiceNavigating(object sender, RegionNavigationEventArgs e)
-        {
-            //navigationService.Navigating -= OnNavigationServiceNavigating;
-            //Application.Current.Dispatcher.Invoke(() =>
-            //    ((ExportPageViewModel)navigationService.ContentPage.DataContext)
-            //    .StateRefreshingTimer.Stop());
         }
 
         #endregion

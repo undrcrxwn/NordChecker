@@ -34,6 +34,8 @@ using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
 using Prism.Commands;
+using Unity;
+using Prism.Regions;
 
 namespace NordChecker.ViewModels
 {
@@ -71,13 +73,14 @@ namespace NordChecker.ViewModels
 
         #endregion
         
-        public MainWindowViewModel(NavigationService navigationService, Wrapped<AppSettings> appSettingsWrapped)
+        public MainWindowViewModel(IRegionManager regionManager, NavigationService navigationService, Wrapped<AppSettings> appSettingsWrapped)
         {
             NavigationService = navigationService;
             AppSettingsWrapped = appSettingsWrapped;
             
-            NavigationService.Navigated += (sender, e) =>
+            NavigationService.Navigating += (sender, e) =>
             {
+                if (NavigationService.FocusedRegion == null) return;
                 object view = NavigationService.FocusedRegion.ActiveViews.First();
                 if (view is Page page)
                     UnbindPageTitle((IPageViewModel)page.DataContext);
@@ -85,7 +88,12 @@ namespace NordChecker.ViewModels
 
             NavigationService.Navigated += (sender, e) =>
             {
-                object view = NavigationService.FocusedRegion.ActiveViews.First();
+                if (NavigationService.FocusedRegion == null) return;
+                //if (!NavigationService.FocusedRegion.ActiveViews.Any()) return;
+
+                object view = NavigationService.FocusedRegion.Views.First();
+
+                //object view = new Page(e.NavigationContext.Uri, UriKind.Relative);
                 if (view is Page page)
                     BindPageTitle((IPageViewModel)page.DataContext);
             };

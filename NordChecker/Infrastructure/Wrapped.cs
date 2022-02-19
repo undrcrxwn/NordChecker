@@ -11,6 +11,7 @@ namespace NordChecker.Infrastructure
 {
     public class Wrapped<T> where T : class
     {
+        public event EventHandler InstanceReplacing;
         public event EventHandler InstanceReplaced;
 
         private T _Instance;
@@ -19,10 +20,13 @@ namespace NordChecker.Infrastructure
             get => _Instance;
             set
             {
+                InstanceReplacing?.Invoke(this, EventArgs.Empty);
                 _Instance = value;
                 InstanceReplaced?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        public bool HasValue => Instance != null;
 
         public Wrapped(T instance) => _Instance = instance;
 
@@ -30,7 +34,7 @@ namespace NordChecker.Infrastructure
 
         public void ForEach(Action<T> handle)
         {
-            InstanceReplaced += (sender, e) => handle(Instance);
+            InstanceReplacing += (sender, e) => handle(Instance);
             handle(Instance);
         }
     }

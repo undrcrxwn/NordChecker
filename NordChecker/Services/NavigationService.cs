@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using HandyControl.Controls;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +56,7 @@ namespace NordChecker.Services
 
             Navigating?.Invoke(this, eventArgs);
             _RegionManager.RequestNavigate(regionName, viewName);
+            Log.Information("{0} navigated to {1}", regionName, viewName);
             Focus(regionName);
             Navigated?.Invoke(this, eventArgs);
         }

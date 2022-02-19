@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HandyControl.Tools.Extension;
+using Leaf.xNet;
 using NordChecker.Infrastructure;
 using NordChecker.Shared.Collections;
 
@@ -15,8 +16,24 @@ namespace NordChecker.Models.Stats
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ObservableDictionary<AccountState, int> _ByType;
-        public ObservableDictionary<AccountState, int> ByType
+        private ObservableDictionary<ProxyState, int> _ByState;
+        public ObservableDictionary<ProxyState, int> ByState
+        {
+            get => _ByState;
+            set
+            {
+                if (_ByState is not null)
+                    _ByState.CollectionChanged -= OnByStateCollectionChanged;
+
+                (this as INotifyPropertyChangedAdvanced)
+                    .Set(ref _ByState, value, PropertyChanged);
+
+                _ByState.CollectionChanged += OnByStateCollectionChanged;
+            }
+        }
+
+        private ObservableDictionary<ProxyType, int> _ByType;
+        public ObservableDictionary<ProxyType, int> ByType
         {
             get => _ByType;
             set
@@ -49,13 +66,18 @@ namespace NordChecker.Models.Stats
 
         public ProxyStats()
         {
-            var dictionary = Enum.GetValues<AccountState>().Reverse()
+            var proxyStateDictionary = Enum.GetValues<ProxyState>()
                 .ToDictionary(key => key, value => 0);
-            ByType = new ObservableDictionary<AccountState, int>(dictionary);
+            ByState = new ObservableDictionary<ProxyState, int>(proxyStateDictionary);
+
+            var proxyTypeDictionary = Enum.GetValues<ProxyType>().Reverse()
+                .ToDictionary(key => key, value => 0);
+            ByType = new ObservableDictionary<ProxyType, int>(proxyTypeDictionary);
         }
 
         public void Clear()
         {
+            ByState.ForEach(x => ByState[x.Key] = 0);
             ByType.ForEach(x => ByType[x.Key] = 0);
             DuplicatesCount = 0;
             MismatchedCount = 0;

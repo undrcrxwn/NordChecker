@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows;
+using Microsoft.Win32;
 
 namespace NordChecker.Shared
 {
@@ -25,7 +27,8 @@ namespace NordChecker.Shared
 
         public static string Unescape(this string str)
         {
-            if (string.IsNullOrEmpty(str)) return str;
+            if (string.IsNullOrEmpty(str))
+                return str;
 
             var builder = new StringBuilder(str.Length);
             for (int i = 0; i < str.Length;)
@@ -57,6 +60,24 @@ namespace NordChecker.Shared
             return value.GetType()
                 .GetMember(value.ToString()).First()
                 .GetCustomAttribute<TAttribute>();
+        }
+
+        public static bool? Show(this FileDialog dialog, bool topmost = false)
+        {
+            var window = new Window
+            {
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.None,
+                Topmost = topmost,
+                Visibility = Visibility.Hidden,
+                Content = dialog
+            };
+
+            bool? result = null;
+            window.Loaded += (sender, e) => result = dialog.ShowDialog();
+            window.ShowDialog();
+            window.Close();
+            return result;
         }
     }
 }

@@ -22,7 +22,7 @@ using System.Windows.Threading;
 using NordChecker.Models.Settings;
 using NordChecker.Infrastructure;
 using NordChecker.Services;
-using NordChecker.Services.Formatter;
+using NordChecker.Services.AccountFormatter;
 using Prism.Commands;
 using Prism.Mvvm;
 

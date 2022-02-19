@@ -57,7 +57,7 @@ namespace NordChecker.Services.Storage
         {
             try
             {
-                return Load<T>(identifier);
+                return Load<T>(identifier) ?? obj;
             }
             catch
             {

@@ -41,7 +41,7 @@ namespace NordChecker.ViewModels
 
         public Storage Storage;
         public IChecker Checker;
-        public Parser ComboParser;
+        public AccountParser AccountParser;
         private ThreadDistributor<Account> distributor;
         private MasterTokenSource tokenSource = new();
         private Stopwatch progressWatch = new();
@@ -133,8 +133,7 @@ namespace NordChecker.ViewModels
         public void RefreshComboArcs()
         {
             int loaded = Math.Max(1, Accounts.Count);
-            Dictionary<AccountState, float> shares =
-                ComboStats.ByState.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
+            var shares = ComboStats.ByState.ToDictionary(p => p.Key, p => (float)p.Value / loaded);
 
             const float margin = 6;
             float pivot = margin / 2;
@@ -240,7 +239,7 @@ namespace NordChecker.ViewModels
             ImportSettingsWrapped = importSettingsWrapped;
             ProxiesViewModel = proxiesViewModel;
 
-            ComboParser = new Parser(ImportSettingsWrapped.Instance.ComboRegexMask);
+            AccountParser = new AccountParser(ImportSettingsWrapped.Instance.ComboRegexMask);
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -335,16 +334,17 @@ namespace NordChecker.ViewModels
                 {
                     switch (e.PropertyName)
                     {
-                        case nameof(ImportSettingsWrapped.Instance.ComboRegexMask):
-                            ComboParser.RegexMask = ImportSettingsWrapped.Instance.ComboRegexMask;
+                        case nameof(ImportSettings.ComboRegexMask):
+                            AccountParser.RegexPattern = ImportSettingsWrapped.Instance.ComboRegexMask;
                             break;
-                        case nameof(AppSettingsWrapped.Instance.ThreadCount):
-                            distributor.ThreadCount = AppSettingsWrapped.Instance.ThreadCount;
+                        case nameof(AppSettings.ThreadCount):
+                            distributor.ThreadCount = appSettings.ThreadCount;
                             break;
                     }
                 };
 
-                (this as INotifyPropertyChangedAdvanced).NotifyAll(PropertyChanged);
+                (this as INotifyPropertyChangedAdvanced)
+                    .NotifyAll(PropertyChanged);
             });
 
             PropertyChanged += (sender, e) =>

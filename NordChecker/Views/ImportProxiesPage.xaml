@@ -89,7 +89,7 @@
                 <ColumnDefinition Width="4"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnProceed" Content="Продолжить" HorizontalAlignment="Stretch">
+            <Button Content="Продолжить" Command="{Binding ProceedCommand}" HorizontalAlignment="Stretch">
                 <Button.Style>
                     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
                         <Style.Triggers>
