@@ -112,11 +112,11 @@ namespace NordChecker.ViewModels
             get => _PipelineState;
             set
             {
-                INotifyPropertyChangedAdvanced @this = this;
-                @this.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
-                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
-                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
-                @this.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
+                INotifyPropertyChangedAdvanced self = this;
+                self.Set(ref _PipelineState, value, PropertyChanged, LogEventLevel.Information);
+                self.OnPropertyChanged(PropertyChanged, nameof(IsPipelineIdle));
+                self.OnPropertyChanged(PropertyChanged, nameof(IsPipelinePaused));
+                self.OnPropertyChanged(PropertyChanged, nameof(IsPipelineWorking));
             }
         }
 

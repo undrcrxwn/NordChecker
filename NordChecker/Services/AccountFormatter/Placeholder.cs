@@ -10,7 +10,10 @@ namespace NordChecker.Services.AccountFormatter
         public List<string> Aliases;
         public Func<Account, string> Binding;
 
-        public Placeholder() { }
+        public Placeholder()
+        {
+            Aliases = new List<string>();
+        }
 
         public Placeholder(string key, List<string> aliases, Func<Account, string> binding)
         {

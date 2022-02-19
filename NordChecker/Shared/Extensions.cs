@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows;
 using Microsoft.Win32;
+using NordChecker.Shared.Attributes;
 
 namespace NordChecker.Shared
 {
@@ -54,14 +55,6 @@ namespace NordChecker.Shared
             return builder.ToString();
         }
 
-        public static TAttribute GetAttribute<TAttribute>(this Enum value)
-            where TAttribute : Attribute
-        {
-            return value.GetType()
-                .GetMember(value.ToString()).First()
-                .GetCustomAttribute<TAttribute>();
-        }
-
         public static bool? Show(this FileDialog dialog, bool topmost = false)
         {
             var window = new Window
@@ -79,5 +72,32 @@ namespace NordChecker.Shared
             window.Close();
             return result;
         }
+
+        public static void ReplacePropertiesWithCloned<T>(this T destination, T source)
+        {
+            var properties = typeof(T).GetProperties()
+                .Where(x => !x.HasAttribute<ReplacementIgnoreAttribute>());
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(source);
+                if (value is ICloneable cloneable)
+                    property.SetValue(destination, cloneable.Clone());
+                else
+                    property.SetValue(destination, value);
+            }
+        }
+
+        public static TAttribute GetAttribute<TAttribute>(this Enum value)
+            where TAttribute : Attribute
+        {
+            return value.GetType()
+                .GetMember(value.ToString()).First()
+                .GetCustomAttribute<TAttribute>();
+        }
+
+        public static bool HasAttribute<TAttribute>(this MemberInfo self)
+            where TAttribute : Attribute
+            => Attribute.IsDefined(self, typeof(TAttribute));
     }
 }

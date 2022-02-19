@@ -55,9 +55,15 @@ namespace NordChecker.Services
                     new Uri(viewName, UriKind.Relative)));
 
             Navigating?.Invoke(this, eventArgs);
-            _RegionManager.RequestNavigate(regionName, viewName);
-            Log.Information("{0} navigated to {1}", regionName, viewName);
+
+            var region = _RegionManager.Regions[regionName];
+            if (region.Views.Any())
+                region.Remove(region.Views.First());
+            region.RequestNavigate(viewName);
+
             Focus(regionName);
+            Log.Information("{0} navigated to {1}", regionName, viewName);
+
             Navigated?.Invoke(this, eventArgs);
         }
 

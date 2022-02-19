@@ -134,8 +134,6 @@ namespace NordChecker
 
             var regionManager = Container.Resolve<IRegionManager>();
             regionManager.RegisterViewWithRegion("ContentRegion", "MainView");
-            //regionManager.RegisterViewWithRegion("ContentRegion", "MainView");
-            regionManager.RegisterViewWithRegion("OverlayRegion", "TestView");
         }
 
         protected override void RegisterTypes(IContainerRegistry registry)
