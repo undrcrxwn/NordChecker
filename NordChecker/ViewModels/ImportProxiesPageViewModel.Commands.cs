@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using NordChecker.Models;
+using NordChecker.Shared;
 using Serilog;
 
 namespace NordChecker.ViewModels
@@ -50,6 +51,8 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnProceedCommandExecuted");
             NavigationService.NavigateContent("MainView");
+
+            ImportSettings.ReplacePropertiesWithCloned(ImportSettingsDraft);
 
             Task.Factory.StartNew(() =>
             {

@@ -26,6 +26,7 @@ namespace NordChecker.ViewModels
 
         public AppSettings AppSettings { get; set; }
         public ImportSettings ImportSettings { get; set; }
+        public ImportSettings ImportSettingsDraft { get; set; }
         public NavigationService NavigationService { get; set; }
         public ProxyParser ProxyParser { get; set; }
         public ProxyStats ProxyStats { get; set; }
@@ -49,13 +50,14 @@ namespace NordChecker.ViewModels
         {
             AppSettings = appSettings;
             ImportSettings = importSettings;
+            ImportSettingsDraft = ImportSettings.Clone();
             NavigationService = navigationService;
             ProxyParser = proxyParser;
             ProxyStats = proxyStats;
             Proxies = proxies;
 
             BindingHelper.BindOneWay(
-                ImportSettings, nameof(ImportSettings.ProxyRegexMask),
+                ImportSettings, nameof(ImportSettingsDraft.ProxyRegexMask),
                 ProxyParser, nameof(ProxyParser.RegexPattern));
 
             ChoosePathCommand = new DelegateCommand(OnChoosePathCommandExecuted);

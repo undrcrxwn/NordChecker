@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using Microsoft.Win32;
 using NordChecker.Shared.Attributes;
+using Serilog;
 
 namespace NordChecker.Shared
 {
@@ -86,6 +88,8 @@ namespace NordChecker.Shared
                 else
                     property.SetValue(destination, value);
             }
+
+            Log.Debug("Properties of {0} instance have been set to cloned values of properties of another instance", typeof(T).Name);
         }
 
         public static TAttribute GetAttribute<TAttribute>(this Enum value)

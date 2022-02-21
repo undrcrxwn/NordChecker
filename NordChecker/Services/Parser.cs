@@ -26,7 +26,7 @@ namespace NordChecker.Services
 
     public class AccountParser
     {
-        public string RegexPattern;
+        public string RegexPattern { get; set; }
 
         public AccountParser(string regexPattern)
         {
@@ -37,14 +37,19 @@ namespace NordChecker.Services
         {
             string[] credentials = RegexHelper.Match(input, RegexPattern);
             if (credentials.Length != 3)
+            {
+                // [0] is full match
+                // [1] is email group
+                // [2] is password group
                 throw new InvalidMatchGroupCountException(3, credentials);
+            }
             return new Account(credentials[1], credentials[2]);
         }
     }
 
     public class ProxyParser
     {
-        public string RegexPattern;
+        public string RegexPattern { get; set; }
 
         public ProxyParser(string regexPattern)
         {

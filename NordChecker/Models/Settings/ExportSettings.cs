@@ -211,8 +211,6 @@ namespace NordChecker.Models.Settings
             return copy;
         }
 
-
-
         object ICloneable.Clone() => Clone();
 
         private void SubscribeToDependencies()

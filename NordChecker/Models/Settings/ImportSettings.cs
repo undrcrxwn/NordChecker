@@ -12,7 +12,7 @@ using NordChecker.Shared.Collections;
 
 namespace NordChecker.Models.Settings
 {
-    public class ImportSettings : INotifyPropertyChangedAdvanced
+    public class ImportSettings : INotifyPropertyChangedAdvanced, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -85,6 +85,10 @@ namespace NordChecker.Models.Settings
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _ProxyType, value, PropertyChanged, LogEventLevel.Information);
         }
+
+        public ImportSettings Clone() => (ImportSettings)MemberwiseClone();
+
+        object ICloneable.Clone() => Clone();
 
         #endregion
     }
