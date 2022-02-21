@@ -22,15 +22,15 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
 
-        private ExportSettings _ExportSettings;
-        public ExportSettings ExportSettings
+        private ExportSettings _ExportSettingsDraft;
+        public ExportSettings ExportSettingsDraft
         {
-            get => _ExportSettings;
+            get => _ExportSettingsDraft;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _ExportSettings, value, PropertyChanged);
+                .Set(ref _ExportSettingsDraft, value, PropertyChanged);
         }
 
-        private readonly Wrapped<ExportSettings> _ExportSettingsWrapped;
+        private readonly ExportSettings _ExportSettings;
 
         public string Title => "title";
 
@@ -46,29 +46,23 @@ namespace NordChecker.ViewModels
         public ICommand ProceedCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public TestPageViewModel(Wrapped<ExportSettings> exportSettingsWrapped, NavigationService navigationService)
+        public TestPageViewModel(ExportSettings exportSettings, NavigationService navigationService)
         {
-            _ExportSettingsWrapped = exportSettingsWrapped;
-            ExportSettings = _ExportSettingsWrapped.Instance.Clone();
+            _ExportSettings = exportSettings;
+            ExportSettingsDraft = _ExportSettings.Clone();
             this.navigationService = navigationService;
             
             ProceedCommand = new DelegateCommand(OnProceedCommandExecuted, CanExecuteProceedCommand)
                 .ObservesProperty(() => CanProceed);
 
             CancelCommand = new DelegateCommand(OnCancelCommandExecuted);
-
-            ExportSettings.PropertyChanged += (sender, e) =>
-            {
-                Log.Warning("VM: copy ({0}) prop changed ({1})",
-                    ExportSettings.GetHashCode(), e.PropertyName);
-            };
         }
 
         private bool CanExecuteProceedCommand() => true;
 
         private void OnProceedCommandExecuted()
         {
-            _ExportSettingsWrapped.ReplaceWith(ExportSettings);
+            _ExportSettings.ReplacePropertiesWithCloned(ExportSettingsDraft);
             navigationService.NavigateContent("MainView");
         }
 

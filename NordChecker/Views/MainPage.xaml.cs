@@ -29,17 +29,16 @@ namespace NordChecker.Views
     /// </summary>
     public partial class MainPage : Page
     {
-        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
+        public AppSettings AppSettings { get; set; }
 
         public MainPage(MainPageViewModel viewModel)
         {
             DataContext = viewModel;
-            AppSettingsWrapped = viewModel.AppSettingsWrapped;
+            AppSettings = viewModel.AppSettings;
             InitializeComponent();
 
-            AppSettingsWrapped.ForEach(appSettings =>
-                appSettings.DataGridFilters.CollectionChanged += (sender, e) =>
-                    UpdateFiltering());
+            AppSettings.DataGridFilters.CollectionChanged += (sender, e) =>
+                UpdateFiltering();
 
             var source = new CollectionViewSource { Source = viewModel.Accounts };
             ICollectionView cv = source.View;
@@ -62,7 +61,7 @@ namespace NordChecker.Views
             var cv = dgAccounts.ItemsSource as ICollectionView;
             Dispatcher.Invoke(() =>
             {
-                cv.Filter = acc => AppSettingsWrapped.Instance.DataGridFilters[((Account)acc).State];
+                cv.Filter = acc => AppSettings.DataGridFilters[((Account)acc).State];
                 cv.Refresh();
             });
             Log.Information("New DataGrid filters have been applied");
@@ -73,7 +72,7 @@ namespace NordChecker.Views
         private void ColorPicker_SelectedColorChanged(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
         {
             Log.Warning(((HandyControl.Controls.ColorPicker)sender).SelectedBrush.Color.ToString());
-            AppSettingsWrapped.Instance.AccentColor = ((HandyControl.Controls.ColorPicker)sender).SelectedBrush;
+            AppSettings.AccentColor = ((HandyControl.Controls.ColorPicker)sender).SelectedBrush;
         }
     }
 }

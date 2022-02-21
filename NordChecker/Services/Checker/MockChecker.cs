@@ -15,16 +15,19 @@ namespace NordChecker.Services.Checker
         private const int ElapsedMilliseconds = 5000;
         private const int BreakpointCount = 5;
         
-        private readonly Wrapped<AppSettings> _AppSettingsWrapped;
+        private readonly AppSettings _AppSettings;
         private readonly Random _Random = new();
 
-        public MockChecker(Wrapped<AppSettings> appSettingsWrapped) => _AppSettingsWrapped = appSettingsWrapped;
+        public MockChecker(AppSettings appSettings)
+        {
+            _AppSettings = appSettings;
+        }
 
         void IChecker.Check(Account account)
         {
             Log.Debug("Checking {0}", account.ToString());
 
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettingsWrapped.Instance.Timeout);
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             
             for (int i = 0; i < BreakpointCount; i++)

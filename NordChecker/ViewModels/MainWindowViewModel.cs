@@ -51,7 +51,7 @@ namespace NordChecker.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         public NavigationService NavigationService { get; set; }
-        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
+        public AppSettings AppSettings { get; set; }
 
         #region Properties
 
@@ -72,12 +72,15 @@ namespace NordChecker.ViewModels
         }
 
         #endregion
-        
-        public MainWindowViewModel(IRegionManager regionManager, NavigationService navigationService, Wrapped<AppSettings> appSettingsWrapped)
+
+        public MainWindowViewModel(
+            IRegionManager regionManager,
+            NavigationService navigationService,
+            AppSettings appSettings)
         {
             NavigationService = navigationService;
-            AppSettingsWrapped = appSettingsWrapped;
-            
+            AppSettings = appSettings;
+
             NavigationService.Navigating += (sender, e) =>
             {
                 if (NavigationService.FocusedRegion == null) return;
@@ -98,26 +101,23 @@ namespace NordChecker.ViewModels
                     BindPageTitle((IPageViewModel)page.DataContext);
             };
 
-            AppSettingsWrapped.ForEach(appSettings =>
+            AppSettings.PropertyChanged += (sender, e) =>
             {
-                appSettings.PropertyChanged += (sender, e) =>
-                {
-                    if (e.PropertyName
-                        is nameof(AppSettingsWrapped.Instance.AccentColor)
-                        or nameof(AppSettingsWrapped.Instance.Theme))
-                        RefreshAppearence();
-                };
-                RefreshAppearence();
-            });
+                if (e.PropertyName
+                    is nameof(AppSettings.AccentColor)
+                    or nameof(AppSettings.Theme))
+                    RefreshAppearence();
+            };
+            RefreshAppearence();
 
             OpenFromTrayCommand = new DelegateCommand(OnOpenFromTrayCommandExecuted);
         }
 
         private void RefreshAppearence()
         {
-            ThemeManager.Current.ApplicationTheme = AppSettingsWrapped.Instance.Theme;
-            ThemeManager.Current.AccentColor = AppSettingsWrapped.Instance.AccentColor;
-            Log.Warning("Updated to {0}", AppSettingsWrapped.Instance.AccentColor);
+            ThemeManager.Current.ApplicationTheme = AppSettings.Theme;
+            ThemeManager.Current.AccentColor = AppSettings.AccentColor;
+            Log.Warning("Updated to {0}", AppSettings.AccentColor);
         }
 
         private void BindPageTitle(IPageViewModel viewModel)

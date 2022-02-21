@@ -64,9 +64,9 @@ namespace NordChecker.ViewModels
                 .Set(ref _SelectedAccount, value, PropertyChanged);
         }
 
-        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
-        public Wrapped<ExportSettings> ExportSettingsWrapped { get; set; }
-        public Wrapped<ImportSettings> ImportSettingsWrapped { get; set; }
+        public AppSettings AppSettings { get; set; }
+        public ExportSettings ExportSettings { get; set; }
+        public ImportSettings ImportSettings { get; set; }
         public ProxiesViewModel ProxiesViewModel { get; set; }
 
 
@@ -223,9 +223,9 @@ namespace NordChecker.ViewModels
             ProxyStats proxyStats,
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
-            Wrapped<AppSettings> appSettingsWrapped,
-            Wrapped<ExportSettings> exportSettingsWrapped,
-            Wrapped<ImportSettings> importSettingsWrapped,
+            AppSettings appSettings,
+            ExportSettings exportSettings,
+            ImportSettings importSettings,
             ProxiesViewModel proxiesViewModel)
         {
             Storage = storage;
@@ -234,12 +234,12 @@ namespace NordChecker.ViewModels
             ProxyStats = proxyStats;
             Accounts = accounts;
             this.navigationService = navigationService;
-            AppSettingsWrapped = appSettingsWrapped;
-            ExportSettingsWrapped = exportSettingsWrapped;
-            ImportSettingsWrapped = importSettingsWrapped;
+            AppSettings = appSettings;
+            ExportSettings = exportSettings;
+            ImportSettings = importSettings;
             ProxiesViewModel = proxiesViewModel;
 
-            AccountParser = new AccountParser(ImportSettingsWrapped.Instance.ComboRegexMask);
+            AccountParser = new AccountParser(ImportSettings.ComboRegexMask);
 
             ComboStats.PropertyChanged += (sender, e) =>
                 (this as INotifyPropertyChangedAdvanced)
@@ -258,7 +258,7 @@ namespace NordChecker.ViewModels
             Accounts.CollectionChanged += AccountsCollectionChangedHandler;
 
             distributor = new ThreadDistributor<Account>.Builder()
-                .SetThreadCount(AppSettingsWrapped.Instance.ThreadCount)
+                .SetThreadCount(AppSettings.ThreadCount)
                 .SetPayloads(Accounts)
                 .SetFilter(account =>
                 {
@@ -328,24 +328,18 @@ namespace NordChecker.ViewModels
 
             #endregion
 
-            AppSettingsWrapped.ForEach(appSettings =>
+            AppSettings.PropertyChanged += (sender, e) =>
             {
-                appSettings.PropertyChanged += (sender, e) =>
+                switch (e.PropertyName)
                 {
-                    switch (e.PropertyName)
-                    {
-                        case nameof(ImportSettings.ComboRegexMask):
-                            AccountParser.RegexPattern = ImportSettingsWrapped.Instance.ComboRegexMask;
-                            break;
-                        case nameof(AppSettings.ThreadCount):
-                            distributor.ThreadCount = appSettings.ThreadCount;
-                            break;
-                    }
-                };
-
-                (this as INotifyPropertyChangedAdvanced)
-                    .NotifyAll(PropertyChanged);
-            });
+                    case nameof(ImportSettings.ComboRegexMask):
+                        AccountParser.RegexPattern = ImportSettings.ComboRegexMask;
+                        break;
+                    case nameof(AppSettings.ThreadCount):
+                        distributor.ThreadCount = appSettings.ThreadCount;
+                        break;
+                }
+            };
 
             PropertyChanged += (sender, e) =>
             {

@@ -24,8 +24,8 @@ namespace NordChecker.ViewModels
 
         public string Title => "Импорт прокси";
 
-        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
-        public Wrapped<ImportSettings> ImportSettingsWrapped { get; set; }
+        public AppSettings AppSettings { get; set; }
+        public ImportSettings ImportSettings { get; set; }
         public NavigationService NavigationService { get; set; }
         public ProxyParser ProxyParser { get; set; }
         public ProxyStats ProxyStats { get; set; }
@@ -40,33 +40,23 @@ namespace NordChecker.ViewModels
         }
 
         public ImportProxiesPageViewModel(
-            Wrapped<AppSettings> appSettingsWrapped,
-            Wrapped<ImportSettings> importSettingsWrapped,
+            AppSettings appSettings,
+            ImportSettings importSettings,
             NavigationService navigationService,
             ProxyParser proxyParser,
             ProxyStats proxyStats,
             Cyclic<Proxy> proxies)
         {
-            AppSettingsWrapped = appSettingsWrapped;
-            ImportSettingsWrapped = importSettingsWrapped;
+            AppSettings = appSettings;
+            ImportSettings = importSettings;
             NavigationService = navigationService;
             ProxyParser = proxyParser;
             ProxyStats = proxyStats;
             Proxies = proxies;
 
-            PropertyChangedEventHandler lastBindingHandler = null;
-            ImportSettingsWrapped.ForEach(instance =>
-            {
-                // Unbind from deprecated instance's property
-                if (ImportSettingsWrapped.HasValue && lastBindingHandler != null)
-                    BindingHelper.UnbindOneWay(
-                        ImportSettingsWrapped.Instance, lastBindingHandler);
-
-                // Bind to new instance's property
-                lastBindingHandler = BindingHelper.BindOneWay(
-                    instance, nameof(ImportSettings.ProxyRegexMask),
-                    ProxyParser, nameof(ProxyParser.RegexPattern));
-            });
+            BindingHelper.BindOneWay(
+                ImportSettings, nameof(ImportSettings.ProxyRegexMask),
+                ProxyParser, nameof(ProxyParser.RegexPattern));
 
             ChoosePathCommand = new DelegateCommand(OnChoosePathCommandExecuted);
             ProceedCommand = new DelegateCommand(OnProceedCommandExecuted);

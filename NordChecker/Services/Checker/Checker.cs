@@ -13,16 +13,19 @@ namespace NordChecker.Services.Checker
 {
     internal class Checker : IChecker
     {
-        private readonly Wrapped<AppSettings> _AppSettingsWrapped;
+        private readonly AppSettings _AppSettings;
 
-        public Checker(Wrapped<AppSettings> appSettingsWrapped) => _AppSettingsWrapped = appSettingsWrapped;
+        public Checker(AppSettings appSettings)
+        {
+            _AppSettings = appSettings;
+        }
 
         public async void ProcessAccount(Account account)
         {
             Action<MasterToken> accountProcessingCancellationHandler = x => account.State = AccountState.Invalid;
             account.MasterToken.Canceled += accountProcessingCancellationHandler;
 
-            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettingsWrapped.Instance.Timeout);
+            var context = new TimeoutBreakpointContext(account.MasterToken, Stopwatch.StartNew(), _AppSettings.Timeout);
             IBreakpointHandler breakpointHandler = new TimeoutBreakpointHandler(context);
             
             breakpointHandler.HandleBreakpointIfNeeded();

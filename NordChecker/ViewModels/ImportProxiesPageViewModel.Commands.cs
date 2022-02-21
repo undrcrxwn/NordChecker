@@ -66,7 +66,7 @@ namespace NordChecker.ViewModels
                         Proxy proxy;
                         try
                         {
-                            proxy = ProxyParser.Parse(line, ImportSettingsWrapped.Instance.ProxyType);
+                            proxy = ProxyParser.Parse(line, ImportSettings.ProxyType);
                         }
                         catch
                         {
@@ -75,7 +75,7 @@ namespace NordChecker.ViewModels
                             continue;
                         }
 
-                        if (ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped)
+                        if (ImportSettings.AreComboDuplicatesSkipped)
                         {
                             if (Proxies.Any(x => x.Equals(proxy)) ||
                                 cache.Any(x => x.Equals(proxy)))
@@ -102,7 +102,7 @@ namespace NordChecker.ViewModels
                     lock (ProxyStats.ByState)
                     {
                         ProxyStats.ByState[ProxyState.Unused] += cache.Count;
-                        ProxyStats.ByType[ImportSettingsWrapped.Instance.ProxyType] += cache.Count;
+                        ProxyStats.ByType[ImportSettings.ProxyType] += cache.Count;
                     }
                 });
             });

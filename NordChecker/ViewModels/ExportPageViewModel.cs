@@ -59,15 +59,15 @@ namespace NordChecker.ViewModels
                 .Set(ref _Accounts, value, PropertyChanged);
         }
         
-        private Wrapped<AppSettings> _AppSettingsWrapped;
-        public Wrapped<AppSettings> AppSettingsWrapped
+        private AppSettings _AppSettings;
+        public AppSettings AppSettings
         {
-            get => _AppSettingsWrapped;
+            get => _AppSettings;
             set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _AppSettingsWrapped, value, PropertyChanged);
+                .Set(ref _AppSettings, value, PropertyChanged);
         }
 
-        private Wrapped<ExportSettings> _ExportSettingsWrapped;
+        private ExportSettings _ExportSettings;
 
         private ExportSettings _ExportSettingsDraft;
         public ExportSettings ExportSettingsDraft
@@ -221,7 +221,7 @@ namespace NordChecker.ViewModels
                     counter, ExportSettingsDraft.RootPath, watch.ElapsedMilliseconds);
             });
 
-            _ExportSettingsWrapped.ReplaceWith(ExportSettingsDraft);
+            _ExportSettings.ReplacePropertiesWithCloned(ExportSettingsDraft);
             navigationService.NavigateContent("MainView");
         }
 
@@ -245,14 +245,14 @@ namespace NordChecker.ViewModels
         public ExportPageViewModel(
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
-            Wrapped<AppSettings> appSettingsWrapped,
-            Wrapped<ExportSettings> exportSettingsWrapped)
+            AppSettings appSettings,
+            ExportSettings exportSettings)
         {
             Accounts = accounts;
             this.navigationService = navigationService;
-            AppSettingsWrapped = appSettingsWrapped;
-            _ExportSettingsWrapped = exportSettingsWrapped;
-            ExportSettingsDraft = _ExportSettingsWrapped.Instance.Clone();
+            AppSettings = appSettings;
+            _ExportSettings = exportSettings;
+            ExportSettingsDraft = _ExportSettings.Clone();
             Hash = ExportSettingsDraft.GetHashCode();
 
             Log.Warning("EXPORT SETTINGS INSTANCE USED BY VM = {0}", ExportSettingsDraft.GetHashCode());

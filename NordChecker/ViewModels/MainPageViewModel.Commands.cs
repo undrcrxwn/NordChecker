@@ -125,7 +125,7 @@ namespace NordChecker.ViewModels
                     dialog = new OpenFileDialog();
                     dialog.DefaultExt = ".txt";
                     dialog.Filter = "NordVPN Combo List|*.txt|Все файлы|*.*";
-                    dialogState = dialog.Show(AppSettingsWrapped.Instance.IsTopMostWindow);
+                    dialogState = dialog.Show(AppSettings.IsTopMostWindow);
                 });
                 if (dialogState != true) return;
                 
@@ -153,7 +153,7 @@ namespace NordChecker.ViewModels
                                 continue;
                             }
 
-                            if (ImportSettingsWrapped.Instance.AreComboDuplicatesSkipped)
+                            if (ImportSettings.AreComboDuplicatesSkipped)
                             {
                                 if (Accounts.Any(a => a.Credentials == account.Credentials) ||
                                     cache.Any(a => a.Credentials == account.Credentials))
@@ -284,7 +284,7 @@ namespace NordChecker.ViewModels
                                         continue;
                                     }
 
-                                    if (ImportSettingsWrapped.Instance.AreProxyDuplicatesSkipped)
+                                    if (ImportSettings.AreProxyDuplicatesSkipped)
                                     {
                                         if (ProxiesViewModel.Proxies.Any(p => p.Client.ToString() == client.ToString()))
                                         {
@@ -423,8 +423,9 @@ namespace NordChecker.ViewModels
         
         private void OnSaveSettingsCommandExecuted()
         {
-            Storage.Save(AppSettingsWrapped.Instance);
-            Storage.Save(ExportSettingsWrapped.Instance);
+            Storage.Save(AppSettings);
+            Storage.Save(ImportSettings);
+            Storage.Save(ExportSettings);
         }
         
         #endregion
@@ -437,9 +438,9 @@ namespace NordChecker.ViewModels
         {
             Log.Information("OnRestoreSettingsCommandExecuted");
 
-            AppSettingsWrapped.ReplaceWith(new AppSettings());
-            ExportSettingsWrapped.ReplaceWith(new ExportSettings());
-            ImportSettingsWrapped.ReplaceWith(new ImportSettings());
+            AppSettings.ReplacePropertiesWithCloned(new AppSettings());
+            ExportSettings.ReplacePropertiesWithCloned(new ExportSettings());
+            ImportSettings.ReplacePropertiesWithCloned(new ImportSettings());
         }
         
         #endregion

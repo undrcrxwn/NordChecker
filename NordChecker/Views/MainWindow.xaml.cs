@@ -32,12 +32,9 @@ using NordChecker.Models.Settings;
 
 namespace NordChecker.Views
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        public Wrapped<AppSettings> AppSettingsWrapped { get; set; }
+        public AppSettings AppSettings { get; set; }
         public MainWindowViewModel ViewModel { get; set; }
 
         private static void HideBoundingBox(object root)
@@ -58,15 +55,17 @@ namespace NordChecker.Views
         [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
         public static extern IntPtr FindWindow(IntPtr ZeroOnly, string lpWindowName);
 
-        public MainWindow(MainWindowViewModel viewModel, Wrapped<AppSettings> appSettingsWrapped)
+        public MainWindow(
+            MainWindowViewModel viewModel,
+            AppSettings appSettings)
         {
-            AppSettingsWrapped = appSettingsWrapped;
+            AppSettings = appSettings;
             ViewModel = viewModel;
             DataContext = ViewModel;
 
             StateChanged += (sender, e) =>
             {
-                if (AppSettingsWrapped.Instance.IsMinimizedToTray)
+                if (AppSettings.IsMinimizedToTray)
                 {
                     ViewModel.WindowVisibility = WindowState != WindowState.Minimized
                         ? Visibility.Visible : Visibility.Collapsed;
