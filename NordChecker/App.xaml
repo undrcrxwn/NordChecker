@@ -19,6 +19,7 @@
                     <hc:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">
                             <SolidColorBrush x:Key="DefaultBrush" Color="#f8f8f8" />
+                            <SolidColorBrush x:Key="BorderBrush" Color="#dadada" />
                         </ResourceDictionary>
 
                         <ResourceDictionary x:Key="Dark" hc:ThemeDictionary.Key="Dark">
@@ -26,6 +27,7 @@
                             <SolidColorBrush x:Key="DefaultBrush" Color="#1b1b1b" />
                             <SolidColorBrush x:Key="BackgroundBrush" Color="#343434" />
                             <SolidColorBrush x:Key="PrimaryTextBrush" Color="#e6e6e6" />
+                            <SolidColorBrush x:Key="BorderBrush" Color="#303030" />
                         </ResourceDictionary>
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>

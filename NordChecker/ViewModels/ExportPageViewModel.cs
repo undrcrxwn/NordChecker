@@ -39,13 +39,7 @@ namespace NordChecker.ViewModels
 
         #region Properties
 
-        private string _Title;
-        public string Title
-        {
-            get => _Title;
-            protected set => (this as INotifyPropertyChangedAdvanced)
-                .Set(ref _Title, value, PropertyChanged);
-        }
+        public string Title => "Экспорт";
 
         private string _Description;
         public string Description
@@ -248,18 +242,18 @@ namespace NordChecker.ViewModels
 
         public void Destroy()
         {
-            Log.Error("VIEW-MODEL DESTROYING");
+            Log.Error("DESTROY\tExportPageViewModel");
             StateRefreshingTimer.Stop();
-        }
-
-        public void Dispose()
-        {
-            Log.Error("VIEW-MODEL DISPOSING");
         }
 
         ~ExportPageViewModel()
         {
-            Log.Error("VIEW-MODEL DESTRUCT");
+            Log.Error("DESTRUCT\tExportPageViewModel");
+        }
+
+        public void Dispose()
+        {
+            Log.Error("DISPOSE\tExportPageViewModel");
         }
 
         public ExportPageViewModel(

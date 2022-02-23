@@ -16,18 +16,29 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Serilog;
+using Prism.Navigation;
+using Prism.Regions;
 
 namespace NordChecker.Views
 {
     /// <summary>
     /// Interaction logic for ExportPage.xaml
     /// </summary>
+    [RegionMemberLifetime(KeepAlive = false)]
     public partial class ExportPage : Page
     {
+        ~ExportPage()
+        {
+            Log.Error("DESTRUCT\tExportPage");
+        }
+
         public ExportPage(ExportPageViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            Log.Fatal("VIEW HAS BEEN CONSTRUCTED");
+
             Log.Warning("Page {0} c-tor: settings hash = {1}", this.GetHashCode(), ((ExportPageViewModel)DataContext).ExportSettingsDraft.GetHashCode());
 
             var es = ((ExportPageViewModel)DataContext).ExportSettingsDraft;

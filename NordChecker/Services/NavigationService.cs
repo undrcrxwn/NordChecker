@@ -71,24 +71,20 @@ namespace NordChecker.Services
                 new Uri(viewName, UriKind.Relative));
             var eventArgs = new RegionNavigationEventArgs(context);
             Navigating?.Invoke(this, eventArgs);
-
+             
             var region = _RegionManager.Regions[regionName];
 
             bool toOverlay = !IsOverlayFocused && regionName == "OverlayRegion";
             if (!toOverlay && FocusedView != null)
             {
-                Log.Warning("Removing {0}", FocusedView.GetType());
+                Log.Error("Removing {0}", FocusedView.GetType());
                 FocusedRegion.Remove(FocusedView);
-                //FocusedRegion.Deactivate(FocusedView);
+                FocusedRegion.NavigationService.Journal.Clear();
+                Log.Fatal("Last journal entry: {0}",
+                    FocusedRegion.NavigationService.Journal.CurrentEntry?.Uri);
             }
 
-            FocusedRegion?.NavigationService.Journal.Clear();
-
             region.RequestNavigate(viewName);
-
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
 
             Focus(regionName);
             Log.Information("{0} navigated to {1}", regionName, viewName);
