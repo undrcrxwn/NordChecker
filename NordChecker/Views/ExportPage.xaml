@@ -10,7 +10,8 @@
       xmlns:svgc1="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d"
       d:DataContext="{d:DesignInstance Type=vm:ExportPageViewModel}"
-      d:Background="{DynamicResource RegionBrush}">
+      d:Background="{DynamicResource RegionBrush}"
+      Width="500">
     <Grid>
         <Grid Margin="10">
             <Grid.RowDefinitions>
@@ -85,7 +86,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <hc:SimpleText Text="Пример выходных данных" FontSize="18" FontWeight="Medium"/>
-                <RichTextBox Grid.Row="2" IsReadOnly="True" Padding="0">
+                <RichTextBox Height="200" Grid.Row="2" IsReadOnly="True" Padding="0">
                     <FlowDocument>
                         <Paragraph Padding="0,5,0,5">
                             <TextBlock FontFamily="Consolas" Text="{Binding OutputPreview, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>

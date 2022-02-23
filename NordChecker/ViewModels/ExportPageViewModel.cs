@@ -25,10 +25,14 @@ using NordChecker.Services;
 using NordChecker.Services.AccountFormatter;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Regions;
+using Prism.Navigation;
 
 namespace NordChecker.ViewModels
 {
-    public partial class ExportPageViewModel : BindableBase, IPageViewModel
+    [RegionMemberLifetime(KeepAlive = false)]
+    public partial class ExportPageViewModel
+        : BindableBase, IPageViewModel, IDestructible, IDisposable
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private NavigationService navigationService;
@@ -242,6 +246,22 @@ namespace NordChecker.ViewModels
 
         public readonly System.Timers.Timer StateRefreshingTimer = new(TimeSpan.FromSeconds(1).TotalMilliseconds);
 
+        public void Destroy()
+        {
+            Log.Error("VIEW-MODEL DESTROYING");
+            StateRefreshingTimer.Stop();
+        }
+
+        public void Dispose()
+        {
+            Log.Error("VIEW-MODEL DISPOSING");
+        }
+
+        ~ExportPageViewModel()
+        {
+            Log.Error("VIEW-MODEL DESTRUCT");
+        }
+
         public ExportPageViewModel(
             ObservableCollection<Account> accounts,
             NavigationService navigationService,
@@ -279,7 +299,7 @@ namespace NordChecker.ViewModels
 
             StateRefreshingTimer.Elapsed += (sender, e) => UpdateSettingsRootPath();
             StateRefreshingTimer.Start();
-            //StateRefreshingTimer.Stop();
+
 
             ExportSettingsDraft.PropertyChanged += (sender, e) => Log.Warning("STH CHANGED");
         }

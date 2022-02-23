@@ -83,21 +83,16 @@ namespace NordChecker.ViewModels
 
             NavigationService.Navigating += (sender, e) =>
             {
-                if (NavigationService.FocusedRegion == null) return;
-                object view = NavigationService.FocusedRegion.ActiveViews.First();
-                if (view is Page page)
+                if (NavigationService.FocusedRegion == null)
+                    return;
+
+                if (NavigationService.FocusedView is Page page)
                     UnbindPageTitle((IPageViewModel)page.DataContext);
             };
 
             NavigationService.Navigated += (sender, e) =>
             {
-                if (NavigationService.FocusedRegion == null) return;
-                //if (!NavigationService.FocusedRegion.ActiveViews.Any()) return;
-
-                object view = NavigationService.FocusedRegion.Views.First();
-
-                //object view = new Page(e.NavigationContext.Uri, UriKind.Relative);
-                if (view is Page page)
+                if (NavigationService.FocusedView is Page page)
                     BindPageTitle((IPageViewModel)page.DataContext);
             };
 

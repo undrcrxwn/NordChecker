@@ -24,7 +24,15 @@ using Unity;
 
 namespace NordChecker.Services
 {
-    public record RegionFocusedEventArgs(IRegion Region);
+    public class RegionFocusedEventArgs : EventArgs
+    {
+        public IRegion Region;
+
+        public RegionFocusedEventArgs(IRegion region)
+        {
+            Region = region;
+        }
+    }
 
     public class NavigationService : INotifyPropertyChangedAdvanced
     {
@@ -36,6 +44,7 @@ namespace NordChecker.Services
         private readonly IRegionManager _RegionManager;
 
         public IRegion FocusedRegion { get; private set; }
+        public object FocusedView { get; private set; }
         public bool IsOverlayFocused => FocusedRegion?.Name == "OverlayRegion";
 
         public NavigationService(IRegionManager regionManager)
@@ -43,28 +52,10 @@ namespace NordChecker.Services
             _RegionManager = regionManager;
 
             Focused += (sender, e) =>
-                (this as INotifyPropertyChangedAdvanced)
+            {
+                ((INotifyPropertyChangedAdvanced)this)
                 .OnPropertyChanged(PropertyChanged, nameof(IsOverlayFocused));
-        }
-
-        public void Navigate(string regionName, string viewName)
-        {
-            var eventArgs = new RegionNavigationEventArgs(
-                new NavigationContext(
-                    _RegionManager.Regions[regionName].NavigationService,
-                    new Uri(viewName, UriKind.Relative)));
-
-            Navigating?.Invoke(this, eventArgs);
-
-            var region = _RegionManager.Regions[regionName];
-            if (region.Views.Any())
-                region.Remove(region.Views.First());
-            region.RequestNavigate(viewName);
-
-            Focus(regionName);
-            Log.Information("{0} navigated to {1}", regionName, viewName);
-
-            Navigated?.Invoke(this, eventArgs);
+            };
         }
 
         public void NavigateContent(string viewName) =>
@@ -73,10 +64,45 @@ namespace NordChecker.Services
         public void NavigateOverlay(string viewName) =>
             Navigate("OverlayRegion", viewName);
 
+        public void Navigate(string regionName, string viewName)
+        {
+            var context = new NavigationContext(
+                _RegionManager.Regions[regionName].NavigationService,
+                new Uri(viewName, UriKind.Relative));
+            var eventArgs = new RegionNavigationEventArgs(context);
+            Navigating?.Invoke(this, eventArgs);
+
+            var region = _RegionManager.Regions[regionName];
+
+            bool toOverlay = !IsOverlayFocused && regionName == "OverlayRegion";
+            if (!toOverlay && FocusedView != null)
+            {
+                Log.Warning("Removing {0}", FocusedView.GetType());
+                FocusedRegion.Remove(FocusedView);
+                //FocusedRegion.Deactivate(FocusedView);
+            }
+
+            FocusedRegion?.NavigationService.Journal.Clear();
+
+            region.RequestNavigate(viewName);
+
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            Focus(regionName);
+            Log.Information("{0} navigated to {1}", regionName, viewName);
+
+            Navigated?.Invoke(this, eventArgs);
+        }
+
         public void Focus(string regionName)
         {
-            if (FocusedRegion?.Name == regionName) return;
+            if (FocusedRegion?.Name == regionName)
+                return;
+
             FocusedRegion = _RegionManager.Regions[regionName];
+            FocusedView = FocusedRegion.ActiveViews.First();
             Focused?.Invoke(this, new RegionFocusedEventArgs(FocusedRegion));
         }
     }
