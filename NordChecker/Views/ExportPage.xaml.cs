@@ -25,11 +25,19 @@ namespace NordChecker.Views
     /// Interaction logic for ExportPage.xaml
     /// </summary>
     [RegionMemberLifetime(KeepAlive = false)]
-    public partial class ExportPage : Page
+    public partial class ExportPage : Page, IDestructible
     {
         ~ExportPage()
         {
             Log.Error("DESTRUCT\tExportPage");
+        }
+
+        void IDestructible.Destroy()
+        {
+            Log.Error("DESTROY\tExportPage");
+            if (DataContext is IDestructible viewModel)
+                viewModel.Destroy();
+            DataContext = null;
         }
 
         public ExportPage(ExportPageViewModel viewModel)
@@ -39,7 +47,8 @@ namespace NordChecker.Views
 
             Log.Fatal("VIEW HAS BEEN CONSTRUCTED");
 
-            Log.Warning("Page {0} c-tor: settings hash = {1}", this.GetHashCode(), ((ExportPageViewModel)DataContext).ExportSettingsDraft.GetHashCode());
+            Log.Warning("Page {0} c-tor: settings hash = {1}",
+                GetHashCode(), viewModel.ExportSettingsDraft.GetHashCode());
 
             var es = ((ExportPageViewModel)DataContext).ExportSettingsDraft;
             Log.Warning("AFTER VM TAKEN FOR CONTEXT public ExportPage(ExportPageViewModel viewModel)");

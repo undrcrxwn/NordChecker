@@ -91,5 +91,10 @@ namespace NordChecker.Views
 
             HideBoundingBox(this);
         }
+
+        private void OnFrameNavigated(object sender, NavigationEventArgs e)
+        {
+            ((Frame)sender).NavigationService.RemoveBackEntry();
+        }
     }
 }

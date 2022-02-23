@@ -33,7 +33,7 @@
             </hc:NotifyIcon.ContextContent>
         </hc:NotifyIcon>
 
-        <Frame prism:RegionManager.RegionName="ContentRegion">
+        <Frame prism:RegionManager.RegionName="ContentRegion" Navigated="OnFrameNavigated">
             <Frame.Style>
                 <Style TargetType="{x:Type Frame}">
                     <Style.Triggers>
@@ -66,7 +66,7 @@
                     BorderThickness="1" CornerRadius="10"
                     BorderBrush="{DynamicResource BorderBrush}"
                     Background="{DynamicResource RegionBrush}">
-                    <Frame prism:RegionManager.RegionName="OverlayRegion"/>
+                    <Frame prism:RegionManager.RegionName="OverlayRegion" Navigated="OnFrameNavigated"/>
                 </Border>
             </Grid>
         </Grid>

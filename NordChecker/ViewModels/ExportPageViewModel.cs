@@ -240,7 +240,7 @@ namespace NordChecker.ViewModels
 
         public readonly System.Timers.Timer StateRefreshingTimer = new(TimeSpan.FromSeconds(1).TotalMilliseconds);
 
-        public void Destroy()
+        void IDestructible.Destroy()
         {
             Log.Error("DESTROY\tExportPageViewModel");
             StateRefreshingTimer.Stop();
@@ -251,7 +251,7 @@ namespace NordChecker.ViewModels
             Log.Error("DESTRUCT\tExportPageViewModel");
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Log.Error("DISPOSE\tExportPageViewModel");
         }
