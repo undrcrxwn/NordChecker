@@ -24,20 +24,11 @@ namespace NordChecker.Views
     /// <summary>
     /// Interaction logic for ExportPage.xaml
     /// </summary>
-    [RegionMemberLifetime(KeepAlive = false)]
-    public partial class ExportPage : Page, IDestructible
+    public partial class ExportPage : Page
     {
         ~ExportPage()
         {
             Log.Error("DESTRUCT\tExportPage");
-        }
-
-        void IDestructible.Destroy()
-        {
-            Log.Error("DESTROY\tExportPage");
-            if (DataContext is IDestructible viewModel)
-                viewModel.Destroy();
-            DataContext = null;
         }
 
         public ExportPage(ExportPageViewModel viewModel)
