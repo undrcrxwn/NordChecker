@@ -78,6 +78,14 @@ namespace NordChecker.ViewModels
                 .Set(ref _Accounts, value, PropertyChanged);
         }
 
+        private Cyclic<Proxy> _Proxies;
+        public Cyclic<Proxy> Proxies
+        {
+            get => _Proxies;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _Proxies, value, PropertyChanged);
+        }
+
         private ProxyStats _ProxyStats;
         public ProxyStats ProxyStats
         {
@@ -222,6 +230,7 @@ namespace NordChecker.ViewModels
             ComboStats comboStats,
             ProxyStats proxyStats,
             ObservableCollection<Account> accounts,
+            Cyclic<Proxy> proxies,
             NavigationService navigationService,
             AppSettings appSettings,
             ExportSettings exportSettings,
@@ -233,6 +242,7 @@ namespace NordChecker.ViewModels
             ComboStats = comboStats;
             ProxyStats = proxyStats;
             Accounts = accounts;
+            Proxies = proxies;
             this.navigationService = navigationService;
             AppSettings = appSettings;
             ExportSettings = exportSettings;

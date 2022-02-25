@@ -16,36 +16,28 @@ namespace NordChecker.Models.Stats
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ObservableDictionary<ProxyState, int> _ByState;
-        public ObservableDictionary<ProxyState, int> ByState
+        private ObservableDictionary<ProxyType, int> _ValidByType;
+        public ObservableDictionary<ProxyType, int> ValidByType
         {
-            get => _ByState;
+            get => _ValidByType;
             set
             {
-                if (_ByState is not null)
-                    _ByState.CollectionChanged -= OnByStateCollectionChanged;
+                if (_ValidByType is not null)
+                    _ValidByType.CollectionChanged -= OnByStateCollectionChanged;
 
                 (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _ByState, value, PropertyChanged);
+                    .Set(ref _ValidByType, value, PropertyChanged);
 
-                _ByState.CollectionChanged += OnByStateCollectionChanged;
+                _ValidByType.CollectionChanged += OnByStateCollectionChanged;
             }
         }
 
-        private ObservableDictionary<ProxyType, int> _ByType;
-        public ObservableDictionary<ProxyType, int> ByType
+        private int _InvalidCount;
+        public int InvalidCount
         {
-            get => _ByType;
-            set
-            {
-                if (_ByType is not null)
-                    _ByType.CollectionChanged -= OnByStateCollectionChanged;
-
-                (this as INotifyPropertyChangedAdvanced)
-                    .Set(ref _ByType, value, PropertyChanged);
-
-                _ByType.CollectionChanged += OnByStateCollectionChanged;
-            }
+            get => _InvalidCount;
+            set => (this as INotifyPropertyChangedAdvanced)
+                .Set(ref _InvalidCount, value, PropertyChanged);
         }
 
         private int _DuplicatesCount;
@@ -66,19 +58,15 @@ namespace NordChecker.Models.Stats
 
         public ProxyStats()
         {
-            var proxyStateDictionary = Enum.GetValues<ProxyState>()
+            var dictionary = Enum.GetValues<ProxyType>().Reverse()
                 .ToDictionary(key => key, value => 0);
-            ByState = new ObservableDictionary<ProxyState, int>(proxyStateDictionary);
-
-            var proxyTypeDictionary = Enum.GetValues<ProxyType>().Reverse()
-                .ToDictionary(key => key, value => 0);
-            ByType = new ObservableDictionary<ProxyType, int>(proxyTypeDictionary);
+            ValidByType = new ObservableDictionary<ProxyType, int>(dictionary);
         }
 
         public void Clear()
         {
-            ByState.ForEach(x => ByState[x.Key] = 0);
-            ByType.ForEach(x => ByType[x.Key] = 0);
+            ValidByType.ForEach(x => ValidByType[x.Key] = 0);
+            InvalidCount = 0;
             DuplicatesCount = 0;
             MismatchedCount = 0;
         }
@@ -86,7 +74,7 @@ namespace NordChecker.Models.Stats
         private void OnByStateCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             (this as INotifyPropertyChangedAdvanced)
-                .OnPropertyChanged(PropertyChanged, nameof(ByType));
+                .OnPropertyChanged(PropertyChanged, nameof(ValidByType));
         }
     }
 }

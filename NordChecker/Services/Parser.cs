@@ -59,9 +59,14 @@ namespace NordChecker.Services
         public Proxy Parse(string input, ProxyType proxyType)
         {
             string[] credentials = RegexHelper.Match(input, RegexPattern);
-            if (credentials.Length != 2)
-                throw new InvalidMatchGroupCountException(2, credentials);
-            return Proxy.Parse(proxyType, $"{credentials[0]}:{credentials[1]}");
+            if (credentials.Length != 3)
+            {
+                // [0] is full match
+                // [1] is host
+                // [2] is port
+                throw new InvalidMatchGroupCountException(3, credentials);
+            }
+            return Proxy.Parse(proxyType, $"{credentials[1]}:{credentials[2]}");
         }
     }
 

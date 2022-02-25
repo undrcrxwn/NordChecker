@@ -33,6 +33,18 @@
                 </hc:ThemeResources>
 
                 <ResourceDictionary>
+                    <SolidColorBrush x:Key="AccountUncheckedBrush" Color="#20808080" />
+                    <SolidColorBrush x:Key="AccountReservedBrush" Color="#45808080" />
+                    <SolidColorBrush x:Key="AccountInvalidBrush" Color="#f74d7a" />
+                    <SolidColorBrush x:Key="AccountFreeBrush" Color="#1982c4" />
+                    <SolidColorBrush x:Key="AccountPremiumBrush" Color="#8900f2" />
+
+                    <SolidColorBrush x:Key="ProxyInvalidBrush" Color="#f74d7a" />
+                    <SolidColorBrush x:Key="ProxySocks5Brush" Color="#ffca3a" />
+                    <SolidColorBrush x:Key="ProxySocks4ABrush" Color="#8ac926" />
+                    <SolidColorBrush x:Key="ProxySocks4Brush" Color="#1982c4" />
+                    <SolidColorBrush x:Key="ProxyHttpBrush" Color="#1982c4" />
+
                     <ObjectDataProvider x:Key="ProxyTypeEnumValues" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                         <ObjectDataProvider.MethodParameters>
                             <x:Type TypeName="xnet:ProxyType"/>

@@ -44,7 +44,7 @@ namespace NordChecker.ViewModels
 
         public ICommand ProceedCommand
         {
-            get;
+            get; 
         }
 
         private void OnProceedCommandExecuted()
@@ -56,7 +56,7 @@ namespace NordChecker.ViewModels
 
             Task.Factory.StartNew(() =>
             {
-                Log.Information("Reading combos from {0}", FilePath);
+                Log.Information("Reading proxies from {0}", FilePath);
                 var watch = new Stopwatch();
                 watch.Start();
 
@@ -95,18 +95,16 @@ namespace NordChecker.ViewModels
                 }
 
                 watch.Stop();
-                Log.Information("{0} accounts have been extracted from {1} in {2}ms",
+                Log.Information("{0} proxies have been extracted from {1} in {2}ms",
                     cache.Count, FilePath, watch.ElapsedMilliseconds);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     foreach (Proxy proxy in cache)
                         Proxies.Add(proxy);
-                    lock (ProxyStats.ByState)
-                    {
-                        ProxyStats.ByState[ProxyState.Unused] += cache.Count;
-                        ProxyStats.ByType[ImportSettings.ProxyType] += cache.Count;
-                    }
+
+                    lock (ProxyStats.ValidByType)
+                        ProxyStats.ValidByType[ImportSettings.ProxyType] += cache.Count;
                 });
             });
         }

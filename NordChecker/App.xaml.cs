@@ -91,24 +91,23 @@ namespace NordChecker
 
             AppSettings.PropertyChanged += (sender, e) =>
             {
-                switch (e.PropertyName)
+                if (e.PropertyName == nameof(AppSettings.ContinuousSyncInterval))
+                    RefreshSettingsAutoSave();
+                else if (e.PropertyName
+                    is nameof(AppSettings.IsDeveloperModeEnabled)
+                    or nameof(AppSettings.IsConsoleLoggingEnabled))
                 {
-                    case nameof(Models.Settings.AppSettings.IsAutoSaveEnabled)
-                        or nameof(Models.Settings.AppSettings.ContinuousSyncInterval):
-                        RefreshSettingsAutoSave();
-                        break;
-                    case nameof(Models.Settings.AppSettings.IsConsoleLoggingEnabled):
-                        if (AppSettings.IsConsoleLoggingEnabled)
-                        {
-                            WindowHelper.ShowConsole();
-                            Log.Logger = Log.Logger.Merge(ConsoleLogger);
-                        }
-                        else
-                        {
-                            WindowHelper.HideConsole();
-                            Log.Logger = FileLogger;
-                        }
-                        break;
+                    if (AppSettings.IsDeveloperModeEnabled
+                    && AppSettings.IsConsoleLoggingEnabled)
+                    {
+                        WindowHelper.ShowConsole();
+                        Log.Logger = Log.Logger.Merge(ConsoleLogger);
+                    }
+                    else
+                    {
+                        WindowHelper.HideConsole();
+                        Log.Logger = FileLogger;
+                    }
                 }
             };
 
