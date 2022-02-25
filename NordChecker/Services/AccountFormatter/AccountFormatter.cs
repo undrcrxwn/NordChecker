@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NordChecker.Models;
 using NordChecker.Shared;
+using Serilog;
 
 namespace NordChecker.Services.AccountFormatter
 {
@@ -22,33 +24,50 @@ namespace NordChecker.Services.AccountFormatter
         {
             return new List<Placeholder>
             {
-                new("email") {
-                    Aliases = new[] { "mail", "login", "m", "l" },
+                new("email")
+                {
+                    Aliases = new[] { "mail", "login", "e", "m", "l" },
                     Binding = x => x.Email
                 },
-                new("password") {
+                new("password")
+                {
                     Aliases = new[] { "pass", "p" },
                     Binding = x => x.Password
                 },
-                new("expiration") {
-                    Aliases = new[] { "expire", "exp", "e" },
+                new("proxy")
+                {
+                    Aliases = new[] { "ip" },
+                    Binding = x => x.Proxy?.ToString()
+                },
+                new("expiration")
+                {
+                    Aliases = new[] { "expire", "date", "time", "exp" },
                     Binding = x => x.ExpiresAt?.ToString("yyyy-MM-dd HH:mm:ss")
                 },
-                new("token") {
+                new("token")
+                {
                     Aliases = new[] { "t" },
                     Binding = x => x.Token
                 },
-                new("renew-token") {
-                    Aliases = new[] { "renew_token", "renew", "r" },
+                new("renew-token")
+                {
+                    Aliases = new[] { "r", "renew", "renew_token" },
                     Binding = x => x.RenewToken
                 },
-                new("state") {
-                    Aliases = new[] { "kind", "stage", "s" },
+                new("state")
+                {
+                    Aliases = new[] { "s", "type", "kind", "stage" },
                     Binding = x => x.State.ToString()
                 },
-                new("json") {
-                    Aliases = new[] { "info", "data", "raw", "serialized", "j" },
+                new("json")
+                {
+                    Aliases = new[] { "j", "raw", "info", "data", "serial", "serialized" },
                     Binding = x => JsonConvert.SerializeObject(x)
+                },
+                new("new-line")
+                {
+                    Aliases = new[] { "nl", "newline" },
+                    Binding = x => "\n"
                 }
             };
         }
@@ -57,7 +76,7 @@ namespace NordChecker.Services.AccountFormatter
         {
             BakeCurrentFormatSchemeIfNeeded();
 
-            StringBuilder builder = new(FormatScheme.Unescape());
+            StringBuilder builder = new(Regex.Unescape(FormatScheme));
             foreach (var placeholder in Placeholders)
             {
                 string value = placeholder.Binding(account);
@@ -79,8 +98,9 @@ namespace NordChecker.Services.AccountFormatter
             foreach (var placeholder in Placeholders)
             {
                 foreach (var alias in placeholder.Aliases)
-                    builder.Replace("{" + alias + "}", placeholder.Key);
+                    builder.Replace("{" + alias + "}", "{" + placeholder.Key + "}");
             }
+
             FormatScheme = builder.ToString();
             _BakedFormatSchemeHash = FormatScheme.GetHashCode();
         }
