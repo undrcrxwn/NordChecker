@@ -34,7 +34,7 @@ namespace NordChecker.Models
         public string Token { get; set; }
         public string RenewToken { get; set; }
         public int UserId { get; set; }
-        public DateTime ExpiresAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
         public Proxy Proxy { get; set; }
         
         [JsonIgnore]

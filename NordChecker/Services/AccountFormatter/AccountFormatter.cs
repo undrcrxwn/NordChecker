@@ -15,30 +15,47 @@ namespace NordChecker.Services.AccountFormatter
         public AccountFormatter(string formatScheme)
         {
             FormatScheme = formatScheme;
+            Placeholders = MakeDefaultPlaceholders();
+        }
 
-            Placeholders = new PlaceholderListBuilder()
-                .AddPlaceholder("email").KnownAs("mail", "login", "m", "l")
-                .BoundTo(x => x.Email ?? "<no-email>")
-                .AddPlaceholder("password").KnownAs("pass", "p")
-                .BoundTo(x => x.Password ?? "<no-password>")
-                .AddPlaceholder("proxy").KnownAs("ip")
-                .BoundTo(x => x.Proxy?.ToString() ?? "<no-proxy>")
-                .AddPlaceholder("expiration").KnownAs("expire", "exp", "e")
-                .BoundTo(x => x.ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss"))
-                .AddPlaceholder("token").KnownAs("t")
-                .BoundTo(x => x.Token ?? "<no-token>")
-                .AddPlaceholder("renew-token").KnownAs("renew token", "renewtoken", "renew", "r")
-                .BoundTo(x => x.RenewToken ?? "<no-renew-token>")
-                .AddPlaceholder("state").KnownAs("kind", "s")
-                .BoundTo(x => x.State.ToString())
-                .AddPlaceholder("json").KnownAs("info", "data", "raw", "serialized", "j")
-                .BoundTo(x => JsonConvert.SerializeObject(x))
-                .Build();
+        private static List<Placeholder> MakeDefaultPlaceholders()
+        {
+            return new List<Placeholder>
+            {
+                new("email") {
+                    Aliases = new[] { "mail", "login", "m", "l" },
+                    Binding = x => x.Email
+                },
+                new("password") {
+                    Aliases = new[] { "pass", "p" },
+                    Binding = x => x.Password
+                },
+                new("expiration") {
+                    Aliases = new[] { "expire", "exp", "e" },
+                    Binding = x => x.ExpiresAt?.ToString("yyyy-MM-dd HH:mm:ss")
+                },
+                new("token") {
+                    Aliases = new[] { "t" },
+                    Binding = x => x.Token
+                },
+                new("renew-token") {
+                    Aliases = new[] { "renew_token", "renew", "r" },
+                    Binding = x => x.RenewToken
+                },
+                new("state") {
+                    Aliases = new[] { "kind", "stage", "s" },
+                    Binding = x => x.State.ToString()
+                },
+                new("json") {
+                    Aliases = new[] { "info", "data", "raw", "serialized", "j" },
+                    Binding = x => JsonConvert.SerializeObject(x)
+                }
+            };
         }
 
         public string Format(Account account)
         {
-            BakeFormatSchemeIfNeeded();
+            BakeCurrentFormatSchemeIfNeeded();
 
             StringBuilder builder = new(FormatScheme.Unescape());
             foreach (var placeholder in Placeholders)
@@ -50,13 +67,13 @@ namespace NordChecker.Services.AccountFormatter
             return builder.ToString();
         }
 
-        public void BakeFormatSchemeIfNeeded()
+        private void BakeCurrentFormatSchemeIfNeeded()
         {
             if (FormatScheme.GetHashCode() != _BakedFormatSchemeHash)
-                BakeFormatScheme();
+                BakeCurrentFormatScheme();
         }
 
-        public void BakeFormatScheme()
+        private void BakeCurrentFormatScheme()
         {
             StringBuilder builder = new(FormatScheme);
             foreach (var placeholder in Placeholders)
@@ -65,7 +82,6 @@ namespace NordChecker.Services.AccountFormatter
                     builder.Replace("{" + alias + "}", placeholder.Key);
             }
             FormatScheme = builder.ToString();
-
             _BakedFormatSchemeHash = FormatScheme.GetHashCode();
         }
     }
