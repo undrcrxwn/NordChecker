@@ -56,7 +56,7 @@ namespace NordChecker.Models.Stats
                 .Set(ref _MismatchedCount, value, PropertyChanged);
         }
 
-        private ProxyStats()
+        public ProxyStats()
         {
             var dictionary = Enum.GetValues<ProxyType>().Reverse()
                 .ToDictionary(x => x, _ => 0);
