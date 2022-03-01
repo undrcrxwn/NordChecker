@@ -67,9 +67,7 @@ namespace NordChecker.ViewModels
         public AppSettings AppSettings { get; set; }
         public ExportSettings ExportSettings { get; set; }
         public ImportSettings ImportSettings { get; set; }
-        public ProxiesViewModel ProxiesViewModel { get; set; }
-
-
+        
         private ObservableCollection<Account> _Accounts;
         public ObservableCollection<Account> Accounts
         {
@@ -109,6 +107,8 @@ namespace NordChecker.ViewModels
             set => (this as INotifyPropertyChangedAdvanced)
                 .Set(ref _ComboArcs, value, PropertyChanged);
         }
+
+        private readonly ProxyArcsViewModel _ProxyArcsViewModel;
 
         public bool IsPipelineIdle => PipelineState == PipelineState.Idle;
         public bool IsPipelinePaused => PipelineState == PipelineState.Paused;
@@ -235,7 +235,7 @@ namespace NordChecker.ViewModels
             AppSettings appSettings,
             ExportSettings exportSettings,
             ImportSettings importSettings,
-            ProxiesViewModel proxiesViewModel)
+            ProxyArcsViewModel proxyArcsViewModel)
         {
             Storage = storage;
             Checker = checker;
@@ -247,7 +247,7 @@ namespace NordChecker.ViewModels
             AppSettings = appSettings;
             ExportSettings = exportSettings;
             ImportSettings = importSettings;
-            ProxiesViewModel = proxiesViewModel;
+            _ProxyArcsViewModel = proxyArcsViewModel;
 
             AccountParser = new AccountParser(ImportSettings.ComboRegexMask);
 
@@ -322,7 +322,6 @@ namespace NordChecker.ViewModels
                 .ObservesProperty(() => PipelineState);
 
             StopAndClearCombosCommand = new DelegateCommand(OnStopAndClearCombosCommandExecuted, CanExecuteStopAndClearCombosCommand);
-            LoadProxiesCommand = new DelegateCommand(OnLoadProxiesCommandExecuted);
             ExportCommand = new DelegateCommand(OnExportCommandExecuted, CanExecuteExportCommand)
                 .ObservesProperty(() => PipelineState)
                 .ObservesProperty(() => Accounts.Count);
@@ -361,7 +360,7 @@ namespace NordChecker.ViewModels
             {
                 while (true)
                 {
-                    ProxiesViewModel.Refresh();
+                    _ProxyArcsViewModel.Refresh();
                     UpdatePageDescription();
                     await Task.Delay(1000);
                 }

@@ -23,12 +23,12 @@ namespace NordChecker.Models.Stats
             set
             {
                 if (_ValidByType is not null)
-                    _ValidByType.CollectionChanged -= OnByStateCollectionChanged;
+                    _ValidByType.CollectionChanged -= OnValidByTypeCollectionChanged;
 
                 (this as INotifyPropertyChangedAdvanced)
                     .Set(ref _ValidByType, value, PropertyChanged);
 
-                _ValidByType.CollectionChanged += OnByStateCollectionChanged;
+                _ValidByType.CollectionChanged += OnValidByTypeCollectionChanged;
             }
         }
 
@@ -56,22 +56,37 @@ namespace NordChecker.Models.Stats
                 .Set(ref _MismatchedCount, value, PropertyChanged);
         }
 
-        public ProxyStats()
+        private ProxyStats()
         {
             var dictionary = Enum.GetValues<ProxyType>().Reverse()
-                .ToDictionary(key => key, value => 0);
+                .ToDictionary(x => x, _ => 0);
             ValidByType = new ObservableDictionary<ProxyType, int>(dictionary);
+        }
+
+        public void SynchronizeWith(Cyclic<Proxy> proxies)
+        {
+            lock (proxies)
+            {
+                foreach (ProxyType proxyType in Enum.GetValues(typeof(ProxyType)))
+                {
+                    ValidByType[proxyType] = proxies.FiniteCollection.Count(x =>
+                        x.State == ProxyState.Valid && x.Client.Type == proxyType);
+                }
+
+                InvalidCount = proxies.Count - ValidByType.Sum(x => x.Value);
+            }
         }
 
         public void Clear()
         {
-            ValidByType.ForEach(x => ValidByType[x.Key] = 0);
+            ValidByType.ForEach(x =>
+                ValidByType[x.Key] = 0);
             InvalidCount = 0;
             DuplicatesCount = 0;
             MismatchedCount = 0;
         }
 
-        private void OnByStateCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnValidByTypeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             (this as INotifyPropertyChangedAdvanced)
                 .OnPropertyChanged(PropertyChanged, nameof(ValidByType));

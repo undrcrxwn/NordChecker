@@ -5,7 +5,6 @@ namespace NordChecker.Models
 {
     public enum ProxyState
     {
-        Unused,
         Invalid,
         Valid
     }
@@ -13,7 +12,7 @@ namespace NordChecker.Models
     public class Proxy : IEquatable<Proxy>
     {
         public ProxyClient Client;
-        public ProxyState State = ProxyState.Unused;
+        public ProxyState State = ProxyState.Valid;
 
         public Proxy(ProxyClient client) => Client = client;
 

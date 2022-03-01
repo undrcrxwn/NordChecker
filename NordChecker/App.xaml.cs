@@ -150,7 +150,7 @@ namespace NordChecker
             registry.Register<ProxyParser>(x => new ProxyParser(ImportSettings.ProxyRegexMask));
 
             // ViewModels
-            registry.Register<ProxiesViewModel>();
+            registry.Register<ProxyArcsViewModel>();
             registry.Register<MainWindowViewModel>();
             registry.Register<MainPageViewModel>();
             registry.Register<ImportProxiesPageViewModel>();

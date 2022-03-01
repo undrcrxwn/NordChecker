@@ -8,20 +8,22 @@ namespace NordChecker.Shared.Collections
         private IEnumerator<T> _CyclicEnumerator;
         private readonly object _Locker = new();
 
-        private ICollection<T> _Items;
-        public ICollection<T> Items
+        private ICollection<T> _FiniteCollection;
+        public ICollection<T> FiniteCollection
         {
-            get => _Items;
+            get => _FiniteCollection;
             set
             {
-                _Items = value;
+                _FiniteCollection = value;
                 _CyclicEnumerator = GetEnumerator();
             }
         }
+
+        public Cyclic() : this(new List<T>()) { }
         
-        public Cyclic(ICollection<T> items = null)
+        public Cyclic(ICollection<T> items)
         {
-            Items = items ?? new List<T>();
+            FiniteCollection = items;
             _CyclicEnumerator = GetEnumerator();
         }
 
@@ -38,7 +40,7 @@ namespace NordChecker.Shared.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            var nativeEnumerator = Items.GetEnumerator();
+            using IEnumerator<T> nativeEnumerator = FiniteCollection.GetEnumerator();
             while (true)
             {
                 if (!nativeEnumerator.MoveNext())
@@ -53,12 +55,12 @@ namespace NordChecker.Shared.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public int Count => Items.Count;
-        public bool IsReadOnly => Items.IsReadOnly;
-        public void Add(T item) => Items.Add(item);
-        public void Clear() => Items.Clear();
-        public bool Contains(T item) => Items.Contains(item);
-        public void CopyTo(T[] array, int arrayIndex) => Items.CopyTo(array, arrayIndex);
-        public bool Remove(T item) => Items.Remove(item);
+        public int Count => FiniteCollection.Count;
+        public bool IsReadOnly => FiniteCollection.IsReadOnly;
+        public void Add(T item) => FiniteCollection.Add(item);
+        public void Clear() => FiniteCollection.Clear();
+        public bool Contains(T item) => FiniteCollection.Contains(item);
+        public void CopyTo(T[] array, int arrayIndex) => FiniteCollection.CopyTo(array, arrayIndex);
+        public bool Remove(T item) => FiniteCollection.Remove(item);
     }
 }
